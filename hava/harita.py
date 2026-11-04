@@ -24,6 +24,8 @@ ACIK, KOYU_STIL = pdk.map_styles.CARTO_LIGHT_NO_LABELS, pdk.map_styles.CARTO_DAR
 # deck.gl metin katmanı varsayılan olarak yalnızca ASCII yükler; "auto" karakterleri veriden toplar (Türkçe harfler).
 # Tırnaklı yazım, pydeck'in dizgiyi bir JS ifadesi sanmasını önler.
 KARAKTERLER = '"auto"'
+# pydeck'in varsayılanı "Monaco, monospace": eş aralıklı yazı geniş olduğu için şehir adları üst üste biniyordu.
+YAZI = '"IBM Plex Sans, Helvetica, Arial, sans-serif"'
 
 KATMANLAR = {
     "Sıcaklık + basınç": dict(
@@ -330,7 +332,7 @@ def harita(lats, lons, alan, izo, ok_b, ok_y, ayar, sev, renkler, konum, koyu):
         yollar, etiket = izobarlar(lats, lons, izo, ayar["aralik"])
         katman += [
             pdk.Layer("PathLayer", yollar, id="izobar", get_path="yol", get_color=on + [210], width_min_pixels=1.5),
-            pdk.Layer("TextLayer", character_set=KARAKTERLER, data=etiket, id="izobar_etiket", get_position="konum", get_text="metin", get_size=11,
+            pdk.Layer("TextLayer", character_set=KARAKTERLER, font_family=YAZI, data=etiket, id="izobar_etiket", get_position="konum", get_text="metin", get_size=11,
                       get_color=on + [255], background=True, get_background_color=arka + [210],
                       background_padding=[3, 1], font_weight=600),
         ]
@@ -338,10 +340,10 @@ def harita(lats, lons, alan, izo, ok_b, ok_y, ayar, sev, renkler, konum, koyu):
             # komşuluk ~2° olsun; ince ızgarada dağların yarattığı küçük basınç çukurları merkez sayılmasın
             m = basinc_merkezleri(lats, lons, izo, n=max(2, round(2 / dla)), fark=3.0)
             katman += [
-                pdk.Layer("TextLayer", character_set=KARAKTERLER, data=m, id="merkez", get_position="konum", get_text="harf", get_size=30,
+                pdk.Layer("TextLayer", character_set=KARAKTERLER, font_family=YAZI, data=m, id="merkez", get_position="konum", get_text="harf", get_size=30,
                           get_color="renk", font_weight=800, font_settings={"sdf": True}, outline_width=3,
                           outline_color=arka + [230]),
-                pdk.Layer("TextLayer", character_set=KARAKTERLER, data=m, id="merkez_deger", get_position="konum", get_text="deger", get_size=11,
+                pdk.Layer("TextLayer", character_set=KARAKTERLER, font_family=YAZI, data=m, id="merkez_deger", get_position="konum", get_text="deger", get_size=11,
                           get_color="renk", get_pixel_offset=[0, 21], font_weight=700, font_settings={"sdf": True},
                           outline_width=3, outline_color=arka + [230]),
             ]
@@ -350,8 +352,13 @@ def harita(lats, lons, alan, izo, ok_b, ok_y, ayar, sev, renkler, konum, koyu):
         katman.append(pdk.Layer("PathLayer", oklar(lats, lons, boy, ok_y, dla), id="ok", get_path="yol",
                                 get_color=on + [200], width_min_pixels=1.4))
 
-    sehir = etiketler(kapsam, onem_en_cok=1 if kapsam[1] - kapsam[0] > 30 else 2)
-    katman.append(pdk.Layer("TextLayer", character_set=KARAKTERLER, data=sehir, id="sehir", get_position="k", get_text="ad",
+    # Türkiye ölçeğinde (≈20°) ikinci derece şehirler de eklenince adlar birbirine giriyordu; geniş bölgede yalnızca
+    # büyük şehirler, "konumun çevresi" gibi dar bölgede ikinci derece şehirler de gösterilir.
+    sehir = etiketler(kapsam, onem_en_cok=1 if kapsam[1] - kapsam[0] > 12 else 2)
+    # konumun kırmızı etiketi zaten var; ona çok yakın şehir adları (Yomra'da "Trabzon") altında kalıp karışıyordu
+    sehir = [x for x in sehir if x["ad"] != konum["ad"]
+             and abs(x["k"][0] - konum["lon"]) + abs(x["k"][1] - konum["lat"]) > 0.6]
+    katman.append(pdk.Layer("TextLayer", character_set=KARAKTERLER, font_family=YAZI, data=sehir, id="sehir", get_position="k", get_text="ad",
                             get_size=12, get_color=on + [235], font_weight=600, font_settings={"sdf": True},
                             outline_width=4, outline_color=arka + [220], get_pixel_offset=[0, -9]))
     katman.append(pdk.Layer("ScatterplotLayer", sehir, id="sehir_nokta", get_position="k", get_radius=2.5,
@@ -368,7 +375,7 @@ def harita(lats, lons, alan, izo, ok_b, ok_y, ayar, sev, renkler, konum, koyu):
         pdk.Layer("ScatterplotLayer", [{"k": [konum["lon"], konum["lat"]]}], id="konum", get_position="k",
                   get_radius=6, radius_units='"pixels"', get_fill_color=[240, 62, 62], get_line_color=[255, 255, 255],
                   stroked=True, line_width_min_pixels=2),
-        pdk.Layer("TextLayer", character_set=KARAKTERLER, data=[{"k": [konum["lon"], konum["lat"]], "ad": konum["ad"]}], id="konum_ad",
+        pdk.Layer("TextLayer", character_set=KARAKTERLER, font_family=YAZI, data=[{"k": [konum["lon"], konum["lat"]], "ad": konum["ad"]}], id="konum_ad",
                   get_position="k", get_text="ad", get_size=13, get_pixel_offset=[0, -22], font_weight=700,
                   get_color=[255, 255, 255], background=True, get_background_color=[224, 49, 49, 235],
                   background_padding=[6, 3]),

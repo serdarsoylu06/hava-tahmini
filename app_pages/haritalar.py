@@ -11,13 +11,26 @@ tasarim.baslik("Atmosfer", "Tahmin haritaları",
                "Haritayı sürükle, yakınlaştır; bir noktanın üzerine gelince değerleri görünür. **Bir noktaya tıklarsan "
                "orası uygulamanın konumu olur.** Ayrıntılı seçim için bölgeyi \"Konumun çevresi\" yap.", "atmosfer")
 
-kat = st.segmented_control("Katman", list(harita.KATMANLAR), default="Sıcaklık + basınç", key="h_kat") \
-      or "Sıcaklık + basınç"
+# Araç çubuğu: katman seçimi açılır panelde (sekiz düğme dar ekranda iki-üç satıra yayılıyordu), yanında bölge,
+# "neye bakmalı?" rehberi ve oynat düğmesi.
+KATMAN_IKON = {"Sıcaklık + basınç": "thermostat", "Yağış + basınç": "rainy", "Rüzgâr hamleleri": "air",
+               "Bulutluluk": "cloud", "Dalga yüksekliği": "waves", "Deniz suyu sıcaklığı": "pool",
+               "850 hPa sıcaklık (~1,5 km)": "landscape", "500 hPa yükseklik (~5,5 km)": "filter_hdr"}
+if st.session_state.get("h_kat") not in harita.KATMANLAR:
+    st.session_state.h_kat = "Sıcaklık + basınç"
+kat = st.session_state.h_kat
 ayar = harita.KATMANLAR[kat]
 turkiyede = 35 <= k["lat"] <= 43 and 25 <= k["lon"] <= 46
-c1, c2 = st.columns([1, 3], vertical_alignment="bottom")
-bolge = c1.selectbox("Bölge", list(harita.BOLGELER), index=0 if turkiyede else 1, key="h_bolge")
-oynat = c2.toggle("Oynat", key="h_oynat", help="Haritayı 3 saatlik adımlarla ilerletir.")
+with st.container(horizontal=True, vertical_alignment="bottom", gap="small", key="harita_arac"):
+    with st.popover(kat, icon=f":material/{KATMAN_IKON.get(kat, 'layers')}:", help="Haritada gösterilecek katman"):
+        st.radio("Katman", list(harita.KATMANLAR), key="h_kat",
+                 format_func=lambda x: f":material/{KATMAN_IKON.get(x, 'layers')}: {x}")
+    bolge = st.selectbox("Bölge", list(harita.BOLGELER), index=0 if turkiyede else 1, key="h_bolge",
+                         label_visibility="collapsed", width=200)
+    with st.popover("Neye bakmalı?", icon=":material/visibility:"):
+        for madde in ayar["bak"]:
+            st.markdown(f"- {madde}")
+    oynat = st.toggle("Oynat", key="h_oynat", help="Haritayı 3 saatlik adımlarla ilerletir.")
 
 (la0, la1, dla), (lo0, lo1, dlo) = harita.bolge_izgarasi(bolge, k["lat"], k["lon"])
 lats, lons = np.arange(la0, la1 + 0.01, dla), np.arange(lo0, lo1 + 0.01, dlo)
@@ -69,20 +82,14 @@ def harita_alani():
         st.session_state.h_saat = adimlar[(adimlar.index(st.session_state.h_saat) + 1) % len(adimlar)]
     saat = st.select_slider("Tahmin zamanı (Türkiye saati)", options=adimlar, key="h_saat",
                             format_func=lambda i: zaman_yaz(zaman[i]))
-    sol, sag = st.columns([3, 1.05], gap="medium")
-    with sol:
-        st.pydeck_chart(harita.harita(lats, lons, ALAN[..., saat], sec(IZO, saat), sec(OK_B, saat),
-                                      sec(OK_Y, saat), ayar, sev, renkler, k, koyu),
-                        height=600, on_select=tiklandi, selection_mode="single-object", key="harita_sec",
-                        alt=f"{kat} haritası, {zaman[saat]:%d.%m %H:%M}")
-        st.image(harita.cetvel(list(sev), renkler, ayar["birim"]), width="content", alt="Renk ölçeği")
-    with sag:
-        with st.container(border=True):
-            st.markdown("**:material/visibility: Bu haritada neye bakmalı?**")
-            for madde in ayar["bak"]:
-                st.markdown(f"- {madde}")
-        st.caption(f"Model ızgarası {dla}° aralıklı ({LA.size} nokta); yumuşatılarak çizildi. Bölge değişince veri "
-                   "yeniden indirilir, sonra 1 saat önbellekte kalır.")
+    # harita tam genişlikte: yan sütundaki rehber dar ekranda haritayı ve kendini sıkıştırıyordu (artık araç çubuğunda)
+    st.pydeck_chart(harita.harita(lats, lons, ALAN[..., saat], sec(IZO, saat), sec(OK_B, saat),
+                                  sec(OK_Y, saat), ayar, sev, renkler, k, koyu),
+                    height=600, on_select=tiklandi, selection_mode="single-object", key="harita_sec",
+                    alt=f"{kat} haritası, {zaman[saat]:%d.%m %H:%M}")
+    st.image(harita.cetvel(list(sev), renkler, ayar["birim"]), width="content", alt="Renk ölçeği")
+    st.caption(f"Model ızgarası {dla}° aralıklı ({LA.size} nokta); yumuşatılarak çizildi. Bölge değişince veri "
+               "yeniden indirilir, sonra 1 saat önbellekte kalır.")
 
 
 harita_alani()

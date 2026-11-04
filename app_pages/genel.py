@@ -35,7 +35,7 @@ with sag, st.container(key="kartlar_genel"):
     son3 = saatlik.pressure_msl.loc[:an].tail(4)
     egilim = son3.iloc[-1] - son3.iloc[0] if len(son3) > 1 else 0
     fark = simdi["temperature_2m"] - simdi["dew_point_2m"]
-    m = st.columns(3)
+    m = st.columns(6)          # tek satır: CSS üçerli ya da ikişerli sarar
     m[0].metric("Rüzgâr", f"{simdi['wind_speed_10m']:.0f} km/s", f"{yon_adi(simdi['wind_direction_10m'])} yönünden",
                 delta_color="off", delta_arrow="off",
                 help="Rüzgâr adı, **geldiği** yöne göre verilir: poyraz kuzeydoğudan, lodos güneybatıdan eser.")
@@ -49,18 +49,17 @@ with sag, st.container(key="kartlar_genel"):
                 help=f"Sıcaklık ile çiy noktası arasındaki fark {fark:.1f}°. Fark 2°'nin altına inerse "
                      "hava doymaya yakındır: sis, çisenti veya alçak bulut beklenir. Konfor için çiy noktası "
                      "daha iyi ölçüttür; 18° üstü bunaltıcıdır.")
-    m = st.columns(3)
-    m[0].metric("Basınç", f"{simdi['pressure_msl']:.0f} hPa", f"{egilim:+.1f} hPa / 3 saat", delta_color="off",
+    m[3].metric("Basınç", f"{simdi['pressure_msl']:.0f} hPa", f"{egilim:+.1f} hPa / 3 saat", delta_color="off",
                 chart_data=saatlik.pressure_msl.loc[an - pd.Timedelta(hours=12): an + pd.Timedelta(hours=24)].round(1).tolist(),
                 chart_type="line",
                 help="Deniz seviyesine indirgenmiş basınç. Tek başına değeri değil **eğilimi** önemlidir: "
                      "3 saatte 3 hPa'dan fazla düşüş kötüleşen havanın en güvenilir habercisidir. Çizgi: son 12 ve "
                      "önümüzdeki 24 saat.")
-    m[1].metric("UV indeksi", f"{simdi['uv_index']:.0f}", f"bugün en fazla {bugun.uv_index_max:.0f}",
+    m[4].metric("UV indeksi", f"{simdi['uv_index']:.0f}", f"bugün en fazla {bugun.uv_index_max:.0f}",
                 delta_color="off", delta_arrow="off",
                 help="0–2 düşük, 3–5 orta, 6–7 yüksek, 8–10 çok yüksek, 11+ aşırı. 3 ve üstünde öğle "
                      "saatlerinde güneş koruması önerilir.")
-    m[2].metric("Görüş", f"{simdi['visibility'] / 1000:.0f} km", f"bulut %{simdi['cloud_cover']:.0f}",
+    m[5].metric("Görüş", f"{simdi['visibility'] / 1000:.0f} km", f"bulut %{simdi['cloud_cover']:.0f}",
                 delta_color="off", delta_arrow="off",
                 help="1 km altı sis, 1–5 km pus/puslu hava sayılır. Model görüşü kaba bir tahmindir.")
 
@@ -81,9 +80,10 @@ with sol:
     st.caption("Turuncu eğri sıcaklık, mavi çubuklar yağış olasılığıdır. Saatin üzerine gel: ayrıntılar açılır.")
 with sag:
     tasarim.bolum("03", "10 günlük tahmin")
-    st.altair_chart(grafik.on_gun(gunluk, guven, koyu), alt="10 günlük en düşük ve en yüksek sıcaklıklar")
+    tasarim.on_gun_listesi(gunluk, guven)
     st.caption("Çubuk o günün en düşük–en yüksek sıcaklık aralığıdır; renk sıcaklığa göre maviden kırmızıya "
-               "döner. Bir güne gel: rüzgâr, UV ve **tahmin güveni** görünür.")
+               "döner. Mavi yüzde, %20 ve üstü yağış olasılığıdır. Bir güne gel: rüzgâr, UV ve **tahmin güveni** "
+               "görünür; tümü aşağıdaki tabloda.")
 
 with st.expander("Günlük ayrıntı tablosu", icon=":material/table_view:"):
     t = gunluk.reset_index()
