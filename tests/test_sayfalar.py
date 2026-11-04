@@ -15,7 +15,7 @@ from streamlit.testing.v1 import AppTest
 
 KOK = Path(__file__).resolve().parent.parent
 UYGULAMA = str(KOK / "hava_lab.py")
-SAYFALAR = ["genel", "meteogram", "modeller", "ansambl", "dogrulama", "balikcilik", "canli", "haritalar",
+SAYFALAR = ["genel", "meteogram", "modeller", "ansambl", "dogrulama", "iklim", "balikcilik", "canli", "haritalar",
             "profil", "ogren"]
 KONUMLAR = {
     "Ankara (iç kesim)": {"yer": "Ankara"},

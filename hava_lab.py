@@ -21,6 +21,7 @@ sayfa = st.navigation({
         st.Page("app_pages/modeller.py", title="Modeller", icon=":material/compare_arrows:"),
         st.Page("app_pages/ansambl.py", title="Ansambl", icon=":material/stacked_line_chart:"),
         st.Page("app_pages/dogrulama.py", title="Tahmin doğrulaması", icon=":material/fact_check:"),
+        st.Page("app_pages/iklim.py", title="İklim ve geçmiş", icon=":material/history:"),
     ],
     "Deniz": [st.Page("app_pages/balikcilik.py", title="Balıkçılık ve deniz", icon=":material/sailing:")],
     "Atmosfer": [

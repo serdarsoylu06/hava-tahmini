@@ -3,6 +3,7 @@ import streamlit as st
 
 from hava import grafik
 from hava.arayuz import okuma_rehberi
+from hava.olcum import en_yakin_olcum
 from hava.veri import getir, konum, tablo
 
 ONCEKI = "https://previous-runs-api.open-meteo.com/v1/forecast"
@@ -16,14 +17,45 @@ st.header("Tahmin ne kadar tuttu?", anchor=False)
 st.caption("Son bir haftada gerçekleşen değerleri, aynı saatler için 1–7 gün önce yapılmış tahminlerle karşılaştırır. "
            "Tahminin ne kadar ileriye güvenilebileceğini en iyi bu öğretir.")
 
-ad = st.segmented_control("Değişken", list(DEGISKENLER), default="Sıcaklık", key="dog_deg") or "Sıcaklık"
+c1, c2 = st.columns([1.3, 1], vertical_alignment="bottom")
+ad = c1.segmented_control("Değişken", list(DEGISKENLER), default="Sıcaklık", key="dog_deg") or "Sıcaklık"
+kaynak = c2.segmented_control("Neyle karşılaştırılsın?", ["İstasyon ölçümü", "Model analizi"],
+                              default="İstasyon ölçümü", key="dog_kaynak",
+                              help="İstasyon ölçümü: en yakın havalimanı meteoroloji istasyonunun gerçek ölçümleri "
+                                   "(METAR). Model analizi: modelin gözlemlerle düzeltilmiş en iyi tahmini.") \
+         or "İstasyon ölçümü"
 var, birim, tolerans = DEGISKENLER[ad]
-js = getir(ONCEKI, {"latitude": k["lat"], "longitude": k["lon"], "past_days": 7, "forecast_days": 1,
+
+istasyon = olc = None
+if kaynak == "İstasyon ölçümü":
+    if var == "precipitation":
+        st.info("Havalimanı raporları (METAR) yağış miktarı içermez; yağış için model analiziyle karşılaştırılıyor.",
+                icon=":material/info:")
+    else:
+        istasyon, olc = en_yakin_olcum(k["lat"], k["lon"], k["tz"])
+        if istasyon is None or olc[var].dropna().empty:
+            st.warning("120 km içinde ölçümüne ulaşılabilen bir havalimanı istasyonu yok; model analiziyle "
+                       "karşılaştırılıyor.", icon=":material/location_off:")
+            istasyon = None
+
+# tahminler istasyon varsa istasyonun konumu için istenir (karşılaştırılan nokta aynı olsun)
+nokta = istasyon or k
+js = getir(ONCEKI, {"latitude": nokta["lat"], "longitude": nokta["lon"], "past_days": 7, "forecast_days": 1,
                     "timezone": k["tz"],
                     "hourly": ",".join([var] + [f"{var}_previous_day{g}" for g in GUNLER])})
 df = tablo(js["hourly"])
 simdi = pd.Timestamp.now(tz=None if k["tz"] == "auto" else k["tz"]).tz_localize(None).floor("h")
-df = df[df.index < simdi].dropna(subset=[var])
+df = df[df.index < simdi]
+gercek_ad = "Gerçekleşen (model analizi)"
+if istasyon:
+    df["analiz"] = df[var]
+    df[var] = olc[var].reindex(df.index)
+    kod = istasyon["icao"].split(":")[0]               # örnek veri modunda kimlik koordinat da taşır
+    gercek_ad = f"Ölçüm: {kod}"
+    st.success(f"**{istasyon['ad']}** ({kod}) istasyonunun ölçümleri kullanılıyor: konumuna "
+               f"{istasyon['km']:.0f} km, rakımı {istasyon['rakim'] or '?'} m. Tahminler de bu istasyonun koordinatı için "
+               "alındı.", icon=":material/sensors:")
+df = df.dropna(subset=[var])
 
 if var == "precipitation":
     # saatlik yağışı karşılaştırmak yanıltıcı (zamanlama kayması "çifte hata" sayılır): günlük toplamlara bakılır
@@ -39,7 +71,7 @@ for g in GUNLER:
     satir.append({"gun": g, "mae": hata.abs().mean(), "sapma": hata.mean(), "isabet": (hata.abs() <= esik).mean() * 100})
 ozet = pd.DataFrame(satir).set_index("gun")
 
-m = st.columns(3)
+m = st.columns(4 if istasyon else 3)
 m[0].metric("1 gün önceki tahminin hatası", f"± {ozet.mae.iloc[0]:.1f} {birim}", border=True,
             help="Ortalama mutlak hata: tahmin ile gerçekleşen arasındaki farkın ortalama büyüklüğü.")
 m[1].metric("7 gün önceki tahminin hatası", f"± {ozet.mae.iloc[-1]:.1f} {birim}",
@@ -47,6 +79,13 @@ m[1].metric("7 gün önceki tahminin hatası", f"± {ozet.mae.iloc[-1]:.1f} {bir
 s1 = ozet.sapma.iloc[0]
 m[2].metric("Sistematik sapma (1 gün)", f"{s1:+.1f} {birim}", border=True,
             help="Hataların ortalaması. Artı: model gerçekleşenden yüksek tahmin etmiş; eksi: düşük.")
+if istasyon:
+    temsil = (df.analiz - df[var]).dropna()
+    m[3].metric("Model analizi ile ölçüm farkı", f"± {temsil.abs().mean():.1f} {birim}", f"sapma {temsil.mean():+.1f}",
+                delta_color="off", delta_arrow="off", border=True,
+                help="Modelin \"şimdi\" için en iyi tahmini bile istasyondan farklıdır: model bir ızgara karesinin "
+                     "ortalamasını, termometre tek bir noktayı ölçer. Buna temsil hatası denir; tahmin hatasının "
+                     "inebileceği bir alt sınır gibidir.")
 
 sol, sag = st.columns([1.6, 1], gap="large")
 with sol:
@@ -55,7 +94,10 @@ with sol:
                      default=["1 gün önce", "3 gün önce", "6 gün önce"], key="dog_gun",
                      label_visibility="collapsed")
     tahminler = {f"{var}_previous_day{int(s.split()[0])}": f"{s} yapılan" for s in secim}
-    st.altair_chart(grafik.dogrulama_cizgisi(df, var, tahminler, f"{ad} ({birim})", bar=var == "precipitation"),
+    if istasyon:
+        tahminler = {"analiz": "Model analizi"} | tahminler
+    st.altair_chart(grafik.dogrulama_cizgisi(df, var, tahminler, f"{ad} ({birim})", bar=var == "precipitation",
+                                             gercek_ad=gercek_ad),
                     alt="Gerçekleşen ve tahmin edilen değerler")
 with sag:
     st.markdown("**Tahmin ne kadar önceden yapılırsa hata o kadar büyür**")
@@ -77,9 +119,13 @@ if not iska.dropna().empty and iska.max() > 0:
             "hatanın nedenini anlamanın en iyi yoludur.", icon=":material/target:")
 
 okuma_rehberi([
-    ("Gerçekleşen değer nereden geliyor?", "Burada \"gerçekleşen\", modelin o saat için yaptığı en güncel analizdir: "
-     "gözlemlerle düzeltilmiş en iyi tahmin. İstasyon ölçümü değildir; vadiler, kıyılar ve şehir içi gibi yerel "
-     "etkiler nedeniyle termometrenin gösterdiği değer birkaç derece farklı olabilir."),
+    ("Gerçekleşen değer nereden geliyor?", "**İstasyon ölçümü**, en yakın havalimanının meteoroloji istasyonunun "
+     "yarım saatte bir yayımladığı METAR raporlarıdır (NOAA Aviation Weather Center üzerinden): gerçek termometre, "
+     "anemometre ve barometre ölçümü. Sıcaklık tam sayı derece raporlanır, yani ±0,5 °C yuvarlama içerir. **Model "
+     "analizi** ise modelin o saat için gözlemlerle düzeltilmiş en iyi tahminidir; bir ızgara karesinin ortalamasıdır."),
+    ("İstasyon ile model neden hiç tam tutmaz?", "Model 9–25 km'lik bir karenin ortalamasını hesaplar; istasyon tek bir "
+     "noktayı ölçer. Havalimanları çoğunlukla düz, açık yerlerdedir; kıyıda, vadide ya da şehrin içinde fark büyür. "
+     "\"Model analizi ile ölçüm farkı\" bu temsil hatasıdır: en iyi tahmin bile bunun altına inemez."),
     ("Ortalama mutlak hata", "Hataların büyüklüğünün ortalamasıdır (işaretine bakmadan). Sıcaklıkta 1 günlük tahmin için "
      "1–2 °C iyi bir değerdir."),
     ("Sistematik sapma", "Hataların işaretli ortalaması. Sıfırdan uzaksa model bu konumda sürekli aynı yönde yanılıyordur; "

@@ -485,13 +485,13 @@ def basit_seri(s: pd.Series, baslik, birim, renk, sifir=False):
 
 
 # ----------------------------------------------------------------- tahmin doğrulaması
-def dogrulama_cizgisi(df, gercek, tahminler, birim, bar=False):
+def dogrulama_cizgisi(df, gercek, tahminler, birim, bar=False, gercek_ad="Gerçekleşen"):
     """Gerçekleşen (kalın) ve farklı günler önce yapılmış tahminler (ince) aynı grafikte."""
-    sutunlar = {gercek: "Gerçekleşen"} | tahminler
+    sutunlar = {gercek: gercek_ad} | tahminler
     d = df[list(sutunlar)].reset_index().melt(id_vars="time", var_name="kod", value_name="deger")
     d["seri"] = d.kod.map(sutunlar)
     adlar = list(sutunlar.values())
-    renkler = ["#212529", "#1C7ED6", "#F08C00", "#E03131", "#7048E8"][:len(adlar)]
+    renkler = ["#212529", "#1C7ED6", "#F08C00", "#E03131", "#7048E8", "#12B886", "#868E96", "#E64980"][:len(adlar)]
     hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False, clear="pointerout")
     genis = df[list(sutunlar)].rename(columns=sutunlar).reset_index()
     genis.columns = ["time"] + [f"s{i}" for i in range(len(adlar))]
@@ -503,7 +503,7 @@ def dogrulama_cizgisi(df, gercek, tahminler, birim, bar=False):
         x, alt.Y("deger:Q", title=birim, scale=alt.Scale(zero=bar)),
         alt.Color("seri:N", title="Tıkla: vurgula", scale=alt.Scale(domain=adlar, range=renkler),
                   legend=alt.Legend(orient="top")),
-        strokeWidth=alt.condition(alt.datum.seri == "Gerçekleşen", alt.value(3), alt.value(1.6)),
+        strokeWidth=alt.condition(alt.datum.seri == gercek_ad, alt.value(3), alt.value(1.6)),
         opacity=alt.condition(secim, alt.value(1), alt.value(0.12)),
     ).add_params(secim)
     return alt.layer(
@@ -526,4 +526,86 @@ def hata_cubugu(ozet, birim):
                      alt.Tooltip("isabet:Q", title=f"İsabet oranı %", format=".0f")]),
         alt.Chart(d).mark_text(dy=-8, fontSize=12, fontWeight=600, color=GRI).encode(
             x="gun:O", y="mae:Q", text=alt.Text("mae:Q", format=".1f")),
+    ).properties(height=260)
+
+
+# ----------------------------------------------------------------- iklim ve geçmiş
+SERIT = ["#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF", "#DEEBF7",
+         "#FEE0D2", "#FCBBA1", "#FC9272", "#FB6A4A", "#EF3B2C", "#CB181D", "#A50F15", "#67000D"]
+
+
+def normal_bandi(d, bugun):
+    """Son günler ve önümüzdeki 10 gün: gerçekleşen/tahmin en yüksek sıcaklık, 1991–2020 normal bandı içinde."""
+    d = d.reset_index()
+    d["tur"] = np.where(d.time > bugun, "Tahmin", "Gerçekleşen")
+    d["sapma"] = d.temperature_2m_max - d.max_ort
+    x = alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount=10))
+    ipucu = [alt.Tooltip("time:T", title="Gün", format="%d.%m.%Y"), alt.Tooltip("tur:N", title=""),
+             alt.Tooltip("temperature_2m_max:Q", title="En yüksek °C", format=".1f"),
+             alt.Tooltip("max_ort:Q", title="Normali °C", format=".1f"),
+             alt.Tooltip("sapma:Q", title="Normalden fark °C", format="+.1f"),
+             alt.Tooltip("max_p10:Q", title="Normal aralık alt (%10)", format=".1f"),
+             alt.Tooltip("max_p90:Q", title="Normal aralık üst (%90)", format=".1f")]
+    return alt.layer(
+        alt.Chart(d).mark_area(color=GRI, opacity=0.2).encode(x, y=alt.Y("max_p10:Q", title="En yüksek sıcaklık (°C)",
+                                                                           scale=alt.Scale(zero=False)), y2="max_p90:Q"),
+        alt.Chart(d).mark_line(color=GRI, strokeDash=[4, 3]).encode(x, y="max_ort:Q"),
+        alt.Chart(d).mark_rule(color=GRI, opacity=0.6).encode(x, y="max_ort:Q", y2="temperature_2m_max:Q"),
+        alt.Chart(d).mark_line(color=KIRMIZI, strokeWidth=2.5, point=alt.OverlayMarkDef(size=36, filled=True)).encode(
+            x, y="temperature_2m_max:Q",
+            strokeDash=alt.StrokeDash("tur:N", title=None, legend=alt.Legend(orient="top"),
+                                      scale=alt.Scale(domain=["Gerçekleşen", "Tahmin"], range=[[1, 0], [5, 3]])),
+            tooltip=ipucu),
+        alt.Chart(pd.DataFrame({"t": [bugun]})).mark_rule(color=MAVI, strokeWidth=1.5).encode(x="t:T"),
+    ).properties(height=320)
+
+
+def ayni_gun_grafigi(g, bu_yil_deger, tarih_metni):
+    """Her yıl aynı takvim gününün en yüksek sıcaklığı; eğilim çizgisi ve bu yılın değeri."""
+    egim, kesim = np.polyfit(g.yil, g["max"], 1)
+    g = g.assign(egilim=kesim + egim * g.yil, sapma=g["max"] - g["max"].mean())
+    rekor = g.loc[g["max"].idxmax()]
+    x = alt.X("yil:O", title=None, axis=alt.Axis(labelAngle=-90, values=[y for y in g.yil if y % 5 == 0]))
+    katman = [
+        alt.Chart(g).mark_bar(cornerRadiusTopLeft=2, cornerRadiusTopRight=2).encode(
+            x, alt.Y("max:Q", title=f"{tarih_metni} en yüksek (°C)", scale=alt.Scale(zero=False)),
+            color=alt.Color("sapma:Q", legend=None, scale=alt.Scale(scheme="redblue", reverse=True, domainMid=0)),
+            tooltip=[alt.Tooltip("yil:O", title="Yıl"), alt.Tooltip("max:Q", title="En yüksek °C", format=".1f"),
+                     alt.Tooltip("min:Q", title="En düşük °C", format=".1f")]),
+        alt.Chart(g).mark_line(color="#212529", strokeDash=[5, 3], strokeWidth=1.5).encode(x, y="egilim:Q"),
+        alt.Chart(pd.DataFrame([rekor])).mark_text(dy=-10, fontSize=11, fontWeight=600, color=KIRMIZI).encode(
+            x, y="max:Q", text=alt.value("rekor")),
+    ]
+    if bu_yil_deger is not None:
+        b = pd.DataFrame({"yil": [g.yil.max() + 1], "max": [bu_yil_deger]})
+        katman.append(alt.Chart(b).mark_point(shape="diamond", size=140, filled=True, color=TURUNCU).encode(
+            alt.X("yil:O"), y="max:Q", tooltip=[alt.Tooltip("max:Q", title="Bu yıl (tahmin) °C", format=".1f")]))
+    return alt.layer(*katman).properties(height=280), egim * 10
+
+
+def isinma_seritleri(y):
+    """Isınma şeritleri: her yıl bir şerit, renk o yılın ortalamasının 1991–2020 normalinden farkı."""
+    d = y.reset_index().rename(columns={"time": "yil", "index": "yil"})
+    d.columns = ["yil"] + list(d.columns[1:])
+    sinir = max(1.0, d.sapma.abs().max())
+    return alt.Chart(d).mark_rect().encode(
+        alt.X("yil:O", title=None, axis=alt.Axis(labelAngle=0, values=[d.yil.min(), d.yil.max()], ticks=False,
+                                                  domain=False)),
+        color=alt.Color("sapma:Q", legend=None, scale=alt.Scale(domain=[-sinir, sinir], range=SERIT)),
+        tooltip=[alt.Tooltip("yil:O", title="Yıl"), alt.Tooltip("ort:Q", title="Yıllık ortalama °C", format=".2f"),
+                 alt.Tooltip("sapma:Q", title="Normalden fark °C", format="+.2f")],
+    ).properties(height=110)
+
+
+def aylik_yagis_grafigi(a, ay_adlari):
+    d = a.reset_index().melt(id_vars="ay", var_name="seri", value_name="mm")
+    d["seri"] = d.seri.map({"normal": "Normal (1991–2020)", "bu_yil": "Bu yıl"})
+    d["ay_ad"] = d.ay.map(dict(enumerate(ay_adlari, 1)))
+    return alt.Chart(d).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+        alt.X("ay_ad:N", sort=ay_adlari, title=None, axis=alt.Axis(labelAngle=0)),
+        alt.Y("mm:Q", title="Aylık yağış (mm)"), xOffset=alt.XOffset("seri:N", sort=["Normal (1991–2020)", "Bu yıl"]),
+        color=alt.Color("seri:N", title=None, legend=alt.Legend(orient="top"),
+                        scale=alt.Scale(domain=["Normal (1991–2020)", "Bu yıl"], range=["#ADB5BD", MAVI])),
+        tooltip=[alt.Tooltip("ay_ad:N", title="Ay"), alt.Tooltip("seri:N", title=""),
+                 alt.Tooltip("mm:Q", title="mm", format=".0f")],
     ).properties(height=260)

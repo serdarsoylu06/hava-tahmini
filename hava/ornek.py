@@ -210,6 +210,7 @@ def _tahmin(params, lat, lon):
             "temperature_2m_min": g.temperature_2m.min(), "precipitation_sum": g.precipitation.sum(),
             "precipitation_probability_max": g.precipitation_probability.max(), "snowfall_sum": g.snowfall.sum(),
             "wind_gusts_10m_max": g.wind_gusts_10m.max(), "uv_index_max": g.uv_index.max(),
+            "temperature_2m_mean": g.temperature_2m.mean(),
             "wind_direction_10m_dominant": g.wind_direction_10m.median(),
             "sunrise": pd.Series([(t + pd.Timedelta(hours=7, minutes=10 + i)).strftime("%Y-%m-%dT%H:%M")
                                   for i, t in enumerate(gunler)], index=gunler),
@@ -288,6 +289,27 @@ def _deniz(params, lat, lon):
     return js | {"hourly": h | {ad: _temiz(deger[ad]) if ad in deger else bos for ad in adlar}}
 
 
+def _arsiv(params, lat, lon):
+    """1991'den bu yana günlük iklim: mevsim döngüsü + yıllar arası değişkenlik + ~0,4 °C/10 yıl ısınma."""
+    gunler = pd.date_range(params["start_date"], params["end_date"], freq="D")
+    rakim = _rakim(lat, lon)
+    r = _rng("arsiv", round(lat, 1), round(lon, 1))
+    yil = gunler.year.to_numpy() + gunler.dayofyear.to_numpy() / 365
+    doy = gunler.dayofyear.to_numpy()
+    denizel = 0.6 if any(abs(v["enlem"] - lat) < 0.3 and abs(v["boylam"] - lon) < 0.3 and v["rakim"] is not None
+                         and v["rakim"] < 60 for v in yerlesimler().values()) else 1.0
+    ort = 20.5 - 0.75 * (lat - 34) - 6.5 * rakim / 1000 + 9.5 * denizel * np.sin(2 * np.pi * (doy - 110) / 365)
+    oynama = np.convolve(r.normal(0, 1.6, len(gunler) + 9), np.ones(10) / 10 * 2.4, "valid")    # günler arası
+    yillar = {y: r.normal(0, 0.45) for y in range(1940, 2040)}                                   # yıldan yıla
+    ort = ort + oynama + np.array([yillar[y] for y in gunler.year]) + 0.04 * (yil - 1991)
+    yarim = (4.5 + 2 * (1 - denizel)) * (1 + 0.2 * np.sin(2 * np.pi * (doy - 110) / 365))
+    kis = 0.5 + 0.5 * np.cos(2 * np.pi * (doy - 15) / 365)                                       # kışın yağışlı
+    yagis = np.where(r.random(len(gunler)) < 0.18 + 0.22 * kis, r.gamma(0.9, 6 + 6 * kis), 0)
+    return _ust(lat, lon, "Europe/Istanbul", rakim) | {"daily": {
+        "time": [t.strftime("%Y-%m-%d") for t in gunler], "temperature_2m_max": _temiz(ort + yarim, 1),
+        "temperature_2m_min": _temiz(ort - yarim, 1), "precipitation_sum": _temiz(yagis, 1)}}
+
+
 def _ara(params):
     ad = str(params.get("name", "")).strip().lower()
     y = [v for v in yerlesimler().values() if ad and v["ad"].lower().startswith(ad)][: int(params.get("count", 6))]
@@ -296,12 +318,39 @@ def _ara(params):
                          "country": "Türkiye" if v["turkiye"] else None} for v in y]}
 
 
+def _istasyon(params):
+    """Kutunun ortasının yakınına tek bir sentetik havalimanı istasyonu koyar. Kimliği koordinatını taşır
+    ("ORNK:enlem:boylam"), böylece METAR üreticisi istasyonun yerini bilir."""
+    la0, lo0, la1, lo1 = _liste(params["bbox"])
+    lat, lon = round((la0 + la1) / 2 + 0.08, 3), round((lo0 + lo1) / 2 - 0.12, 3)
+    return [{"icaoId": f"ORNK:{lat}:{lon}", "site": "Örnek Havalimanı", "lat": lat, "lon": lon,
+             "elev": int(_rakim(lat, lon)), "siteType": ["METAR", "TAF"], "country": "TR"}]
+
+
+def _metar(params):
+    """Son 7 günün yarım saatlik sentetik METAR raporları: model alanına küçük bir temsil farkı eklenir ve
+    gerçek METAR gibi tam sayıya yuvarlanır."""
+    _, lat, lon = str(params["ids"]).split(":")
+    lat, lon = float(lat), float(lon)
+    simdi = pd.Timestamp.now(tz="UTC").floor("30min").tz_localize(None)
+    zaman = pd.date_range(simdi - pd.Timedelta(hours=int(params.get("hours", 168))), simdi, freq="30min")
+    a = nokta(lat, lon, zaman, simdi.normalize() - pd.Timedelta(days=1))
+    r = _rng("metar", round(lat, 2), round(lon, 2))
+    T = a["temperature_2m"] - 0.8 + r.normal(0, 0.7, len(zaman))
+    return [{"icaoId": params["ids"], "reportTime": t.strftime("%Y-%m-%dT%H:%M:00.000Z"), "temp": round(float(T[i])),
+             "dewp": round(float(min(a["dew_point_2m"][i] - 0.5, T[i]))), "wdir": int(a["_yon"][i] // 10 * 10),
+             "wspd": round(float(a["_hiz"][i] / 1.852 * 0.85)), "wgst": None,
+             "altim": round(float(a["pressure_msl"][i] + r.normal(0, 0.4)))} for i, t in enumerate(zaman)][::-1]
+
+
 def yanit(url, params):
     """getir() ile aynı biçimde yanıt döndürür; çok noktalı isteklerde liste."""
     if "geocoding" in url:
         return _ara(params)
+    if "aviationweather" in url:
+        return _istasyon(params) if "stationinfo" in url else _metar(params)
     uret = _ansambl if "ensemble" in url else _onceki if "previous-runs" in url else \
-        _deniz if "marine" in url else _tahmin
+        _deniz if "marine" in url else _arsiv if "archive" in url else _tahmin
     lats, lons = _liste(params["latitude"]), _liste(params["longitude"])
     sonuc = [uret(params, a, b) for a, b in zip(lats, lons)]
     return sonuc if len(sonuc) > 1 else sonuc[0]

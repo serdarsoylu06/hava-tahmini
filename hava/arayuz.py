@@ -6,7 +6,7 @@ SAYFA_AD = {
     "app_pages/modeller.py": "Modeller", "app_pages/ansambl.py": "Ansambl",
     "app_pages/haritalar.py": "Tahmin haritaları", "app_pages/profil.py": "Atmosfer profili",
     "app_pages/balikcilik.py": "Balıkçılık ve deniz", "app_pages/canli.py": "Canlı radar ve uydu",
-    "app_pages/dogrulama.py": "Tahmin doğrulaması",
+    "app_pages/dogrulama.py": "Tahmin doğrulaması", "app_pages/iklim.py": "İklim ve geçmiş",
 }
 _KUTU = {"tehlike": st.error, "dikkat": st.warning, "bilgi": st.info, "iyi": st.success}
 

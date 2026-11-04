@@ -87,6 +87,8 @@ def indir(url, params, donem):
         return json.loads(yol.read_text())
     r = requests.get(url, params=params, timeout=90)
     r.raise_for_status()
+    if not r.text.strip():                          # boş yanıt (ör. 204): önbelleğe yazma
+        return None
     ONBELLEK.mkdir(exist_ok=True)
     yol.write_text(r.text)
     for eski in ONBELLEK.glob("*.json"):            # bir günden eski yanıtları temizle
@@ -109,7 +111,12 @@ def _ornek(url, params, donem):
 def _son_kayit(url, params):
     """Önceki dönemlerden kalan en yeni yanıt (istek sınırı aşıldığında yedek)."""
     kayitlar = sorted(ONBELLEK.glob(f"{_anahtar(url, params)}_*.json")) if ONBELLEK.exists() else []
-    return (json.loads(kayitlar[-1].read_text()), kayitlar[-1].stem.split("_")[-1]) if kayitlar else (None, None)
+    for k in reversed(kayitlar):
+        try:
+            return json.loads(k.read_text()), k.stem.split("_")[-1]
+        except ValueError:                          # bozuk kayıt: atla
+            continue
+    return None, None
 
 
 def getir(url, params, durdur=True) -> dict | list | None:
