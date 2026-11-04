@@ -1,7 +1,7 @@
-# Kurulum:  python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
-# Uygulama: streamlit run hava_lab.py
-
-# hava_lab.py (uygulama: hava_lab.py + app_pages/ + hava/)
+# Uygulama (Streamlit Community Cloud bu dosyayı kurar): streamlit run hava_lab.py
+# Kurulum: python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+# Python 3.12 ile denendi (Community Cloud'da "Advanced settings" → Python 3.12 seçin).
+# Not defterleri (01–03_*.ipynb) için ayrıca: pip install -r requirements-defter.txt
 streamlit==1.66.1
 altair==6.3.0
 pydeck==0.9.3
@@ -14,9 +14,3 @@ matplotlib==3.11.2
 MetPy==1.7.1
 scipy==1.18.1
 shapely==2.2.0
-
-# defterler (01–03_*.ipynb)
-ipykernel==7.4.0
-ecmwf-opendata==0.3.35
-xarray==2026.9.0
-cfgrib==0.9.15.1
