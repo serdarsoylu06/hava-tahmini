@@ -1,0 +1,51 @@
+# Açık/koyu tema; kullanıcı Ayarlar menüsünden değiştirebilir.
+
+[theme]
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "10px"
+buttonRadius = "8px"
+font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+baseFontSize = 15
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+metricValueFontSize = "1.9rem"
+metricValueFontWeight = 600
+linkUnderline = false
+
+[theme.light]
+primaryColor = "#0B6BCB"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F7FB"
+textColor = "#0F1B2D"
+borderColor = "#DDE5EE"
+linkColor = "#0B6BCB"
+blueColor = "#0B6BCB"
+greenColor = "#1E9E5A"
+redColor = "#D93636"
+orangeColor = "#E8780C"
+yellowColor = "#D9A400"
+violetColor = "#7C4DDB"
+chartCategoricalColors = ["#0B6BCB", "#E8780C", "#1E9E5A", "#D93636", "#7C4DDB", "#0FA3A3", "#8A6D3B"]
+
+[theme.dark]
+primaryColor = "#4DA3FF"
+backgroundColor = "#0B1220"
+secondaryBackgroundColor = "#131D2E"
+textColor = "#E6EDF6"
+borderColor = "#22314A"
+linkColor = "#7DBBFF"
+blueColor = "#4DA3FF"
+greenColor = "#3DD68C"
+redColor = "#FF6B6B"
+orangeColor = "#FFA94D"
+yellowColor = "#FFD43B"
+violetColor = "#B197FC"
+chartCategoricalColors = ["#4DA3FF", "#FFA94D", "#3DD68C", "#FF6B6B", "#B197FC", "#3BC9DB", "#D8B26E"]
+
+[theme.light.sidebar]
+backgroundColor = "#F3F7FB"
+secondaryBackgroundColor = "#FFFFFF"
+
+[theme.dark.sidebar]
+backgroundColor = "#080E1A"
+secondaryBackgroundColor = "#131D2E"

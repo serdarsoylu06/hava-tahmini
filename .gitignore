@@ -1,0 +1,19 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Uygulamanın çalışırken ürettikleri: Open-Meteo yanıt önbelleği, kişisel kayıtlı noktalar, gizli anahtarlar
+.onbellek/
+kayitlar/
+.streamlit/secrets.toml
+
+# Not defterlerinin indirdiği model verisi
+*.grib2
+*.idx
+
+# Geliştirme araçları
+.playwright-mcp/
+.agents/
+.claude/
+.DS_Store
