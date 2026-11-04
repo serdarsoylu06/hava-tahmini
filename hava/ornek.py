@@ -153,8 +153,11 @@ def _zaman(params, lat, lon):
         tz = "UTC"
     simdi = pd.Timestamp.now(tz=tz).tz_localize(None)
     bugun = simdi.normalize()
-    gecmis, ileri = int(params.get("past_days", 0)), int(params.get("forecast_days", 7))
-    zaman = pd.date_range(bugun - pd.Timedelta(days=gecmis), periods=24 * (gecmis + ileri), freq="h")
+    if "start_date" in params:
+        zaman = pd.date_range(params["start_date"], pd.Timestamp(params["end_date"]) + pd.Timedelta(hours=23), freq="h")
+    else:
+        gecmis, ileri = int(params.get("past_days", 0)), int(params.get("forecast_days", 7))
+        zaman = pd.date_range(bugun - pd.Timedelta(days=gecmis), periods=24 * (gecmis + ileri), freq="h")
     # senaryo dünden başlar: alçak basınç bugün Ege'de, yarın İç Anadolu'da olur
     return zaman, bugun - pd.Timedelta(days=1), simdi, tz
 
@@ -248,20 +251,28 @@ def _onceki(params, lat, lon):
     zaman, bas, _, tz = _zaman(params, lat, lon)
     a = nokta(lat, lon, zaman, bas)
     h = {"time": [t.strftime("%Y-%m-%dT%H:%M") for t in zaman]}
+    # çok modelli istekte sütun adları "<değişken>_<model>"; her model kendi isabeti ve sapmasıyla üretilir
+    modeller = str(params["models"]).split(",") if params.get("models") else [""]
     for ad in str(params["hourly"]).split(","):
         m = re.fullmatch(r"(\w+)_previous_day(\d)", ad)
         temel = np.asarray(_deger(m.group(1) if m else ad, a), dtype=float)
-        if m:
-            g = int(m.group(2))
-            r = _rng("onceki", ad, round(lat, 2), round(lon, 2))
-            olcek = {"temperature_2m": 0.55, "wind_speed_10m": 2.2, "pressure_msl": 0.9, "precipitation": 0.4}
-            s = olcek.get(m.group(1), 0.5) * (0.6 + 0.55 * g)
-            deger = temel + np.convolve(r.normal(0, s, len(zaman) + 11), np.ones(12) / 12 * 2.2, "valid") + 0.1 * g
-            if m.group(1) == "precipitation":
-                deger = np.clip(np.roll(temel, int(r.integers(-g * 2, g * 2 + 1))) * r.lognormal(0, 0.12 * g), 0, None)
-        else:
-            deger = temel
-        h[ad] = _temiz(deger)
+        for model in modeller:
+            anahtar = f"{ad}_{model}" if model else ad
+            if m:
+                g = int(m.group(2))
+                r = _rng("onceki", anahtar, round(lat, 2), round(lon, 2))
+                rm = _rng("model", model)
+                kalite, sapma = (rm.uniform(0.7, 1.6), rm.normal(0, 0.5)) if model else (1.0, 0.0)
+                olcek = {"temperature_2m": 0.55, "wind_speed_10m": 2.2, "pressure_msl": 0.9, "precipitation": 0.4}
+                s = olcek.get(m.group(1), 0.5) * (0.6 + 0.55 * g) * kalite
+                deger = temel + np.convolve(r.normal(0, s, len(zaman) + 11), np.ones(12) / 12 * 2.2, "valid") \
+                    + 0.1 * g + sapma
+                if m.group(1) == "precipitation":
+                    deger = np.clip(np.roll(temel, int(r.integers(-g * 2, g * 2 + 1))) * r.lognormal(0, 0.12 * g),
+                                    0, None)
+            else:
+                deger = temel
+            h[anahtar] = _temiz(deger)
     return _ust(lat, lon, tz, a["_rakim"]) | {"hourly": h}
 
 
@@ -354,3 +365,17 @@ def yanit(url, params):
     lats, lons = _liste(params["latitude"]), _liste(params["longitude"])
     sonuc = [uret(params, a, b) for a, b in zip(lats, lons)]
     return sonuc if len(sonuc) > 1 else sonuc[0]
+
+
+def metar_arsivi(istasyon, bas, son):
+    """IEM arşivi biçiminde saatlik sentetik METAR (CSV, °F). Gerçekteki gibi rapor saat :50'de, sıcaklık tam sayı
+    °C'ye yuvarlanmış; raporların bir kısmı eksik ("M")."""
+    _, lat, lon = str(istasyon).split(":")
+    lat, lon = float(lat), float(lon)
+    zaman = pd.date_range(bas, son, freq="h", inclusive="left") + pd.Timedelta(minutes=50)
+    a = nokta(lat, lon, zaman, pd.Timestamp.now(tz="UTC").tz_localize(None).normalize() - pd.Timedelta(days=1))
+    r = _rng("metar_arsiv", round(lat, 2), round(lon, 2))
+    T = np.round(a["temperature_2m"] - 0.8 + r.normal(0, 0.7, len(zaman)))
+    F = [f"{t * 9 / 5 + 32:.2f}" if r.random() > 0.03 else "M" for t in T]
+    satirlar = [f"{istasyon},{z:%Y-%m-%d %H:%M},{f}" for z, f in zip(zaman, F)]
+    return "station,valid,tmpf\n" + "\n".join(satirlar) + "\n"

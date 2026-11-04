@@ -8,7 +8,7 @@ Hava tahminini **okumayı öğreten**, etkileşimli bir Streamlit uygulaması. T
 | Bölüm | İçerik |
 |---|---|
 | Genel bakış | Anlık durum, otomatik uyarılar (don, fırtına, sis, kar, dalga…), 24 saat ve 10 gün |
-| Tahmin | Meteogram, modellerin karşılaştırması, ansambl, tahmin doğrulaması (gerçek istasyon ölçümüyle), iklim ve geçmiş |
+| Tahmin | Meteogram, modellerin karşılaştırması, ansambl, tahmin doğrulaması ve model sıralaması (gerçek istasyon ölçümüyle), iklim ve geçmiş |
 | Deniz | Balıkçılık ve deniz: saat saat denize çıkış durumu, dalga, su sıcaklığı |
 | Atmosfer | Canlı radar ve uydu, tahmin haritaları, atmosfer profili (skew-T) |
 | Öğren | Tahmin okuma rehberi ve sözlük |
@@ -47,7 +47,8 @@ arttıkça istek sayısı artmaz. Yoğun kullanımda kendi Open-Meteo sunucunu k
 ## Veri kaynakları
 
 - Tahmin, ansambl, deniz, geçmiş tahminler ve ERA5 arşivi: [Open-Meteo](https://open-meteo.com) (CC BY 4.0)
-- İstasyon ölçümleri: havalimanı METAR raporları, [NOAA Aviation Weather Center](https://aviationweather.gov)
+- İstasyon ölçümleri: havalimanı METAR raporları, [NOAA Aviation Weather Center](https://aviationweather.gov) (son 7 gün)
+  ve [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu) arşivi (model sıralaması için 90 gün)
 - Radar: [RainViewer](https://www.rainviewer.com) · Uydu: [EUMETSAT](https://view.eumetsat.int) Meteosat
 - Yer adları: [GeoNames](https://www.geonames.org) (CC BY 4.0) · Kıyı çizgileri ve sınırlar: Natural Earth
 - Altlık haritalar: © OpenStreetMap katkıcıları, © CARTO

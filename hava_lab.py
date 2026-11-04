@@ -134,7 +134,7 @@ with st.sidebar:
                    "Radar ve uydu görüntüsü yine gerçektir.")
     st.space("medium")
     st.caption("Veri: [Open-Meteo](https://open-meteo.com) (CC BY 4.0) · ECMWF, DWD, NOAA, Météo-France, "
-               "UK Met Office modelleri · ölçümler: NOAA Aviation Weather Center · yer adları: "
+               "UK Met Office modelleri · ölçümler: NOAA Aviation Weather Center, Iowa Environmental Mesonet · yer adları: "
                "[GeoNames](https://www.geonames.org) (CC BY 4.0)")
 
 if st.session_state.get("ornek_veri"):

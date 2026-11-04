@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from hava import grafik, tasarim
+from hava import grafik, siralama, tasarim
 from hava.arayuz import okuma_rehberi
 from hava.olcum import en_yakin_olcum
 from hava.veri import getir, konum, tablo
@@ -11,6 +11,7 @@ ONCEKI = "https://previous-runs-api.open-meteo.com/v1/forecast"
 DEGISKENLER = {"Sıcaklık": ("temperature_2m", "°C", 2.0), "Rüzgâr": ("wind_speed_10m", "km/s", 8.0),
                "Yağış": ("precipitation", "mm", None), "Basınç": ("pressure_msl", "hPa", 2.0)}
 GUNLER = range(1, 8)
+UFUK_AD = {"+24 sa": 1, "+48 sa": 2, "+72 sa": 3}
 
 k = konum()
 tasarim.baslik("Tahmin", "Tahmin ne kadar tuttu?",
@@ -118,6 +119,67 @@ if not iska.dropna().empty and iska.max() > 0:
             "gerçekleşmiş. Meteogram ve haritalarda o günlerde bir cephe ya da sağanak geçip geçmediğine bakmak, "
             "hatanın nedenini anlamanın en iyi yoludur.", icon=":material/target:")
 
+# ---------------------------------------------------------------- model sıralaması
+st.subheader("Hangi model bu istasyonda daha isabetli?", anchor=False)
+ist = istasyon or en_yakin_olcum(k["lat"], k["lon"], k["tz"])[0]
+if ist is None:
+    st.info("Sıralama yalnızca gerçek ölçümle yapılır; 120 km içinde ölçümüne ulaşılabilen bir havalimanı istasyonu yok.",
+            icon=":material/location_off:")
+else:
+    c1, c2 = st.columns(2, vertical_alignment="bottom")
+    uf = c1.segmented_control("Tahmin ufku", list(UFUK_AD), default="+24 sa", key="sir_ufuk",
+                              help="Tahmin, geçerlilik zamanından 1, 2 ya da 3 gün önce yayımlanmış koşudan alınır. "
+                                   "Ufuklar ayrı ayrı sıralanır; bir modelin kısa vadede iyi olması uzun vadede de "
+                                   "iyi olduğu anlamına gelmez.") or "+24 sa"
+    donem_ad = c2.segmented_control("Dönem", ["Son 30 gün", "Son 90 gün"], default="Son 90 gün", key="sir_donem") \
+        or "Son 90 gün"
+    O, F = siralama.gozlemler(ist["icao"]), siralama.tahminler(ist)
+    t = bilgi = None
+    if O is not None and F is not None and not O.empty:
+        t, bilgi = siralama.siralama(siralama.ufuk(F, UFUK_AD[uf]), O, int(donem_ad.split()[1]))
+    if t is None:
+        st.warning("İstasyonun ölçüm arşivi ya da geçmiş tahminler şu an alınamadı; sıralama gösterilemiyor.",
+                   icon=":material/cloud_off:")
+    else:
+        kod_s = ist["icao"].split(":")[0]
+        st.caption(f"Sıcaklık · **{ist['ad']}** ({kod_s}) istasyonu, konumuna {ist['km']:.0f} km · {bilgi['gun']} gün, "
+                   f"bütün modeller için aynı {bilgi['N']} saat. Bu sıralama istasyonun bulunduğu nokta içindir; "
+                   f"{k['ad']} için aynısı geçerli olmayabilir: kıyı, vadi ve rakım farkı modelleri farklı etkiler.")
+        if bilgi["gun"] < 20:
+            st.warning(f"Yalnızca {bilgi['gun']} günlük ölçüm var; bu kadar kısa bir dönemde sıralama güvenilir değildir.",
+                       icon=":material/warning:")
+        sol, sag = st.columns([1.3, 1], gap="large")
+        with sol:
+            st.altair_chart(grafik.siralama_grafigi(t), alt="Modellerin ortalama mutlak hatası ve güven aralığı")
+        with sag:
+            en_iyi = list(t.model[t.grup == 1])
+            if len(en_iyi) == 1:
+                st.markdown(f"**{en_iyi[0]}** bu dönemde diğer bütün modellerden anlamlı ölçüde isabetli.")
+            else:
+                st.markdown(f"**{', '.join(en_iyi[:-1])} ve {en_iyi[-1]}** birbirinden ayırt edilemiyor: aralarındaki "
+                            "fark, seçilen günlere bağlı bir rastlantı olabilir. Bu veriyle birini \"birinci\" ilan "
+                            "etmek savunulamaz.")
+            ortak = t.Bias.median()
+            if abs(ortak) >= 0.3:
+                st.markdown(f"Modellerin çoğu bu istasyonu **{abs(ortak):.1f} °C {'sıcak' if ortak > 0 else 'soğuk'}** "
+                            "tahmin ediyor. Hepsinde aynı yönde görülen sapma genellikle modellerden değil, istasyonun "
+                            "konumundan gelir (temsil hatası): kıyıdaki ya da vadideki bir termometre, modelin ızgara "
+                            "karesinin ortalamasından sistematik olarak farklıdır.")
+            if bilgi["disarida"]:
+                st.caption("Arşivde bu dönem için yeterli tahmini olmadığı için sıralamaya alınmadı: "
+                           + ", ".join(siralama.MODELLER[m] for m in bilgi["disarida"]) + ".")
+        tablo_s = t.assign(aralik=t.alt.map("{:.2f}".format) + "–" + t.ust.map("{:.2f}".format))
+        st.dataframe(tablo_s[["grup", "model", "MAE", "aralik", "RMSE", "Bias", "N"]], hide_index=True,
+                     alt="Model sıralaması tablosu",
+                     column_config={"grup": st.column_config.NumberColumn("Grup", help="Aynı gruptaki modeller "
+                                                                          "birbirinden ayırt edilemez.", width="small"),
+                                    "model": st.column_config.TextColumn("Model"),
+                                    "MAE": st.column_config.NumberColumn("MAE (°C)", format="%.2f"),
+                                    "aralik": st.column_config.TextColumn("MAE %90 aralığı"),
+                                    "RMSE": st.column_config.NumberColumn("RMSE (°C)", format="%.2f"),
+                                    "Bias": st.column_config.NumberColumn("Sapma (°C)", format="%+.2f"),
+                                    "N": st.column_config.NumberColumn("N (saat)", format="%d")})
+
 okuma_rehberi([
     ("Gerçekleşen değer nereden geliyor?", "**İstasyon ölçümü**, en yakın havalimanının meteoroloji istasyonunun "
      "yarım saatte bir yayımladığı METAR raporlarıdır (NOAA Aviation Weather Center üzerinden): gerçek termometre, "
@@ -132,6 +194,16 @@ okuma_rehberi([
      "örneğin dağlık bir yerde modelin arazisi gerçekten alçak olduğu için sıcaklığı hep yüksek tahmin etmesi."),
     ("Yağış neden günlük?", "Bir sağanağı doğru tahmin edip bir saat geç gösteren model, saatlik karşılaştırmada iki kez "
      "hata yapmış sayılır. Bu yüzden yağış günlük toplamlarla karşılaştırılır."),
+    ("Model sıralaması nasıl yapılıyor?", "Her model için o gün gerçekten yayımlanmış tahminler (Open-Meteo geçmiş "
+     "tahmin arşivi) istasyonun saatlik ölçümleriyle (Iowa State Üniversitesi METAR arşivi) karşılaştırılır. Ölçüm "
+     "olmayan saatler atlanır, doldurulmaz; bütün modeller aynı saatler üzerinden değerlendirilir (N). **MAE** hatanın "
+     "ortalama büyüklüğü, **RMSE** büyük hataları daha ağır cezalandıran ortalama, **sapma** ise işaretli ortalamadır."),
+    ("Güven aralığı ve gruplar ne demek?", "Başka günler seçilseydi MAE biraz farklı çıkardı. Günler rastgele yeniden "
+     "seçilerek (bootstrap, 1000 kez) bu oynama ölçülür; çizgi %90 aralığını gösterir. Saatler değil günler seçilir, "
+     "çünkü bir model bütün gün aynı yönde yanılır ve ardışık saatler bağımsız değildir. Aynı gruptaki modeller "
+     "arasındaki fark, bu oynamanın içinde kalır: sıralamada onları ayırmak yanıltıcı olur."),
+    ("Neden yağış sıralaması yok?", "Türkiye'deki havalimanı raporları (METAR) yağış miktarı içermez; arşivdeki sıfırlar "
+     "ölçüm değil, boşluktur. Ölçülmemiş bir değerle doğrulama yapılmaz."),
     ("Neden her hafta farklı?", "Kararlı yüksek basınç günlerinde 7 günlük tahmin bile tutar; hızlı geçen cepheler ve "
      "sağanaklarda 2 günlük tahmin bile ıskalayabilir. Bu yüzden Ansambl sayfasındaki belirsizlik bandı önemlidir."),
 ], baslik="Bu karşılaştırma nasıl okunur?")

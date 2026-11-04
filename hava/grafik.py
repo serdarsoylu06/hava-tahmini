@@ -529,6 +529,31 @@ def hata_cubugu(ozet, birim):
     ).properties(height=260)
 
 
+
+def siralama_grafigi(t, birim="°C"):
+    """Modellerin ortalama mutlak hatası ve %90 güven aralığı; renk, birbirinden ayırt edilemeyen grupları gösterir."""
+    d = t.reset_index(names="kod")
+    d["grup_ad"] = np.where(d.grup == 1, "En iyi grup", "Grup " + d.grup.astype(str))
+    d["aralik"] = d.alt.map("{:.2f}".format) + "–" + d.ust.map("{:.2f}".format)
+    gruplar = list(dict.fromkeys(d.grup_ad))
+    renkler = [YESIL, MAVI, LACIVERT, MOR, TURUNCU, KIRMIZI, GRI, KAHVE][:len(gruplar)]
+    y = alt.Y("model:N", sort=list(d.model), title=None, axis=alt.Axis(labelFontSize=12.5, labelFontWeight=600))
+    renk = alt.Color("grup_ad:N", title=None, scale=alt.Scale(domain=gruplar, range=renkler),
+                     legend=alt.Legend(orient="top"))
+    ipucu = [alt.Tooltip("model:N", title="Model"), alt.Tooltip("grup_ad:N", title="Grup"),
+             alt.Tooltip("MAE:Q", title=f"Ortalama mutlak hata ({birim})", format=".2f"),
+             alt.Tooltip("aralik:N", title="%90 güven aralığı"),
+             alt.Tooltip("RMSE:Q", format=".2f"), alt.Tooltip("Bias:Q", title="Sapma", format="+.2f"),
+             alt.Tooltip("N:Q", title="Karşılaştırılan saat")]
+    return alt.layer(
+        alt.Chart(d).mark_rule(strokeWidth=5, opacity=0.35, strokeCap="round").encode(
+            alt.X("alt:Q", title=f"Ortalama mutlak hata ({birim}) · çizgi: %90 güven aralığı",
+                  scale=alt.Scale(zero=False, nice=True)), x2="ust:Q", y=y, color=renk, tooltip=ipucu),
+        alt.Chart(d).mark_point(filled=True, size=140, opacity=1).encode(x="MAE:Q", y=y, color=renk, tooltip=ipucu),
+        alt.Chart(d).mark_text(dx=0, dy=-13, fontSize=11.5, fontWeight=600, color=GRI).encode(
+            x="MAE:Q", y=y, text=alt.Text("MAE:Q", format=".2f")),
+    ).properties(height=46 * len(d) + 40)
+
 # ----------------------------------------------------------------- iklim ve geçmiş
 SERIT = ["#08306B", "#08519C", "#2171B5", "#4292C6", "#6BAED6", "#9ECAE1", "#C6DBEF", "#DEEBF7",
          "#FEE0D2", "#FCBBA1", "#FC9272", "#FB6A4A", "#EF3B2C", "#CB181D", "#A50F15", "#67000D"]

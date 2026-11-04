@@ -119,13 +119,15 @@ def _son_kayit(url, params):
     return None, None
 
 
-def getir(url, params, durdur=True) -> dict | list | None:
+def getir(url, params, durdur=True, gunluk=False) -> dict | list | None:
     """Veriyi önbellekten ya da kaynaktan getirir. Alınamazsa önceki dönemin verisine düşer; o da yoksa
-    `durdur` True ise hatayı gösterip sayfayı durdurur, False ise yalnızca kısa bir bildirim verip None döner."""
+    `durdur` True ise hatayı gösterip sayfayı durdurur, False ise yalnızca kısa bir bildirim verip None döner.
+    `gunluk`: yalnızca geçmişe bakan, gün içinde değişmeyen istekler (ör. 90 günlük arşiv) günde bir yenilenir."""
+    d = donem()[:10] if gunluk else donem()
     if ornek_modu():
-        return _ornek(url, params, donem())
+        return _ornek(url, params, d)
     try:
-        return indir(url, params, donem())
+        return indir(url, params, d)
     except requests.RequestException as e:
         neden = ""
         yanit = e.response
@@ -137,7 +139,8 @@ def getir(url, params, durdur=True) -> dict | list | None:
         sinir = yanit is not None and yanit.status_code == 429
         eski, ne_zaman = _son_kayit(url, params)
         if eski is not None:
-            st.toast(f"{'İstek sınırı aşıldı' if sinir else 'Veri alınamadı'}; {ne_zaman.replace('T', ' ')}:10 "
+            ne_zaman = ne_zaman.replace("T", " ") + ":10" if "T" in ne_zaman else ne_zaman
+            st.toast(f"{'İstek sınırı aşıldı' if sinir else 'Veri alınamadı'}; {ne_zaman} "
                      "dönemine ait önceki veri gösteriliyor.", icon=":material/history:")
             return eski
         if not durdur:
