@@ -2,6 +2,10 @@
 # ikincil renk), açık temada Sky-Sync Dawn (şafak zemini, gökyüzü mavisi vurgu). Başlıklar Space Grotesk, metin Inter,
 # ölçüm etiketleri ve sayılar Space Mono. Atmosferik arka plan, cam kartlar ve mobil düzen hava/tasarim.py'de.
 
+[client]
+# Sağ üstteki menü yalnızca kullanıcıya gereken seçenekleri gösterir; Deploy düğmesi ve geliştirici seçenekleri gizli.
+toolbarMode = "minimal"
+
 [theme]
 showWidgetBorder = true
 showSidebarBorder = false
