@@ -95,6 +95,25 @@ def stil(koyu):
 /* Genel bakış: altı kart üçerli ya da ikişerli; satırda tek kart kalmaz */
 .st-key-kartlar_genel [data-testid="stColumn"] {{ flex: 1 1 calc(33.33% - .6rem) !important; min-width: 128px !important; }}
 
+/* Aynı satırdaki kartlar eşit yükseklikte: küçük grafiği ya da alt etiketi olan kart ötekilerden uzun kalıp
+   satırda basamak oluşturuyordu (Ansambl, Doğrulama, Atmosfer profili, Genel bakış). */
+[data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) {{ align-items: stretch !important; }}
+[data-testid="stColumn"]:has([data-testid="stMetric"]) > [data-testid="stVerticalBlock"] {{ height: 100%; }}
+[data-testid="stColumn"] [data-testid="stElementContainer"]:has(> [data-testid="stMetric"]),
+[data-testid="stColumn"] [data-testid="stElementContainer"]:has(> div > [data-testid="stMetric"]) {{ flex: 1 1 auto; }}
+[data-testid="stColumn"] [data-testid="stMetric"] {{ height: 100%; box-sizing: border-box; }}
+
+/* Uyarı kartları: satır satır dizilir (arayuz.uyari_kartlari); aynı satırdaki kutular eşit yükseklikte, "Neden
+   önemli?" düğmeleri aynı hizada. */
+[class*="st-key-uyari_satir"] [data-testid="stHorizontalBlock"] {{ align-items: stretch !important; }}
+[class*="st-key-uyari_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ height: 100%; }}
+[class*="st-key-uyari_satir"] [data-testid="stElementContainer"]:has([data-testid="stAlert"]) {{ flex: 1 1 auto; }}
+[class*="st-key-uyari_satir"] [data-testid="stAlert"], [class*="st-key-uyari_satir"] [data-testid="stAlertContainer"] {{
+    height: 100%; box-sizing: border-box; }}
+
+/* Bölüm başlıkları (st.subheader) numaralı bölüm başlıklarıyla aynı ölçekte */
+[data-testid="stHeading"] h3 {{ font-size: 1.3rem; font-weight: 600; letter-spacing: -.005em; }}
+
 /* üst arama çubuğu */
 .st-key-ust_cubuk {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 8px; padding: 8px 10px;
                      box-shadow: {r['golge']}; }}

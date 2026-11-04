@@ -18,15 +18,20 @@ def uyari_kartlari(liste, sayfa=None, sutun=2):
         liste = [u for u in liste if u.bak == sayfa and u.seviye != "iyi"]
         if not liste:
             return
-    kol = st.columns(sutun)
-    for i, u in enumerate(liste):
-        with kol[i % sutun]:
-            _KUTU[u.seviye](u.ozet, title=u.baslik, icon=u.ikon)
-            with st.expander("Neden önemli, nereye bakmalı?", icon=":material/school:"):
-                st.markdown(u.neden)
-                st.markdown(f"**Nereye bak:** {u.bak_ne}")
-                if u.bak != sayfa:
-                    st.page_link(u.bak, label=f"{SAYFA_AD[u.bak]} sayfasına git", icon=":material/arrow_forward:")
+    # Satır satır dizilir ki aynı satırdaki kutular eşit yükseklikte olsun (CSS: tasarim.py, st-key-uyari_satir).
+    # İki uyarı varken üç sütun açılıp sağda boşluk kalmasın diye sütun sayısı uyarı sayısını geçmez.
+    sutun = max(1, min(sutun, len(liste)))
+    for r in range(0, len(liste), sutun):
+        kol = st.container(key=f"uyari_satir_{sayfa or 'genel'}_{r}").columns(sutun)
+        for k, u in zip(kol, liste[r:r + sutun]):
+            with k:
+                _KUTU[u.seviye](u.ozet, title=u.baslik, icon=u.ikon)
+                with st.expander("Neden önemli, nereye bakmalı?", icon=":material/school:"):
+                    st.markdown(u.neden)
+                    st.markdown(f"**Nereye bak:** {u.bak_ne}")
+                    if u.bak != sayfa:
+                        st.page_link(u.bak, label=f"{SAYFA_AD[u.bak]} sayfasına git",
+                                     icon=":material/arrow_forward:")
 
 
 def okuma_rehberi(adimlar, baslik="Bu grafik nasıl okunur?"):

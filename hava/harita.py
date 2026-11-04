@@ -356,8 +356,17 @@ def harita(lats, lons, alan, izo, ok_b, ok_y, ayar, sev, renkler, konum, koyu):
     # büyük şehirler, "konumun çevresi" gibi dar bölgede ikinci derece şehirler de gösterilir.
     sehir = etiketler(kapsam, onem_en_cok=1 if kapsam[1] - kapsam[0] > 12 else 2)
     # konumun kırmızı etiketi zaten var; ona çok yakın şehir adları (Yomra'da "Trabzon") altında kalıp karışıyordu
-    sehir = [x for x in sehir if x["ad"] != konum["ad"]
-             and abs(x["k"][0] - konum["lon"]) + abs(x["k"][1] - konum["lat"]) > 0.6]
+    # Seyreltme: harita genişliğinin ~1/9'undan yakın iki ad bırakılmaz; liste önem sırasında olduğu için önce gelen
+    # (İstanbul, Ankara…) kalır. Konumun kırmızı etiketinin çevresi de boş tutulur (Yomra'da "Trabzon" altta kalıyordu).
+    ara = (kapsam[1] - kapsam[0]) / 9
+    secilen = [(konum["lon"], konum["lat"])]
+    kalan = []
+    for x in sehir:
+        lo, la = x["k"]
+        if x["ad"] != konum["ad"] and all(abs(lo - a) > ara or abs(la - b) > ara * 0.6 for a, b in secilen):
+            secilen.append((lo, la))
+            kalan.append(x)
+    sehir = kalan
     katman.append(pdk.Layer("TextLayer", character_set=KARAKTERLER, font_family=YAZI, data=sehir, id="sehir", get_position="k", get_text="ad",
                             get_size=12, get_color=on + [235], font_weight=600, font_settings={"sdf": True},
                             outline_width=4, outline_color=arka + [220], get_pixel_offset=[0, -9]))
