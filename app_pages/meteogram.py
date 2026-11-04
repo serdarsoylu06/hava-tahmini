@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from hava import grafik
+from hava import grafik, tasarim
 from hava.arayuz import gun_sayisi, okuma_rehberi, uyari_kartlari
 from hava.veri import konum, tahmin
 from hava.yorum import uyarilar, zaman
@@ -11,13 +11,13 @@ simdi, saatlik, _ = tahmin(k)
 bas = pd.Timestamp(simdi["time"]).floor("h")
 df = saatlik[(saatlik.index >= bas) & (saatlik.index < bas + pd.Timedelta(days=gun_sayisi()))]
 
-st.header(f"Meteogram · {k['ad']}", anchor=False)
-st.caption("Meteorologların bir noktanın tahminine ilk baktıkları grafik: tüm değişkenler aynı zaman ekseninde. "
-           "Herhangi bir panelde fareyle gezdiğinde o saatin tüm değerleri görünür. Mavi gölgeli şeritler geceyi "
-           "gösterir.")
+tasarim.baslik("Tahmin", f"Meteogram · {k['ad']}",
+               "Meteorologların bir noktanın tahminine ilk baktıkları grafik: tüm değişkenler aynı zaman ekseninde. "
+               "Herhangi bir panelde fareyle gezdiğinde o saatin tüm değerleri görünür. Mavi gölgeli şeritler geceyi "
+               "gösterir.", "tahmin")
 
 dp = df.pressure_msl.iloc[-1] - df.pressure_msl.iloc[0]
-m = st.columns(5)
+m = st.container(key="kartlar_meteogram_1").columns(5)
 m[0].metric("En yüksek / en düşük", f"{df.temperature_2m.max():.0f}° / {df.temperature_2m.min():.0f}°",
             border=True, chart_data=df.temperature_2m.iloc[::3].round(1).tolist(), chart_type="line",
             help=f"En düşük: {zaman(df.temperature_2m.idxmin())}, en yüksek: {zaman(df.temperature_2m.idxmax())}")

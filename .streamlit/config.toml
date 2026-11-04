@@ -1,51 +1,53 @@
-# Açık/koyu tema; kullanıcı Ayarlar menüsünden değiştirebilir.
+# Açık/koyu tema; kullanıcı Ayarlar menüsünden değiştirebilir. Gradyan ve gölgeler hava/tasarim.py'de.
 
 [theme]
 showWidgetBorder = true
-showSidebarBorder = true
-baseRadius = "10px"
-buttonRadius = "8px"
+showSidebarBorder = false
+baseRadius = "14px"
+buttonRadius = "12px"
 font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+headingFont = "'Plus Jakarta Sans':https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
 baseFontSize = 15
-headingFontWeights = [700, 600, 600, 600, 600, 600]
-metricValueFontSize = "1.9rem"
-metricValueFontWeight = 600
+headingFontWeights = [800, 700, 700, 700, 600, 600]
+metricValueFontSize = "1.75rem"
+metricValueFontWeight = 700
 linkUnderline = false
+paddingTop = "1.2rem"
 
 [theme.light]
-primaryColor = "#0B6BCB"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F3F7FB"
-textColor = "#0F1B2D"
-borderColor = "#DDE5EE"
-linkColor = "#0B6BCB"
-blueColor = "#0B6BCB"
+primaryColor = "#5B4BDB"
+backgroundColor = "#F7F8FC"
+secondaryBackgroundColor = "#EEF0FA"
+textColor = "#101828"
+borderColor = "#E2E5F2"
+linkColor = "#4C3DCB"
+blueColor = "#1C7ED6"
 greenColor = "#1E9E5A"
 redColor = "#D93636"
 orangeColor = "#E8780C"
 yellowColor = "#D9A400"
-violetColor = "#7C4DDB"
-chartCategoricalColors = ["#0B6BCB", "#E8780C", "#1E9E5A", "#D93636", "#7C4DDB", "#0FA3A3", "#8A6D3B"]
+violetColor = "#6741D9"
+chartCategoricalColors = ["#5B4BDB", "#1C7ED6", "#E8780C", "#1E9E5A", "#D93636", "#0FA3A3", "#C2255C"]
 
 [theme.dark]
-primaryColor = "#4DA3FF"
-backgroundColor = "#0B1220"
-secondaryBackgroundColor = "#131D2E"
-textColor = "#E6EDF6"
-borderColor = "#22314A"
-linkColor = "#7DBBFF"
+primaryColor = "#8B7CFF"
+backgroundColor = "#0A0E1A"
+secondaryBackgroundColor = "#141A2B"
+textColor = "#E8ECF6"
+borderColor = "#232B42"
+linkColor = "#A99DFF"
 blueColor = "#4DA3FF"
 greenColor = "#3DD68C"
 redColor = "#FF6B6B"
 orangeColor = "#FFA94D"
 yellowColor = "#FFD43B"
 violetColor = "#B197FC"
-chartCategoricalColors = ["#4DA3FF", "#FFA94D", "#3DD68C", "#FF6B6B", "#B197FC", "#3BC9DB", "#D8B26E"]
+chartCategoricalColors = ["#8B7CFF", "#4DA3FF", "#FFA94D", "#3DD68C", "#FF6B6B", "#3BC9DB", "#F783AC"]
 
 [theme.light.sidebar]
-backgroundColor = "#F3F7FB"
-secondaryBackgroundColor = "#FFFFFF"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F4FB"
 
 [theme.dark.sidebar]
-backgroundColor = "#080E1A"
-secondaryBackgroundColor = "#131D2E"
+backgroundColor = "#070A13"
+secondaryBackgroundColor = "#141A2B"

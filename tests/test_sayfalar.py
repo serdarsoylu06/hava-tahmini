@@ -36,7 +36,7 @@ def calistir(sayfa, konum):
         at.session_state["harita_nokta"] = konum["nokta"]
     at.run()
     if "yer" in konum:
-        at.sidebar.selectbox(key="yer").set_value(konum["yer"]).run()
+        at.selectbox(key="yer").set_value(konum["yer"]).run()
     if sayfa != "genel":
         at.switch_page(f"app_pages/{sayfa}.py").run()
     return at

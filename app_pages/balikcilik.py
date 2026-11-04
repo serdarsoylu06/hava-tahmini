@@ -1,16 +1,16 @@
 import pandas as pd
 import streamlit as st
 
-from hava import deniz, grafik
+from hava import deniz, grafik, tasarim
 from hava.arayuz import gun_sayisi, okuma_rehberi
 from hava.veri import konum, simdiden, tahmin, yon_adi
 from hava.yerler import YONLER, kerteriz
 from hava.yorum import gun, zaman
 
 k = konum()
-st.header(f"Balıkçılık ve deniz · {k['ad']}", anchor=False)
-st.caption("Dalga, rüzgâr ve görüşe göre saat saat denize çıkış durumu; su sıcaklığı, deniz seviyesi ve balık için "
-           "uygun zamanlar. **Bu sayfa resmî bir seyir uyarısı değildir.**")
+tasarim.baslik("Deniz", f"Balıkçılık ve deniz · {k['ad']}",
+               "Dalga, rüzgâr ve görüşe göre saat saat denize çıkış durumu; su sıcaklığı, deniz seviyesi ve balık için "
+               "uygun zamanlar. **Bu sayfa resmî bir seyir uyarısı değildir.**", "deniz")
 
 bulunan = deniz.en_yakin_deniz(k["lat"], k["lon"])
 if bulunan is None:
@@ -39,7 +39,7 @@ g = deniz.balik_gostergesi(d, hava, gunluk)
 an = d.index[0]
 yas, ay_simge, ay_ad, aydinlik = deniz.ay(an)
 seviye = int(s.genel.iloc[0])
-m = st.columns(6)
+m = st.container(key="kartlar_balikcilik_1").columns(6)
 m[0].metric("Şu an", deniz.SEVIYE_AD[seviye], border=True,
             help="Küçük tekneler (~7 m altı) için dalga, hamle, görüş ve fırtına ölçütlerinin en kötüsü.")
 m[1].metric("Dalga", f"{d.wave_height.iloc[0]:.1f} m", f"periyot {d.wave_period.iloc[0]:.0f} sn",

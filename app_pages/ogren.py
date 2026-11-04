@@ -2,8 +2,10 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 
-st.header("Bir hava tahmini nasıl okunur?", anchor=False)
-st.caption("Telefondaki tek bir simgenin arkasında ne olduğunu anlamak için kısa bir rehber.")
+from hava import tasarim
+
+tasarim.baslik("Öğren", "Bir hava tahmini nasıl okunur?",
+               "Telefondaki tek bir simgenin arkasında ne olduğunu anlamak için kısa bir rehber.", "ogren")
 
 st.subheader("5 adımda tahmin okumak", anchor=False)
 adimlar = [

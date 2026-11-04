@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from hava import grafik
+from hava import grafik, tasarim
 from hava.arayuz import okuma_rehberi
 from hava.olcum import en_yakin_olcum
 from hava.veri import getir, konum, tablo
@@ -13,9 +13,9 @@ DEGISKENLER = {"Sıcaklık": ("temperature_2m", "°C", 2.0), "Rüzgâr": ("wind_
 GUNLER = range(1, 8)
 
 k = konum()
-st.header("Tahmin ne kadar tuttu?", anchor=False)
-st.caption("Son bir haftada gerçekleşen değerleri, aynı saatler için 1–7 gün önce yapılmış tahminlerle karşılaştırır. "
-           "Tahminin ne kadar ileriye güvenilebileceğini en iyi bu öğretir.")
+tasarim.baslik("Tahmin", "Tahmin ne kadar tuttu?",
+               "Son bir haftada gerçekleşen değerleri, aynı saatler için 1–7 gün önce yapılmış tahminlerle karşılaştırır. "
+               "Tahminin ne kadar ileriye güvenilebileceğini en iyi bu öğretir.", "tahmin")
 
 c1, c2 = st.columns([1.3, 1], vertical_alignment="bottom")
 ad = c1.segmented_control("Değişken", list(DEGISKENLER), default="Sıcaklık", key="dog_deg") or "Sıcaklık"
@@ -71,7 +71,7 @@ for g in GUNLER:
     satir.append({"gun": g, "mae": hata.abs().mean(), "sapma": hata.mean(), "isabet": (hata.abs() <= esik).mean() * 100})
 ozet = pd.DataFrame(satir).set_index("gun")
 
-m = st.columns(4 if istasyon else 3)
+m = st.container(key="kartlar_dogrulama_1").columns(4 if istasyon else 3)
 m[0].metric("1 gün önceki tahminin hatası", f"± {ozet.mae.iloc[0]:.1f} {birim}", border=True,
             help="Ortalama mutlak hata: tahmin ile gerçekleşen arasındaki farkın ortalama büyüklüğü.")
 m[1].metric("7 gün önceki tahminin hatası", f"± {ozet.mae.iloc[-1]:.1f} {birim}",

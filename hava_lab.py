@@ -8,7 +8,7 @@ import os
 import streamlit as st
 
 from hava.veri import GEO, getir
-from hava import kayit
+from hava import kayit, tasarim
 from hava.yerler import konum_kaydi, nokta_konumu, yerlesimler
 
 st.set_page_config(page_title="Hava tahmini laboratuvarı", page_icon=":material/partly_cloudy_day:",
@@ -54,25 +54,28 @@ def kaydet(anahtar):
         st.toast(f"\"{ad}\" kaydedildi.", icon=":material/bookmark_added:")
 
 
-with st.sidebar:
-    st.subheader("Konum", anchor=False)
+tasarim.stil(st.context.theme.type == "dark")
+
+# ---------------------------------------------------------------- üst çubuk: konum arama ve kayıtlı noktalar
+# Telefonda kenar çubuğu kapalı durduğu için konum seçimi sayfanın en üstünde, her sayfada aynı yerde.
+with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center", gap="small"):
     nokta = st.session_state.get("harita_nokta")
     if nokta:
         kayitli = nokta.get("kayitli")
         st.session_state.konum = nokta_konumu(nokta["lat"], nokta["lon"], nokta.get("ad"),
                                               "Kayıtlı nokta" if kayitli else "Haritadan seçilen nokta")
-        st.info(f"**{st.session_state.konum['ad']}**  \n{nokta['lat']:.3f}° K, {nokta['lon']:.3f}° D",
-                icon=":material/bookmark:" if kayitli else ":material/pin_drop:",
-                title="Kayıtlı nokta" if kayitli else "Haritadan seçildi")
-        st.button("Şehir aramasına dön", icon=":material/search:", on_click=haritadan_vazgec, width="stretch")
+        st.markdown(f"{':material/bookmark:' if kayitli else ':material/pin_drop:'} "
+                    f"**{st.session_state.konum['ad']}** :gray[· {nokta['lat']:.3f}° K, {nokta['lon']:.3f}° D]",
+                    width="stretch")
+        st.button("Aramaya dön", icon=":material/search:", on_click=haritadan_vazgec)
         s = {"latitude": nokta["lat"], "longitude": nokta["lon"], "elevation": "?",
              "timezone": st.session_state.konum["tz"]}
     else:
         yerler = yerlesimler()
         etiketler = list(yerler)
         secim = st.selectbox(
-            "Şehir ya da ilçe", etiketler, index=etiketler.index("Ankara"), key="yer", accept_new_options=True,
-            placeholder="Yazmaya başla…",
+            "Konum", etiketler, index=etiketler.index("Ankara"), key="yer", accept_new_options=True,
+            placeholder="Şehir, ilçe ya da yer ara…", label_visibility="collapsed", width="stretch",
             help="Yazdıkça öneriler anında süzülür (Türkiye'deki il, ilçe ve kasabalar ile dünyanın büyük şehirleri). "
                  "Listede olmayan bir yeri yazıp Enter'a basarsan internette aranır.")
         if secim in yerler:
@@ -87,35 +90,43 @@ with st.sidebar:
                 st.error(f"\"{secim}\" adında bir yer bulunamadı. Farklı yazmayı dene.",
                          icon=":material/location_off:")
                 st.stop()
-            i = st.selectbox("Arama sonuçları", range(len(sonuc)), key=f"sonuc_{secim}",
+            i = st.selectbox("Arama sonuçları", range(len(sonuc)), key=f"sonuc_{secim}", label_visibility="collapsed",
                              format_func=lambda k: ", ".join(x for x in (sonuc[k]["name"], sonuc[k].get("admin1"),
                                                                          sonuc[k].get("country")) if x))
             s = sonuc[i]
             st.session_state.konum = {"ad": s["name"], "lat": s["latitude"], "lon": s["longitude"],
                                       "tz": s.get("timezone") or "auto", "rakim": s.get("elevation"),
                                       "bolge": ", ".join(x for x in (s.get("admin1"), s.get("country")) if x)}
-        st.caption(":material/touch_app: Canlı radar ya da Tahmin haritaları sayfasında bir noktaya tıklayarak da konum seçebilirsin.")
 
-    # ---------------------------------------------------------------- kayıtlı noktalar
     noktalar = kayit.oku()
-    if noktalar:
-        st.pills("Kayıtlı noktalar", [n["ad"] for n in noktalar], key="kayitli_secim", on_change=kayitli_sec)
-    with st.popover("Bu konumu kaydet", icon=":material/bookmark_add:", width="stretch"):
-        anahtar = f"kayit_adi_{st.session_state.konum['lat']}_{st.session_state.konum['lon']}"
-        st.text_input("Nokta adı", value=st.session_state.konum["ad"], key=anahtar,
-                      help="Örn. \"Tirebolu açığı – lüfer\". Aynı adla kaydedersen eski kaydın yerini alır.")
-        st.button("Kaydet", icon=":material/save:", on_click=kaydet, args=(anahtar,), type="primary", width="stretch")
+    with st.popover("Noktalarım", icon=":material/bookmarks:"):
         if noktalar:
-            st.caption("Kayıtlı noktaları sil")
+            st.pills("Kayıtlı noktalar", [n["ad"] for n in noktalar], key="kayitli_secim", on_change=kayitli_sec)
+        else:
+            st.caption("Henüz kayıtlı nokta yok. Sık baktığın yerleri (av noktası, yayla, kamp yeri) kaydedip tek "
+                       "dokunuşla seçebilirsin.")
+        anahtar = f"kayit_adi_{st.session_state.konum['lat']}_{st.session_state.konum['lon']}"
+        st.text_input("Bu konumu kaydet", value=st.session_state.konum["ad"], key=anahtar,
+                      help="Örn. \"Tirebolu açığı – lüfer\". Aynı adla kaydedersen eski kaydın yerini alır.")
+        st.button("Kaydet", icon=":material/bookmark_add:", on_click=kaydet, args=(anahtar,), type="primary",
+                  width="stretch")
+        if noktalar:
+            st.caption("Sil")
             for n in noktalar:
                 st.button(n["ad"], icon=":material/delete:", key=f"sil_{n['ad']}", on_click=kayit.sil,
                           args=(n["ad"],), width="stretch")
+
+# ---------------------------------------------------------------- kenar çubuğu: ayarlar
+with st.sidebar:
+    st.subheader("Ayarlar", anchor=False)
     st.slider("Tahmin süresi (gün)", 2, 10, 5, key="gun",
               help="Meteogram, modeller, ansambl ve uyarılar bu aralığı kullanır. Uzadıkça belirsizlik artar.")
     rakim = s.get("elevation")
-    st.caption(f"{s['latitude']:.2f}° K, {s['longitude']:.2f}° D"
+    st.caption(f"**{st.session_state.konum['ad']}** · {s['latitude']:.2f}° K, {s['longitude']:.2f}° D"
                + (f" · rakım {rakim:.0f} m" if isinstance(rakim, (int, float)) else "") + "  \n"
                f"Saatler yerel saattir ({s.get('timezone', '?')}).")
+    st.caption(":material/touch_app: Canlı radar ya da Tahmin haritaları sayfasında bir noktaya tıklayarak da konum "
+               "seçebilirsin.")
     st.toggle("Örnek veri (çevrimdışı)", key="ornek_veri",
               value=os.environ.get("HAVA_ORNEK", "") in ("1", "true", "evet"),
               help="Geliştirme ve deneme için: veri servislerine hiç istek atmadan sentetik bir senaryo (geçen bir "
@@ -123,7 +134,8 @@ with st.sidebar:
                    "Radar ve uydu görüntüsü yine gerçektir.")
     st.space("medium")
     st.caption("Veri: [Open-Meteo](https://open-meteo.com) (CC BY 4.0) · ECMWF, DWD, NOAA, Météo-France, "
-               "UK Met Office modelleri · yer adları: [GeoNames](https://www.geonames.org) (CC BY 4.0)")
+               "UK Met Office modelleri · ölçümler: NOAA Aviation Weather Center · yer adları: "
+               "[GeoNames](https://www.geonames.org) (CC BY 4.0)")
 
 if st.session_state.get("ornek_veri"):
     st.badge("Örnek veri modu: gösterilen değerler sentetiktir, gerçek tahmin değildir", icon=":material/science:",

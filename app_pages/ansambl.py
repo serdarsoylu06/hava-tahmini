@@ -1,6 +1,6 @@
 import streamlit as st
 
-from hava import grafik
+from hava import grafik, tasarim
 from hava.arayuz import gun_sayisi, okuma_rehberi
 from hava.veri import ansambl, konum
 from hava.yorum import gun
@@ -11,9 +11,9 @@ DEGISKENLER = {"Sıcaklık": ("temperature_2m", "°C"), "Yağış": ("precipitat
                "Rüzgâr": ("wind_speed_10m", "km/s")}
 
 k = konum()
-st.header("Ansambl: olası gelecekler", anchor=False)
-st.caption("Tek bir tahmin yerine onlarca olası senaryo. \"Yarın %60 yağmur\" ifadesi tam olarak buradan gelir: "
-           "üyelerin %60'ı yağış veriyor demektir.")
+tasarim.baslik("Tahmin", "Ansambl: olası gelecekler",
+               "Tek bir tahmin yerine onlarca olası senaryo. \"Yarın %60 yağmur\" ifadesi tam olarak buradan gelir: "
+               "üyelerin %60'ı yağış veriyor demektir.", "tahmin")
 
 c1, c2 = st.columns([2, 1.3], vertical_alignment="bottom")
 model = MODELLER[c1.selectbox("Ansambl modeli", list(MODELLER), key="ens_model")]
@@ -49,7 +49,7 @@ if var == "precipitation":
 else:
     st.altair_chart(grafik.spagetti(U, f"{ad} ({birim})"), alt=f"Ansambl {ad.lower()} tahmini")
     bant = (U.quantile(0.9, axis=1) - U.quantile(0.1, axis=1)).resample("D").mean()
-    m = st.columns(3)
+    m = st.container(key="kartlar_ansambl_1").columns(3)
     m[0].metric("Kullanılan üye", f"{U.shape[1]}", border=True)
     m[1].metric("İlk gün belirsizlik", f"± {bant.iloc[0] / 2:.1f} {birim}", border=True,
                 help="%10–%90 aralığının yarısı.")

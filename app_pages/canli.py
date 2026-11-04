@@ -1,12 +1,13 @@
 import streamlit as st
 
+from hava import tasarim
 from hava.canli import UYDU_KATMAN, canli_harita
 from hava.veri import konum
 
 k = konum()
-st.header("Canlı radar ve uydu", anchor=False)
-st.caption("Gerçek gözlemler: son iki saatin yağış radarı ve Meteosat uydu görüntüsü, üstünde modelin şu anki rüzgâr "
-           "akışı. Animasyon tarayıcında döner. Haritaya tıklarsan orası uygulamanın konumu olur.")
+tasarim.baslik("Canlı gözlem", "Canlı radar ve uydu",
+               "Gerçek gözlemler: son iki saatin yağış radarı ve Meteosat uydu görüntüsü, üstünde modelin şu anki rüzgâr "
+               "akışı. Animasyon tarayıcında döner. Haritaya tıklarsan orası uygulamanın konumu olur.", "canli")
 
 c1, c2 = st.columns([1.4, 1], vertical_alignment="bottom")
 secili = c1.pills("Katmanlar", ["Radar", "Uydu", "Rüzgâr akışı"], selection_mode="multi",

@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from hava import grafik, iklim
+from hava import grafik, iklim, tasarim
 from hava.arayuz import okuma_rehberi
 from hava.veri import konum
 
@@ -9,9 +9,9 @@ AYLAR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki",
 AY_TAM = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
 
 k = konum()
-st.header(f"İklim ve geçmiş · {k['ad']}", anchor=False)
-st.caption("Bugünkü hava ve tahmin, bu yerin 1991–2020 mevsim normaliyle ve 1991'den bu yana her yılla "
-           "karşılaştırılır. \"Sıcak\" ya da \"yağışlı\" ancak normale göre söylenebilir.")
+tasarim.baslik("İklim", f"İklim ve geçmiş · {k['ad']}",
+               "Bugünkü hava ve tahmin, bu yerin 1991–2020 mevsim normaliyle ve 1991'den bu yana her yılla "
+               "karşılaştırılır. \"Sıcak\" ya da \"yağışlı\" ancak normale göre söylenebilir.", "iklim")
 
 a = iklim.arsiv(k)
 if a is None or a.empty:
@@ -24,7 +24,7 @@ bugun = pd.Timestamp.now(tz=None if k["tz"] == "auto" else k["tz"]).tz_localize(
 bugun_n = iklim.normal_al(nrm, [bugun]).iloc[0]
 
 # ---------------------------------------------------------------- özet
-m = st.columns(4)
+m = st.container(key="kartlar_iklim_1").columns(4)
 if son is not None and bugun in son.index:
     tmax = son.loc[bugun, "temperature_2m_max"]
     m[0].metric("Bugün en yüksek", f"{tmax:.0f}°", f"{tmax - bugun_n.max_ort:+.1f}° normale göre",

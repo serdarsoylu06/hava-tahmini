@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from hava import grafik
+from hava import grafik, tasarim
 from hava.arayuz import gun_sayisi, okuma_rehberi
 from hava.veri import FC, getir, konum, simdiden, tablo
 from hava.yorum import zaman
@@ -17,9 +17,9 @@ DEGISKENLER = {"Sıcaklık": ("temperature_2m", "°C", (2, 4)),
                "Bulutluluk": ("cloud_cover", "%", (30, 60))}
 
 k = konum()
-st.header("Modeller ne diyor?", anchor=False)
-st.caption("Dünyanın önde gelen hava tahmin merkezlerinin modelleri aynı yer için yan yana. "
-           "Lejanttaki bir modele tıklayarak onu vurgula; fareyle gezerek o saatteki tüm modelleri oku.")
+tasarim.baslik("Tahmin", "Modeller ne diyor?",
+               "Dünyanın önde gelen hava tahmin merkezlerinin modelleri aynı yer için yan yana. "
+               "Lejanttaki bir modele tıklayarak onu vurgula; fareyle gezerek o saatteki tüm modelleri oku.", "tahmin")
 
 ad = st.segmented_control("Değişken", list(DEGISKENLER), default="Sıcaklık", key="model_deg")
 var, birim, esik = DEGISKENLER[ad or "Sıcaklık"]

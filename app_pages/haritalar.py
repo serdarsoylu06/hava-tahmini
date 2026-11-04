@@ -2,14 +2,14 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from hava import harita
+from hava import harita, tasarim
 from hava.veri import DENIZ, FC, TZ, getir, konum
 from hava.yorum import zaman as zaman_yaz
 
 k = konum()
-st.header("Hava haritaları", anchor=False)
-st.caption("Haritayı sürükle, yakınlaştır; bir noktanın üzerine gelince değerleri görünür. **Bir noktaya tıklarsan "
-           "orası uygulamanın konumu olur.** Ayrıntılı seçim için bölgeyi \"Konumun çevresi\" yap.")
+tasarim.baslik("Atmosfer", "Tahmin haritaları",
+               "Haritayı sürükle, yakınlaştır; bir noktanın üzerine gelince değerleri görünür. **Bir noktaya tıklarsan "
+               "orası uygulamanın konumu olur.** Ayrıntılı seçim için bölgeyi \"Konumun çevresi\" yap.", "atmosfer")
 
 kat = st.segmented_control("Katman", list(harita.KATMANLAR), default="Sıcaklık + basınç", key="h_kat") \
       or "Sıcaklık + basınç"

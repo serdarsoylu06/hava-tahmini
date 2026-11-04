@@ -551,7 +551,7 @@ def normal_bandi(d, bugun):
                                                                            scale=alt.Scale(zero=False)), y2="max_p90:Q"),
         alt.Chart(d).mark_line(color=GRI, strokeDash=[4, 3]).encode(x, y="max_ort:Q"),
         alt.Chart(d).mark_rule(color=GRI, opacity=0.6).encode(x, y="max_ort:Q", y2="temperature_2m_max:Q"),
-        alt.Chart(d).mark_line(color=KIRMIZI, strokeWidth=2.5, point=alt.OverlayMarkDef(size=36, filled=True)).encode(
+        alt.Chart(d).mark_line(color=KIRMIZI, strokeWidth=2.5, point=alt.OverlayMarkDef(size=36, filled=True, color=KIRMIZI)).encode(
             x, y="temperature_2m_max:Q",
             strokeDash=alt.StrokeDash("tur:N", title=None, legend=alt.Legend(orient="top"),
                                       scale=alt.Scale(domain=["Gerçekleşen", "Tahmin"], range=[[1, 0], [5, 3]])),
