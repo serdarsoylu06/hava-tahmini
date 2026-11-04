@@ -1,53 +1,55 @@
-# Açık/koyu tema; kullanıcı Ayarlar menüsünden değiştirebilir. Gradyan ve gölgeler hava/tasarim.py'de.
+# "Alet paneli" teması: ölçüm aletini andıran sade yüzeyler, ince çizgiler, tek vurgu rengi (sinyal turuncusu).
+# Sayılar IBM Plex Mono, metin IBM Plex Sans. Kart, başlık ve mobil düzen stilleri hava/tasarim.py'de.
 
 [theme]
 showWidgetBorder = true
-showSidebarBorder = false
-baseRadius = "14px"
-buttonRadius = "12px"
-font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-headingFont = "'Plus Jakarta Sans':https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+showSidebarBorder = true
+baseRadius = "8px"
+buttonRadius = "6px"
+font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+headingFont = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+codeFont = "'IBM Plex Mono':https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
 baseFontSize = 15
-headingFontWeights = [800, 700, 700, 700, 600, 600]
-metricValueFontSize = "1.75rem"
-metricValueFontWeight = 700
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+metricValueFontSize = "1.7rem"
+metricValueFontWeight = 500
 linkUnderline = false
 paddingTop = "1.2rem"
 
 [theme.light]
-primaryColor = "#5B4BDB"
-backgroundColor = "#F7F8FC"
-secondaryBackgroundColor = "#EEF0FA"
-textColor = "#101828"
-borderColor = "#E2E5F2"
-linkColor = "#4C3DCB"
-blueColor = "#1C7ED6"
-greenColor = "#1E9E5A"
-redColor = "#D93636"
-orangeColor = "#E8780C"
-yellowColor = "#D9A400"
-violetColor = "#6741D9"
-chartCategoricalColors = ["#5B4BDB", "#1C7ED6", "#E8780C", "#1E9E5A", "#D93636", "#0FA3A3", "#C2255C"]
+primaryColor = "#C2410C"
+backgroundColor = "#F5F6F7"
+secondaryBackgroundColor = "#EEF0F2"
+textColor = "#111418"
+borderColor = "#D9DDE2"
+linkColor = "#C2410C"
+blueColor = "#1D4ED8"
+greenColor = "#15803D"
+redColor = "#B91C1C"
+orangeColor = "#C2410C"
+yellowColor = "#A16207"
+violetColor = "#6D28D9"
+chartCategoricalColors = ["#C2410C", "#1D4ED8", "#111418", "#15803D", "#B91C1C", "#0E7490", "#6D28D9"]
 
 [theme.dark]
-primaryColor = "#8B7CFF"
-backgroundColor = "#0A0E1A"
-secondaryBackgroundColor = "#141A2B"
-textColor = "#E8ECF6"
-borderColor = "#232B42"
-linkColor = "#A99DFF"
-blueColor = "#4DA3FF"
-greenColor = "#3DD68C"
-redColor = "#FF6B6B"
-orangeColor = "#FFA94D"
-yellowColor = "#FFD43B"
-violetColor = "#B197FC"
-chartCategoricalColors = ["#8B7CFF", "#4DA3FF", "#FFA94D", "#3DD68C", "#FF6B6B", "#3BC9DB", "#F783AC"]
+primaryColor = "#FB923C"
+backgroundColor = "#0E1114"
+secondaryBackgroundColor = "#171B20"
+textColor = "#E8EBEE"
+borderColor = "#2A3038"
+linkColor = "#FB923C"
+blueColor = "#60A5FA"
+greenColor = "#4ADE80"
+redColor = "#F87171"
+orangeColor = "#FB923C"
+yellowColor = "#FACC15"
+violetColor = "#A78BFA"
+chartCategoricalColors = ["#FB923C", "#60A5FA", "#E8EBEE", "#4ADE80", "#F87171", "#22D3EE", "#A78BFA"]
 
 [theme.light.sidebar]
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F3F4FB"
+secondaryBackgroundColor = "#F5F6F7"
 
 [theme.dark.sidebar]
-backgroundColor = "#070A13"
-secondaryBackgroundColor = "#141A2B"
+backgroundColor = "#121519"
+secondaryBackgroundColor = "#171B20"
