@@ -21,6 +21,12 @@ pip install -r requirements.txt
 streamlit run hava_lab.py
 ```
 
+Not defterleri (`01–03_*.ipynb`) için ayrıca `pip install -r requirements-defter.txt` (ecCodes sistem kütüphanesi
+gerekir; macOS'ta `brew install eccodes`). Uygulamanın kendisi bunlara ihtiyaç duymaz.
+
+macOS'ta python.org kurulumunda veri çekerken `CERTIFICATE_VERIFY_FAILED` hatası alırsan bir kez
+`/Applications/Python 3.12/Install Certificates.command` dosyasını çalıştır.
+
 **Örnek veri modu:** Kenar çubuğundaki "Örnek veri (çevrimdışı)" düğmesi ya da `HAVA_ORNEK=1 streamlit run hava_lab.py`.
 Hiçbir veri servisine istek atmadan sentetik bir senaryo gösterir; geliştirirken ve istek sınırı dolduğunda kullanılır.
 
@@ -30,11 +36,20 @@ Hiçbir veri servisine istek atmadan sentetik bir senaryo gösterir; geliştirir
 ## Yayına alma (Streamlit Community Cloud)
 
 1. <https://share.streamlit.io> adresinde GitHub hesabınla giriş yap.
-2. **Create app** → bu depoyu, `main` dalını ve ana dosya olarak `hava_lab.py`'yi seç.
-3. Gelişmiş ayarlardan Python sürümünü seç ve **Deploy**'a bas. Bağımlılıklar `requirements.txt`'ten kurulur.
+2. **Create app** → bu depoyu, `main` dalını ve ana dosya olarak `hava_lab.py`'yi seç. İstersen adresi
+   (`<ad>.streamlit.app`) burada belirle.
+3. **Advanced settings** → Python **3.12** seç (paketler bu sürümle denendi) ve **Deploy**'a bas. Bağımlılıklar
+   `requirements.txt`'ten kurulur; ilk kurulum birkaç dakika sürer. Gizli anahtar (secrets) gerekmez.
+4. Sonrasında `main`'e her `git push` uygulamayı kendiliğinden günceller.
 
 Depo gizliyse Streamlit'e GitHub erişim izni vermen gerekir. Uygulama herkese açık bir adres alır; istersen
-erişimi belirli e-posta adresleriyle sınırlayabilirsin.
+**Share** menüsünden erişimi belirli e-posta adresleriyle sınırlayabilirsin.
+
+**Bilinmesi gerekenler:**
+- Bir süre kimse açmazsa uygulama uykuya geçer; ilk açılış bir dakika kadar sürebilir.
+- Sunucunun diski kalıcı değildir: `.onbellek/` (yanıt önbelleği) ve `kayitlar/` (Noktalarım) her yeniden
+  başlatmada silinir. Kayıtlı noktalar sunucudaki tek bir dosyada tutulduğu için uygulamayı açan herkes aynı
+  listeyi görür ve değiştirebilir.
 
 **Netlify neden olmaz?** Netlify statik siteler ve kısa ömürlü fonksiyonlar içindir. Streamlit ise sürekli açık
 duran bir Python sunucusu ve WebSocket bağlantısı gerektirir.
