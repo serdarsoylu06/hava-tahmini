@@ -62,7 +62,7 @@ function degerler(s, i) {
     hucre("Hissedilen", `${h.a}°`), hucre("Yağış", `%${h.p}${h.mm ? ` <small>${h.mm} mm</small>` : ""}`),
     hucre("Rüzgâr / hamle", `${h.w} / ${h.g}`), hucre("Çiy noktası", `${h.d}°`),
     hucre("Sıcaklık − çiy", `${h.t - h.d}°`),
-    hucre("Basınç, 3 saat", `${Math.round(h.pr)} <span style="color: ${tr <= -2 ? "var(--vurgu)" : "var(--soluk)"}">${isaret}${Math.abs(tr)}</span>`),
+    hucre("Basınç, 3 saat", `${Math.round(h.pr)} <span style="color: ${tr <= -2 ? "var(--uyari)" : "var(--soluk)"}">${isaret}${Math.abs(tr)}</span>`),
   ].join("")}</div>`
 }
 
@@ -80,7 +80,7 @@ function masaustu(d, sec) {
   const prs = s.map((h) => h.pr), plo = Math.min(...prs) - 1, phi = Math.max(...prs) + 1
   const py = (v) => 6 + (phi - v) / (phi - plo) * 54
   const pyol = s.map((h, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${py(h.pr).toFixed(1)}`).join(" ")
-  const dusus = s.map((h, i) => egilim(s, i) <= -2 ? `<rect x="${i * cw}" y="0" width="${cw}" height="66" fill="var(--vurgu)" opacity="0.08"/>` : "").join("")
+  const dusus = s.map((h, i) => egilim(s, i) <= -2 ? `<rect x="${i * cw}" y="0" width="${cw}" height="66" fill="var(--uyari)" opacity="0.10"/>` : "").join("")
   const pmin = Math.min(...prs), pi = prs.indexOf(pmin)
   const dipVar = pi >= 3 && pi <= n - 4
   const bol = bolgeler(s)
@@ -88,7 +88,7 @@ function masaustu(d, sec) {
 
   const saatler = s.map((h, i) => `<button type="button" class="zs-saat${i === sec ? " secili" : ""}" data-i="${i}" aria-label="${kac(h.uzun)}, ${h.t} derece, ${kac(h.durum)}" aria-pressed="${i === sec}">
       <span class="s mono${i === 0 ? " simdi" : ""}">${h.gun ? `<b>${h.gun}</b>` : ""}${i === 0 ? "ŞİMDİ" : kac(h.saat)}</span>${ikon(h.tur)}<span class="t mono">${h.t}°</span></button>`).join("")
-  const ruzgar = s.map((h, i) => `<span class="zs-ruzgar${i === sec ? " secili" : ""}" style="color: ${sertMi(h) ? "var(--vurgu)" : "var(--ruzgar)"}">${ok(h.yon)}
+  const ruzgar = s.map((h, i) => `<span class="zs-ruzgar${i === sec ? " secili" : ""}" style="color: ${sertMi(h) ? "var(--uyari)" : "var(--ruzgar)"}">${ok(h.yon)}
       <span class="w mono${sertMi(h) ? " sert" : ""}">${h.w}</span><span class="g mono${h.g >= 40 ? " sert" : ""}">${h.g}</span></span>`).join("")
   const uyarilar = bol.length ? bol.map((b) => `<button type="button" class="${b.ad}" data-i="${b.bas}" style="left: ${b.bas / n * 100}%; width: ${(b.son - b.bas + 1) / n * 100}%" title="${kac(b.metin)}">${kac(b.metin)}</button>`).join("")
     : `<div class="zs-bos">Bu saatlerde sis, sert rüzgâr ya da yüksek yağış olasılığı görünmüyor.</div>`
@@ -104,7 +104,7 @@ function masaustu(d, sec) {
         ${geceler}${imlec(120)}${sisler}
         <path d="${yol("a")}" fill="none" stroke="var(--his)" stroke-width="1.5" stroke-dasharray="1.5 3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
         <path d="${yol("d")}" fill="none" stroke="var(--cig)" stroke-width="1.5" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
-        <path d="${yol("t")}" fill="none" stroke="var(--vurgu)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg></div>
+        <path d="${yol("t")}" fill="none" stroke="var(--sicak)" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg></div>
       <div class="zs-ad">Yağış<small>olasılık %</small></div>
       <div class="zs-satir"><svg class="serit" viewBox="0 0 ${W} 60" preserveAspectRatio="none" style="height: 60px" role="img" aria-label="Yağış olasılığı">${imlec(60)}${cubuk}</svg></div>
       <div class="zs-ad">Rüzgâr<small>ortalama / hamle<br>km/s, geldiği yön</small></div>
@@ -146,7 +146,7 @@ function telefon(d, sec) {
       ${i === sec ? `<div class="zs-acilir">${degerler(s, i)}<div class="zs-ipucu">${kac(ipucu(s, i))}</div></div>` : ""}</li>`).join("")
   return `<div class="zs-tel">
   <div class="zs-mini"><div class="zs-mini-ic" style="--n: ${n}">
-    <svg viewBox="0 0 ${n * 30} 38" style="width: ${n * 30}px; height: 38px; display: block" aria-hidden="true">${zemin}<path d="${yol}" fill="none" stroke="var(--vurgu)" stroke-width="2.2"/></svg>
+    <svg viewBox="0 0 ${n * 30} 38" style="width: ${n * 30}px; height: 38px; display: block" aria-hidden="true">${zemin}<path d="${yol}" fill="none" stroke="var(--sicak)" stroke-width="2.2"/></svg>
     <div class="zs-mini-sutunlar">${mini}</div></div></div>
   <p class="zs-not">Şeridi yana kaydır. Bir saate dokun: aşağıda ayrıntısı açılır. Mavi çubuk yağış olasılığı.</p>
   <ol class="zs-liste zs-kart" aria-label="Saat saat tahmin">${satirlar}</ol>

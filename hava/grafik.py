@@ -8,8 +8,9 @@ import streamlit as st
 from hava.veri import simge, durum, yon_adi
 from hava.yorum import GUNLER
 
-KIRMIZI, YESIL, TURUNCU = "#E03131", "#2F9E44", "#F76707"
-MAVI, MOR, GRI, CAMGOBEGI, KAHVE, LACIVERT = "#1C7ED6", "#7048E8", "#868E96", "#15AABF", "#C2410C", "#4C6EF5"
+# AURA paleti: camgöbeği (basınç/nem/yağış), kehribar (sıcaklık), mercan (uyarı); açık ve koyu temada okunur tonlar
+KIRMIZI, YESIL, TURUNCU = "#F43F5E", "#10B981", "#F59E0B"
+MAVI, MOR, GRI, CAMGOBEGI, KAHVE, LACIVERT = "#0EA5E9", "#8B5CF6", "#8A97A8", "#06B6D4", "#D97706", "#6366F1"
 SAAT = "%d.%m %H:%M"
 YUK = 150   # meteogram panel yüksekliği
 EKSEN = 42  # meteogram y eksenlerinin sabit genişliği (px)
@@ -29,7 +30,7 @@ def _x(etiket=True):
 
 def yazi_rengi(koyu):
     """Metin işaretleri temanın yazı rengini almıyor; açık/koyu temaya göre elle verilir."""
-    return "#E6EDF6" if koyu else "#0F1B2D"
+    return "#DFE2F1" if koyu else "#0F172A"
 
 
 def _murekkep():
