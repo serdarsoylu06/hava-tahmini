@@ -190,9 +190,10 @@ def yirmidort_saat(df, koyu=False):
     d["simge"] = [simge(c, bool(g)) for c, g in zip(d.weather_code, d.is_day)]
     d["durum"] = d.weather_code.map(durum)
     d["etiket"] = d.temperature_2m.round().astype(int).astype(str) + "°"
-    d["olas_e"] = np.where(d.precipitation_probability >= 10,
+    d["olas_e"] = np.where(d.precipitation_probability >= 20,
                            d.precipitation_probability.fillna(0).astype(int).astype(str) + "%", "")
-    x = alt.X("time:T", title=None, axis=alt.Axis(format="%H:%M", tickCount=8, grid=False, labelAngle=0))
+    x = alt.X("time:T", title=None, axis=alt.Axis(format="%H:%M", tickCount=6, grid=False, labelAngle=0,
+                                                                   labelFlush=True, labelOverlap=True))
     lo, hi = d.temperature_2m.min(), d.temperature_2m.max()
     aralik = max(hi - lo, 4)
     # sıcaklık eğrisi grafiğin orta bandında, simgeler üstte, yağış çubukları altta kalacak biçimde ölçek
@@ -205,7 +206,7 @@ def yirmidort_saat(df, koyu=False):
              alt.Tooltip("precipitation_probability:Q", title="Yağış olasılığı %"),
              alt.Tooltip("precipitation:Q", title="Yağış mm", format=".1f"),
              alt.Tooltip("wind_gusts_10m:Q", title="Hamle km/s", format=".0f")]
-    iki = d.iloc[::2]
+    iki = d.iloc[::3]          # etiket, simge ve yüzdeler 3 saatte bir: dar ekranda birbirine girmesin
     sicak = alt.layer(
         alt.Chart(d).mark_area(opacity=0.13, color=TURUNCU, line={"color": TURUNCU, "strokeWidth": 2.5},
                                interpolate="monotone").encode(
@@ -225,7 +226,9 @@ def yirmidort_saat(df, koyu=False):
         alt.Chart(d).mark_rule(color=GRI, strokeDash=[3, 3]).encode(x, tooltip=ipucu).transform_filter(hover),
         alt.Chart(d).mark_point(opacity=0).encode(x).add_params(hover),
     )
-    return alt.layer(sicak, yag, imlec).resolve_scale(y="independent").properties(height=300)
+    # sağ dolgu: son saat etiketi ("18:00") grafiğin kenarında kesilmesin
+    return alt.layer(sicak, yag, imlec).resolve_scale(y="independent").properties(
+        height=300, padding={"left": 6, "right": 22, "top": 6, "bottom": 4})
 
 
 def on_gun(gunluk, guven=None, koyu=False):
@@ -512,7 +515,8 @@ def dogrulama_cizgisi(df, gercek, tahminler, birim, bar=False, gercek_ad="Gerçe
     cizgi = alt.Chart(d).mark_line(interpolate="monotone").encode(
         x, alt.Y("deger:Q", title=birim, scale=alt.Scale(zero=bar)),
         alt.Color("seri:N", title="Tıkla: vurgula", scale=alt.Scale(domain=adlar, range=renkler),
-                  legend=alt.Legend(orient="top")),
+                  # tek satır gösterge dar sütunda taşıp kesiliyordu ("1 gün önce y…"): iki sütuna sarılır
+                  legend=alt.Legend(orient="top", columns=2, labelLimit=150)),
         strokeWidth=alt.condition(alt.datum.seri == gercek_ad, alt.value(3), alt.value(1.6)),
         opacity=alt.condition(secim, alt.value(1), alt.value(0.12)),
     ).add_params(secim)
@@ -528,7 +532,7 @@ def hata_cubugu(ozet, birim):
     d = ozet.reset_index()
     return alt.layer(
         alt.Chart(d).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
-            alt.X("gun:O", title="Kaç gün önce yapılan tahmin", axis=alt.Axis(labelAngle=0)),
+            alt.X("gun:O", title="Kaç gün önce", axis=alt.Axis(labelAngle=0)),
             alt.Y("mae:Q", title=f"Ortalama mutlak hata ({birim})"),
             color=alt.Color("mae:Q", legend=None, scale=alt.Scale(range=["#B2F2BB", "#E03131"])),
             tooltip=[alt.Tooltip("gun:O", title="Gün önce"), alt.Tooltip("mae:Q", title="Ortalama hata", format=".2f"),
