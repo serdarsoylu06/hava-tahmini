@@ -1,19 +1,31 @@
-"""Görsel tasarım: gradyanlı başlık bantları, havaya göre renk alan kahraman kartı, kart ve mobil düzen stilleri.
-Renkler ve yazı tipleri .streamlit/config.toml'da; burada yalnızca temanın veremediği gradyan, gölge ve mobil
-düzen var. Seçiciler mümkün olduğunca bizim verdiğimiz anahtarlara (.st-key-…) bağlanır."""
+"""Görsel tasarım ("Alet paneli"): sade beyaz yüzeyler, ince çizgiler, tek vurgu rengi, sayılar eş aralıklı yazıyla.
+Renkler ve yazı tipleri .streamlit/config.toml'da; burada yalnızca temanın veremediği kart, başlık, kahraman kartı ve
+mobil düzen stilleri var. Seçiciler mümkün olduğunca bizim verdiğimiz anahtarlara (.st-key-…) bağlanır."""
 import html
 import re
 
 import streamlit as st
 
-PALET = {
-    "tahmin": ("#4C3DCB", "#1C7ED6"), "atmosfer": ("#0B7285", "#364FC7"), "deniz": ("#0C8599", "#1864AB"),
-    "iklim": ("#F76707", "#C2255C", "#5F3DC4"), "ogren": ("#2B8A3E", "#0B7285"), "canli": ("#212F5C", "#6741D9"),
-}
+MONO = "'IBM Plex Mono', ui-monospace, monospace"
+
+# WMO hava kodu → Material Symbols simge adı (gündüz, gece)
+_SIMGE = [((0,), "clear_day", "bedtime"), ((1, 2), "partly_cloudy_day", "partly_cloudy_night"),
+          ((3,), "cloud", "cloud"), ((45, 48), "foggy", "foggy"), ((51, 53, 55, 56, 57), "rainy_light", "rainy_light"),
+          ((61, 63, 66), "rainy", "rainy"), ((65, 67, 80, 81, 82), "rainy_heavy", "rainy_heavy"),
+          ((71, 73, 75, 77, 85, 86), "weather_snowy", "weather_snowy"), ((95, 96, 99), "thunderstorm", "thunderstorm")]
 
 
-def _gradyan(renkler, aci=125):
-    return f"linear-gradient({aci}deg, {', '.join(renkler)})"
+def _renkler(koyu):
+    if koyu:
+        return {"yuzey": "#171B20", "cizgi": "#2A3038", "ince": "#20252C", "soluk": "#9BA4AE", "ikinci": "#C3CAD2",
+                "vurgu": "#FB923C", "metin": "#E8EBEE", "golge": "0 1px 0 rgba(0,0,0,.4)"}
+    return {"yuzey": "#FFFFFF", "cizgi": "#D9DDE2", "ince": "#EEF0F2", "soluk": "#5F6873", "ikinci": "#3D4651",
+            "vurgu": "#C2410C", "metin": "#111418", "golge": "0 1px 0 rgba(17,20,24,.04)"}
+
+
+def buyuk(s):
+    """Türkçe büyük harf: i → İ, ı → I (CSS text-transform sayfa dili İngilizce olduğu için yanlış çevirir)."""
+    return s.replace("i", "İ").replace("ı", "I").upper()
 
 
 def _metin(s):
@@ -22,95 +34,112 @@ def _metin(s):
 
 
 def stil(koyu):
-    yuzey = "rgba(255,255,255,0.04)" if koyu else "rgba(255,255,255,0.75)"
-    cizgi = "rgba(139,124,255,0.22)" if koyu else "rgba(91,75,219,0.16)"
-    golge = "0 14px 30px -18px rgba(0,0,0,0.8)" if koyu else "0 14px 30px -18px rgba(76,61,203,0.45)"
+    r = _renkler(koyu)
     st.html(f"""<style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,300,0,0&display=block');
 
-/* gradyanlı bantlar (başlık ve kahraman kartı) */
-.hb {{ position: relative; overflow: hidden; border-radius: 22px; color: #fff; background: var(--g);
-       padding: clamp(16px, 3vw, 26px) clamp(18px, 3.5vw, 32px); box-shadow: 0 16px 36px -18px rgba(30,20,90,.55); }}
-.hb::before, .hb::after {{ content: ""; position: absolute; border-radius: 50%; pointer-events: none; }}
-.hb::before {{ width: 320px; height: 320px; right: -90px; top: -150px;
-               background: radial-gradient(circle, rgba(255,255,255,.38), transparent 62%); }}
-.hb::after {{ width: 260px; height: 260px; left: 32%; bottom: -170px;
-              background: radial-gradient(circle, rgba(255,255,255,.22), transparent 62%); }}
-.hb-etiket {{ font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; opacity: .85; }}
-.hb h1 {{ font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; color: #fff; margin: .2em 0 .25em;
-          font-size: clamp(22px, 3.3vw, 34px); line-height: 1.15; letter-spacing: -.01em; padding: 0; }}
-.hb p {{ margin: 0; max-width: 860px; opacity: .93; font-size: clamp(13px, 1.5vw, 15px); line-height: 1.55; }}
+/* sayfa başlığı ve bölüm başlıkları */
+.pb {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 8px; box-shadow: {r['golge']};
+       padding: clamp(16px, 2.6vw, 24px) clamp(18px, 3vw, 28px); }}
+.pb-etiket, .bl-no, .k-etiket, .k-okuma-ad {{ font-family: {MONO}; letter-spacing: .1em; }}
+.pb-etiket {{ font-size: 12px; color: {r['vurgu']}; font-weight: 500; }}
+.pb h1 {{ font-weight: 600; margin: .3em 0 .25em; padding: 0; font-size: clamp(22px, 3vw, 30px); line-height: 1.2;
+          letter-spacing: -.01em; color: {r['metin']}; }}
+.pb p {{ margin: 0; max-width: 860px; color: {r['ikinci']}; font-size: clamp(13px, 1.5vw, 15px); line-height: 1.55; }}
 
-/* kahraman kartı */
-.kahraman {{ display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; align-items: end; }}
-.k-yer {{ font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(22px, 3.2vw, 32px);
-          line-height: 1.1; }}
-.k-alt {{ opacity: .85; font-size: 13px; margin-top: 2px; }}
-.k-sicak {{ font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; letter-spacing: -.05em;
-            font-size: clamp(68px, 13vw, 124px); line-height: .95; margin-top: 10px; }}
-.k-ikon {{ font-size: clamp(54px, 10vw, 96px); line-height: 1; filter: drop-shadow(0 8px 18px rgba(0,0,0,.25)); }}
-.k-durum {{ font-size: clamp(15px, 1.9vw, 19px); font-weight: 600; margin-top: 4px; }}
-.k-cipler {{ grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }}
-.k-cipler span {{ background: rgba(255,255,255,.17); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(6px);
-                  border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }}
+.bl {{ display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; border-bottom: 1px solid {r['cizgi']};
+       padding-bottom: 10px; margin-top: 8px; }}
+.bl-no {{ font-size: 13px; color: {r['vurgu']}; letter-spacing: 0; }}
+.bl h2 {{ margin: 0; padding: 0; font-size: 21px; font-weight: 600; color: {r['metin']}; }}
+.bl span.bl-ac {{ font-size: 13px; color: {r['soluk']}; }}
 
-/* metrik kartları: hafif gradyan dolgu, yumuşak gölge */
-[data-testid="stMetric"] {{ background: linear-gradient(150deg, {cizgi}, {yuzey}) !important;
-                            border: 1px solid {cizgi} !important; border-radius: 18px !important;
-                            transition: transform .15s ease, box-shadow .15s ease; }}
-[data-testid="stMetric"]:hover {{ transform: translateY(-2px); box-shadow: {golge}; }}
+/* kahraman kartı: anlık durum */
+.kahraman {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 8px; box-shadow: {r['golge']};
+             padding: clamp(18px, 3vw, 28px); color: {r['metin']}; }}
+.k-etiket {{ font-size: 12px; color: {r['soluk']}; }}
+.k-ust {{ display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 12px; }}
+.k-sicak {{ font-family: {MONO}; font-weight: 500; font-size: clamp(72px, 12vw, 112px); line-height: .9;
+            letter-spacing: -.06em; }}
+.k-durum {{ font-size: clamp(15px, 1.9vw, 18px); font-weight: 600; margin-top: 14px; }}
+.k-durum span {{ font-weight: 400; color: {r['soluk']}; }}
+.k-ikon {{ font-family: 'Material Symbols Outlined'; font-size: clamp(64px, 10vw, 96px); line-height: 1;
+           color: {r['vurgu']}; font-variation-settings: 'wght' 300, 'opsz' 48; user-select: none; }}
+.k-okuma {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 1px; margin-top: 22px;
+            background: {r['cizgi']}; border: 1px solid {r['cizgi']}; border-radius: 6px; overflow: hidden; }}
+.k-okuma > div {{ padding: 10px 12px; background: {r['yuzey']}; min-width: 0; }}
+.k-okuma-ad {{ font-size: 11px; white-space: nowrap; color: {r['soluk']}; }}
+.k-okuma-deger {{ font-family: {MONO}; font-weight: 500; font-size: 16px; margin-top: 3px; white-space: nowrap; }}
+
+/* metrik kartları: beyaz yüzey, ince çerçeve, eş aralıklı değer */
+[data-testid="stMetric"] {{ background: {r['yuzey']} !important; border: 1px solid {r['cizgi']} !important;
+                            border-radius: 8px !important; box-shadow: {r['golge']}; padding: 14px 16px !important; }}
+[data-testid="stMetricLabel"] p {{ font-family: {MONO}; font-size: 11.5px !important; letter-spacing: .02em;
+                                   color: {r['soluk']}; }}
+[data-testid="stMetricValue"] {{ font-family: {MONO}; letter-spacing: -.04em; font-size: 1.3rem; }}
+/* dar kartta değer kesilmesin ("1006 h…"), alt satıra geçsin */
+[data-testid="stMetricValue"] > div, [data-testid="stMetricValue"] p {{
+    white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
+    height: auto !important; line-height: 1.15 !important; }}
+[data-testid="stMetricDelta"] {{ color: {r['ikinci']}; }}
 
 /* metrik satırları: masaüstünde yan yana, telefonda ikişerli sarılır */
-[class*="st-key-kartlar"] [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap; gap: .65rem; }}
+[class*="st-key-kartlar"] [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap; gap: .6rem; }}
 [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 1 1 120px !important; min-width: 112px !important; }}
 
 /* üst arama çubuğu */
-.st-key-ust_cubuk {{ background: linear-gradient(120deg, {cizgi}, {yuzey}); border: 1px solid {cizgi};
-                     border-radius: 18px; padding: 10px 12px; }}
+.st-key-ust_cubuk {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 8px; padding: 8px 10px;
+                     box-shadow: {r['golge']}; }}
 
-[data-testid="stAlert"] {{ border-radius: 16px; }}
-[data-testid="stExpander"] details {{ border-radius: 14px; }}
+/* uyarılar, açılır kutular, grafik kapları */
+[data-testid="stAlertContainer"] {{ background: {r['yuzey']} !important; border: 1px solid {r['cizgi']};
+                                    border-radius: 8px; color: {r['metin']}; }}
+[data-testid="stExpander"] details {{ border-radius: 8px; background: {r['yuzey']}; }}
+[data-testid="stVegaLiteChart"] {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 8px;
+                                   padding: 10px 8px 4px; }}
 
 @media (max-width: 640px) {{
-  .hb {{ border-radius: 18px; }}
-  .kahraman {{ grid-template-columns: 1fr auto; }}
-  .k-cipler span {{ font-size: 12px; padding: 5px 10px; }}
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
   [data-testid="stMetricValue"] {{ font-size: 1.35rem !important; }}
   /* telefonda ikişerli; tek kalan kart da yarım genişlikte kalsın, satırı doldurmasın */
-  [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - .33rem) !important; min-width: 0 !important; }}
+  [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - .3rem) !important; min-width: 0 !important; }}
 }}
 </style>""")
 
 
-def baslik(etiket, metin, aciklama="", palet="tahmin"):
-    """Sayfanın gradyanlı başlık bandı."""
-    st.html(f"""<div class="hb" style="--g: {_gradyan(PALET[palet])}">
-  <div class="hb-etiket">{html.escape(etiket)}</div>
+def baslik(etiket, metin, aciklama="", palet=None):
+    """Sayfanın başlık paneli. `palet` eski gradyanlı tasarımdan kaldı; artık tek vurgu rengi kullanılıyor."""
+    st.html(f"""<div class="pb">
+  <div class="pb-etiket">{html.escape(buyuk(etiket))}</div>
   <h1>{html.escape(metin)}</h1>
   {f"<p>{_metin(aciklama)}</p>" if aciklama else ""}
 </div>""")
 
 
-def hava_gradyani(kod, gunduz):
-    """WMO koduna ve gündüz/geceye göre kahraman kartının rengi."""
-    if not gunduz:
-        return ("#0B1026", "#2B2F77", "#5B3CC4")
-    if kod >= 95:
-        return ("#1F2340", "#4B2C83", "#7B2CBF")
-    if kod in (71, 73, 75, 77, 85, 86):
-        return ("#5C7CFA", "#91A7FF", "#C5D0FF")
-    if kod >= 51 or kod in (45, 48):
-        return ("#23395B", "#3B5B92", "#5C7FB8")
-    if kod >= 3:
-        return ("#495A7A", "#6C7FA3", "#8FA3C7")
-    return ("#1D6FD8", "#2F9BEA", "#5CC8F5")
+def bolum(no, metin, aciklama=""):
+    """Numaralı bölüm başlığı: "01  Nelere dikkat etmeli?  açıklama"."""
+    st.html(f"""<div class="bl"><span class="bl-no">{html.escape(no)}</span><h2>{html.escape(metin)}</h2>
+  {f'<span class="bl-ac">{_metin(aciklama)}</span>' if aciklama else ""}</div>""")
 
 
-def kahraman(yer, alt, sicaklik, simge, durum, cipler, kod, gunduz):
-    st.html(f"""<div class="hb kahraman" style="--g: {_gradyan(hava_gradyani(kod, gunduz), 140)}">
-  <div><div class="k-yer">{html.escape(yer)}</div><div class="k-alt">{html.escape(alt)}</div>
-       <div class="k-sicak">{sicaklik:.0f}°</div><div class="k-durum">{html.escape(durum)}</div></div>
-  <div class="k-ikon">{simge}</div>
-  <div class="k-cipler">{"".join(f"<span>{html.escape(c)}</span>" for c in cipler)}</div>
+def simge_adi(kod, gunduz=True):
+    """WMO koduna göre Material Symbols simge adı."""
+    for kodlar, g, c in _SIMGE:
+        if kod in kodlar:
+            return g if gunduz else c
+    return "help"
+
+
+def kahraman(etiket, sicaklik, durum, ek, okumalar, kod, gunduz):
+    """Anlık durum kartı. `okumalar`: [(ad, değer), …] — altta dört hücreli okuma şeridi."""
+    hucreler = "".join(f'<div><div class="k-okuma-ad">{html.escape(buyuk(a))}</div>'
+                       f'<div class="k-okuma-deger">{html.escape(d)}</div></div>' for a, d in okumalar)
+    st.html(f"""<div class="kahraman">
+  <div class="k-etiket">{html.escape(buyuk(etiket))}</div>
+  <div class="k-ust">
+    <div><div class="k-sicak">{sicaklik:.0f}°</div>
+         <div class="k-durum">{html.escape(durum)} <span>· {html.escape(ek)}</span></div></div>
+    <div class="k-ikon" role="img" aria-label="{html.escape(durum)}">{simge_adi(kod, gunduz)}</div>
+  </div>
+  <div class="k-okuma">{hucreler}</div>
 </div>""")

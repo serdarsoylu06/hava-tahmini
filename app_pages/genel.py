@@ -23,12 +23,11 @@ bugun = gunluk.iloc[0]
 sol, sag = st.columns([1.1, 1], gap="medium")
 with sol:
     tasarim.kahraman(
-        k["ad"], f"{k['bolge']} · {an:%d.%m %H:%M} yerel saat", simdi["temperature_2m"],
-        simge(simdi["weather_code"], simdi["is_day"]),
-        f"{durum(simdi['weather_code'])} · hissedilen {simdi['apparent_temperature']:.0f}°",
-        [f"↑ {bugun.temperature_2m_max:.0f}°  ↓ {bugun.temperature_2m_min:.0f}°",
-         f"💧 yağış %{bugun.precipitation_probability_max:.0f}",
-         f"🌅 {bugun.sunrise:%H:%M}", f"🌇 {bugun.sunset:%H:%M}"],
+        " · ".join(x for x in (k["ad"], k["bolge"], f"{an:%d.%m %H:%M} yerel") if x), simdi["temperature_2m"],
+        durum(simdi["weather_code"]), f"hissedilen {simdi['apparent_temperature']:.0f}°",
+        [("Yüksek/düşük", f"{bugun.temperature_2m_max:.0f}° / {bugun.temperature_2m_min:.0f}°"),
+         ("Yağış", f"%{bugun.precipitation_probability_max:.0f}"),
+         ("Gün doğumu", f"{bugun.sunrise:%H:%M}"), ("Gün batımı", f"{bugun.sunset:%H:%M}")],
         int(simdi["weather_code"]), bool(simdi["is_day"]))
     st.page_link("app_pages/iklim.py", label="Mevsim normaliyle karşılaştır", icon=":material/history:")
 
@@ -66,9 +65,8 @@ with sag, st.container(key="kartlar_genel"):
                 help="1 km altı sis, 1–5 km pus/puslu hava sayılır. Model görüşü kaba bir tahmindir.")
 
 # ---------------------------------------------------------------- uyarılar
-st.subheader("Nelere dikkat etmeli?", anchor=False, divider="gray")
-st.caption(f"Önümüzdeki {gun_sayisi()} günün tahmin verisi otomatik tarandı. Her kartın altında olayın neden "
-           "önemli olduğunu ve hangi grafikte izleneceğini bulabilirsin.")
+tasarim.bolum("01", "Nelere dikkat etmeli?", f"Önümüzdeki {gun_sayisi()} günün tahmini otomatik tarandı")
+st.caption("Her kartın altında olayın neden önemli olduğunu ve hangi grafikte izleneceğini bulabilirsin.")
 liste = uyarilar(donem, k["rakim"], guven.loc[guven.index < donem.index[-1]]) + deniz.uyarilar(k, gun_sayisi())
 if any(u.seviye in ("tehlike", "dikkat") for u in liste):          # deniz uyarısı geldiyse "sakin" kartı düşer
     liste = [u for u in liste if u.seviye != "iyi"]
@@ -78,11 +76,11 @@ uyari_kartlari(sorted(liste, key=lambda u: SIRA[u.seviye]))
 st.space("small")
 sol, sag = st.columns([1.35, 1], gap="large")
 with sol:
-    st.subheader("Önümüzdeki 24 saat", anchor=False)
+    tasarim.bolum("02", "Önümüzdeki 24 saat")
     st.altair_chart(grafik.yirmidort_saat(ileri.iloc[:25], koyu), alt="Önümüzdeki 24 saatin sıcaklık ve yağış olasılığı")
     st.caption("Turuncu eğri sıcaklık, mavi çubuklar yağış olasılığıdır. Saatin üzerine gel: ayrıntılar açılır.")
 with sag:
-    st.subheader("10 günlük tahmin", anchor=False)
+    tasarim.bolum("03", "10 günlük tahmin")
     st.altair_chart(grafik.on_gun(gunluk, guven, koyu), alt="10 günlük en düşük ve en yüksek sıcaklıklar")
     st.caption("Çubuk o günün en düşük–en yüksek sıcaklık aralığıdır; renk sıcaklığa göre maviden kırmızıya "
                "döner. Bir güne gel: rüzgâr, UV ve **tahmin güveni** görünür.")
