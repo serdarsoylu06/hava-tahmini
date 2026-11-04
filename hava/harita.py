@@ -25,7 +25,7 @@ ACIK, KOYU_STIL = pdk.map_styles.CARTO_LIGHT_NO_LABELS, pdk.map_styles.CARTO_DAR
 # Tırnaklı yazım, pydeck'in dizgiyi bir JS ifadesi sanmasını önler.
 KARAKTERLER = '"auto"'
 # pydeck'in varsayılanı "Monaco, monospace": eş aralıklı yazı geniş olduğu için şehir adları üst üste biniyordu.
-YAZI = '"IBM Plex Sans, Helvetica, Arial, sans-serif"'
+YAZI = '"Inter, Helvetica, Arial, sans-serif"'
 
 KATMANLAR = {
     "Sıcaklık + basınç": dict(

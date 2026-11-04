@@ -1,55 +1,56 @@
-# "Alet paneli" teması: ölçüm aletini andıran sade yüzeyler, ince çizgiler, tek vurgu rengi (sinyal turuncusu).
-# Sayılar IBM Plex Mono, metin IBM Plex Sans. Kart, başlık ve mobil düzen stilleri hava/tasarim.py'de.
+# "AURA" teması (Stitch referansı): koyu temada AURA Weather (kozmik lacivert zemin, elektrik camgöbeği vurgu, kehribar
+# ikincil renk), açık temada Sky-Sync Dawn (şafak zemini, gökyüzü mavisi vurgu). Başlıklar Space Grotesk, metin Inter,
+# ölçüm etiketleri ve sayılar Space Mono. Atmosferik arka plan, cam kartlar ve mobil düzen hava/tasarim.py'de.
 
 [theme]
 showWidgetBorder = true
-showSidebarBorder = true
-baseRadius = "8px"
-buttonRadius = "6px"
-font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-headingFont = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
-codeFont = "'IBM Plex Mono':https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+showSidebarBorder = false
+baseRadius = "10px"
+buttonRadius = "8px"
+font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "'Space Grotesk':https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap"
+codeFont = "'Space Mono':https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
 baseFontSize = 15
-headingFontWeights = [600, 600, 600, 600, 600, 600]
+headingFontWeights = [700, 600, 600, 600, 600, 600]
 metricValueFontSize = "1.7rem"
-metricValueFontWeight = 500
+metricValueFontWeight = 700
 linkUnderline = false
 paddingTop = "1.2rem"
 
 [theme.light]
-primaryColor = "#C2410C"
-backgroundColor = "#F5F6F7"
-secondaryBackgroundColor = "#EEF0F2"
-textColor = "#111418"
-borderColor = "#D9DDE2"
-linkColor = "#C2410C"
-blueColor = "#1D4ED8"
-greenColor = "#15803D"
-redColor = "#B91C1C"
-orangeColor = "#C2410C"
-yellowColor = "#A16207"
-violetColor = "#6D28D9"
-chartCategoricalColors = ["#C2410C", "#1D4ED8", "#111418", "#15803D", "#B91C1C", "#0E7490", "#6D28D9"]
+primaryColor = "#0284C7"
+backgroundColor = "#F8FAFC"
+secondaryBackgroundColor = "#EEF3F9"
+textColor = "#0F172A"
+borderColor = "#DCE4EE"
+linkColor = "#0369A1"
+blueColor = "#0284C7"
+greenColor = "#0F9F6E"
+redColor = "#E11D48"
+orangeColor = "#D97706"
+yellowColor = "#B45309"
+violetColor = "#7C3AED"
+chartCategoricalColors = ["#0284C7", "#F59E0B", "#FB7185", "#0F9F6E", "#7C3AED", "#0F172A", "#38BDF8"]
 
 [theme.dark]
-primaryColor = "#FB923C"
-backgroundColor = "#0E1114"
-secondaryBackgroundColor = "#171B20"
-textColor = "#E8EBEE"
-borderColor = "#2A3038"
-linkColor = "#FB923C"
-blueColor = "#60A5FA"
+primaryColor = "#4CD7F6"
+backgroundColor = "#0A0E18"
+secondaryBackgroundColor = "#171B26"
+textColor = "#DFE2F1"
+borderColor = "#2A3140"
+linkColor = "#4CD7F6"
+blueColor = "#4CD7F6"
 greenColor = "#4ADE80"
-redColor = "#F87171"
-orangeColor = "#FB923C"
-yellowColor = "#FACC15"
-violetColor = "#A78BFA"
-chartCategoricalColors = ["#FB923C", "#60A5FA", "#E8EBEE", "#4ADE80", "#F87171", "#22D3EE", "#A78BFA"]
+redColor = "#FFB4AB"
+orangeColor = "#FFB95F"
+yellowColor = "#FDE68A"
+violetColor = "#C4B5FD"
+chartCategoricalColors = ["#4CD7F6", "#FFB95F", "#FFB4A8", "#4ADE80", "#C4B5FD", "#DFE2F1", "#06B6D4"]
 
 [theme.light.sidebar]
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F5F6F7"
+backgroundColor = "#F1F5FB"
+secondaryBackgroundColor = "#FFFFFF"
 
 [theme.dark.sidebar]
-backgroundColor = "#121519"
-secondaryBackgroundColor = "#171B20"
+backgroundColor = "#0D111C"
+secondaryBackgroundColor = "#171B26"

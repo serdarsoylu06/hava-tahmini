@@ -83,8 +83,8 @@ sol, sag = st.columns([1.4, 1], gap="large")
 with sol:
     tasarim.on_gun_listesi(gunluk, guven)
 with sag:
-    st.caption("Çubuk o günün en düşük–en yüksek sıcaklık aralığıdır; renk sıcaklığa göre maviden kırmızıya "
-               "döner. Mavi yüzde, %20 ve üstü yağış olasılığıdır. Bir güne gel: rüzgâr, UV ve **tahmin güveni** "
+    st.caption("Çubuk o günün en düşük–en yüksek sıcaklık aralığıdır; renk soğukta camgöbeğinden sıcakta "
+               "kehribar ve mercana döner. Mavi yüzde, %20 ve üstü yağış olasılığıdır. Bir güne gel: rüzgâr, UV ve **tahmin güveni** "
                "görünür; tümü aşağıdaki tabloda.")
 
 with st.expander("Günlük ayrıntı tablosu", icon=":material/table_view:"):
