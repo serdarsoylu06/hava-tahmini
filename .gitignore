@@ -17,3 +17,6 @@ kayitlar/
 .agents/
 .claude/
 .DS_Store
+
+# Not defteri ara kayıtları
+.ipynb_checkpoints/
