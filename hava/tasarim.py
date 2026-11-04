@@ -95,8 +95,14 @@ def stil(koyu):
 [data-testid="stAlertContainer"] {{ background: {r['yuzey']} !important; border: 1px solid {r['cizgi']};
                                     border-radius: 8px; color: {r['metin']}; }}
 [data-testid="stExpander"] details {{ border-radius: 8px; background: {r['yuzey']}; }}
+/* Grafik kabı yalnızca zemin ve çerçeve verir; yatay dolgu yok: Vega genişliği kaptan ölçer ve dolgu eklenirse
+   sol eksen etiketleri kesilir ("um 06.11"). */
 [data-testid="stVegaLiteChart"] {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 8px;
-                                   padding: 10px 8px 4px; }}
+                                   padding-top: 8px; overflow: hidden; }}
+/* Streamlit grafik çizimine sayfanın zemin rengini veriyor; kartların içinde (özellikle koyu temada) ayrı bir koyu
+   kutu gibi duruyordu. Çizim saydam olsun, altındaki kartın rengi görünsün. */
+[data-testid="stVegaLiteChart"] svg.marks, [data-testid="stVegaLiteChart"] canvas,
+[data-testid="stMetric"] svg.marks, [data-testid="stMetric"] canvas {{ background: transparent !important; }}
 
 @media (max-width: 640px) {{
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
