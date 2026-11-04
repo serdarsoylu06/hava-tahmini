@@ -20,12 +20,12 @@ if st.session_state.get("h_kat") not in harita.KATMANLAR:
     st.session_state.h_kat = "Sıcaklık + basınç"
 kat = st.session_state.h_kat
 ayar = harita.KATMANLAR[kat]
-turkiyede = 35 <= k["lat"] <= 43 and 25 <= k["lon"] <= 46
 with st.container(horizontal=True, vertical_alignment="bottom", gap="small", key="harita_arac"):
     with st.popover(kat, icon=f":material/{KATMAN_IKON.get(kat, 'layers')}:", help="Haritada gösterilecek katman"):
         st.radio("Katman", list(harita.KATMANLAR), key="h_kat",
                  format_func=lambda x: f":material/{KATMAN_IKON.get(x, 'layers')}: {x}")
-    bolge = st.selectbox("Bölge", list(harita.BOLGELER), index=0 if turkiyede else 1, key="h_bolge",
+    bolge = st.selectbox("Bölge", list(harita.BOLGELER), index=list(harita.BOLGELER).index("Avrupa – Orta Doğu"),
+                         key="h_bolge",
                          label_visibility="collapsed", width=200)
     with st.popover("Neye bakmalı?", icon=":material/visibility:"):
         for madde in ayar["bak"]:
