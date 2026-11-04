@@ -3,6 +3,7 @@ model ve ansambl grafiklerinde fare tekerleği/sürükleme ile yakınlaştırıl
 import altair as alt
 import numpy as np
 import pandas as pd
+import streamlit as st
 
 from hava.veri import simge, durum, yon_adi
 from hava.yorum import GUNLER
@@ -29,6 +30,15 @@ def _x(etiket=True):
 def yazi_rengi(koyu):
     """Metin işaretleri temanın yazı rengini almıyor; açık/koyu temaya göre elle verilir."""
     return "#E6EDF6" if koyu else "#0F1B2D"
+
+
+def _murekkep():
+    """Gerçek ölçüm ve eğilim gibi "siyah" çizgilerin rengi: koyu temada siyah görünmez, açık renge döner."""
+    try:
+        koyu = st.context.theme.type == "dark"
+    except Exception:                      # betik bağlamı dışında (ör. testler) açık tema varsayılır
+        koyu = False
+    return yazi_rengi(koyu)
 
 
 def gece(df):
@@ -491,7 +501,7 @@ def dogrulama_cizgisi(df, gercek, tahminler, birim, bar=False, gercek_ad="Gerçe
     d = df[list(sutunlar)].reset_index().melt(id_vars="time", var_name="kod", value_name="deger")
     d["seri"] = d.kod.map(sutunlar)
     adlar = list(sutunlar.values())
-    renkler = ["#212529", "#1C7ED6", "#F08C00", "#E03131", "#7048E8", "#12B886", "#868E96", "#E64980"][:len(adlar)]
+    renkler = [_murekkep(), "#1C7ED6", "#F08C00", "#E03131", "#7048E8", "#12B886", "#868E96", "#E64980"][:len(adlar)]
     hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False, clear="pointerout")
     genis = df[list(sutunlar)].rename(columns=sutunlar).reset_index()
     genis.columns = ["time"] + [f"s{i}" for i in range(len(adlar))]
@@ -597,7 +607,7 @@ def ayni_gun_grafigi(g, bu_yil_deger, tarih_metni):
             color=alt.Color("sapma:Q", legend=None, scale=alt.Scale(scheme="redblue", reverse=True, domainMid=0)),
             tooltip=[alt.Tooltip("yil:O", title="Yıl"), alt.Tooltip("max:Q", title="En yüksek °C", format=".1f"),
                      alt.Tooltip("min:Q", title="En düşük °C", format=".1f")]),
-        alt.Chart(g).mark_line(color="#212529", strokeDash=[5, 3], strokeWidth=1.5).encode(x, y="egilim:Q"),
+        alt.Chart(g).mark_line(color=_murekkep(), strokeDash=[5, 3], strokeWidth=1.5).encode(x, y="egilim:Q"),
         alt.Chart(pd.DataFrame([rekor])).mark_text(dy=-10, fontSize=11, fontWeight=600, color=KIRMIZI).encode(
             x, y="max:Q", text=alt.value("rekor")),
     ]
