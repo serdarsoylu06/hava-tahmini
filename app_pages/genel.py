@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from hava import deniz, grafik, tasarim
+from hava import deniz, grafik, tasarim, zaman_seridi
 from hava.arayuz import gun_sayisi, uyari_kartlari
 from hava.veri import ansambl, durum, konum, simge, tahmin, yon_adi
 from hava.yorum import SIRA, uyarilar
@@ -63,24 +63,26 @@ with sag, st.container(key="kartlar_genel"):
                 delta_color="off", delta_arrow="off",
                 help="1 km altı sis, 1–5 km pus/puslu hava sayılır. Model görüşü kaba bir tahmindir.")
 
+# ---------------------------------------------------------------- saat saat zaman şeridi
+# Sıcaklık, yağış, rüzgâr, basınç ve uyarılar aynı saat ekseninde; telefonda mini şerit + saat listesine döner.
+tasarim.bolum("01", "Saat saat", f"Önümüzdeki {zaman_seridi.SAAT} saat")
+zaman_seridi.zaman_seridi(ileri, k["ad"], koyu)
+
 # ---------------------------------------------------------------- uyarılar
-tasarim.bolum("01", "Nelere dikkat etmeli?", f"Önümüzdeki {gun_sayisi()} günün tahmini otomatik tarandı")
+tasarim.bolum("02", "Nelere dikkat etmeli?", f"Önümüzdeki {gun_sayisi()} günün tahmini otomatik tarandı")
 st.caption("Her kartın altında olayın neden önemli olduğunu ve hangi grafikte izleneceğini bulabilirsin.")
 liste = uyarilar(donem, k["rakim"], guven.loc[guven.index < donem.index[-1]]) + deniz.uyarilar(k, gun_sayisi())
 if any(u.seviye in ("tehlike", "dikkat") for u in liste):          # deniz uyarısı geldiyse "sakin" kartı düşer
     liste = [u for u in liste if u.seviye != "iyi"]
 uyari_kartlari(sorted(liste, key=lambda u: SIRA[u.seviye]))
 
-# ---------------------------------------------------------------- 24 saat ve 10 gün
+# ---------------------------------------------------------------- 10 gün
 st.space("small")
-sol, sag = st.columns([1.35, 1], gap="large")
+tasarim.bolum("03", "10 günlük tahmin")
+sol, sag = st.columns([1.4, 1], gap="large")
 with sol:
-    tasarim.bolum("02", "Önümüzdeki 24 saat")
-    st.altair_chart(grafik.yirmidort_saat(ileri.iloc[:25], koyu), alt="Önümüzdeki 24 saatin sıcaklık ve yağış olasılığı")
-    st.caption("Turuncu eğri sıcaklık, mavi çubuklar yağış olasılığıdır. Saatin üzerine gel: ayrıntılar açılır.")
-with sag:
-    tasarim.bolum("03", "10 günlük tahmin")
     tasarim.on_gun_listesi(gunluk, guven)
+with sag:
     st.caption("Çubuk o günün en düşük–en yüksek sıcaklık aralığıdır; renk sıcaklığa göre maviden kırmızıya "
                "döner. Mavi yüzde, %20 ve üstü yağış olasılığıdır. Bir güne gel: rüzgâr, UV ve **tahmin güveni** "
                "görünür; tümü aşağıdaki tabloda.")
