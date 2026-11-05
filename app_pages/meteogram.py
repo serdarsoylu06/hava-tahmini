@@ -2,9 +2,11 @@ import pandas as pd
 import streamlit as st
 
 from hava import grafik, tasarim
-from hava.arayuz import gun_sayisi, okuma_rehberi, uyari_kartlari
-from hava.veri import konum, tahmin
-from hava.yorum import uyarilar, zaman
+from hava.arayuz import gun_sayisi, uyari_kartlari
+from hava.veri import FC, GUN_EN_COK, SAATLIK, getir, konum, simdiden, tablo, tahmin, yon_adi
+from hava.yorum import GUNLER, uyarilar, zaman
+
+MODELLER = {"En iyi eşleşme": None, "ECMWF": "ecmwf_ifs", "ICON": "icon_seamless", "GFS": "gfs_seamless"}
 
 k = konum()
 simdi, saatlik, _ = tahmin(k)
@@ -13,7 +15,7 @@ df = saatlik[(saatlik.index >= bas) & (saatlik.index < bas + pd.Timedelta(days=g
 
 tasarim.baslik("Tahmin", f"Meteogram · {k['ad']}",
                "Meteorologların bir noktanın tahminine ilk baktıkları grafik: tüm değişkenler aynı zaman ekseninde. "
-               "Herhangi bir panelde fareyle gezdiğinde o saatin tüm değerleri görünür. Mavi gölgeli şeritler geceyi "
+               "Herhangi bir panelde fareyle gezdiğinde o saatin tüm değerleri görünür. Gölgeli şeritler geceyi "
                "gösterir.", "tahmin")
 
 dp = df.pressure_msl.iloc[-1] - df.pressure_msl.iloc[0]
@@ -35,25 +37,57 @@ m[4].metric("Basınç değişimi", f"{dp:+.0f} hPa", border=True, delta_color="o
 
 uyari_kartlari(uyarilar(df, k["rakim"]), sayfa="app_pages/meteogram.py", sutun=3)
 
-aralik = st.slider("Zaman aralığı (tüm panelleri birlikte yakınlaştırır)", df.index[0].to_pydatetime(),
-                   df.index[-1].to_pydatetime(), (df.index[0].to_pydatetime(), df.index[-1].to_pydatetime()),
-                   step=pd.Timedelta(hours=3), format="DD.MM HH:mm", key=f"mg_aralik_{k['ad']}_{gun_sayisi()}")
+# ---------------------------------------------------------------- model, saat seçimi ve o saatin değerleri
+with st.container(horizontal=True, vertical_alignment="bottom", gap="medium"):
+    model_ad = st.segmented_control("Tahmin modeli", list(MODELLER), default="En iyi eşleşme", key="mg_model",
+                                    help="Farklı modeller aynı sonucu veriyorsa tahmine daha çok güvenebilirsin. "
+                                         "\"En iyi eşleşme\" konuma göre en uygun modelleri birleştirir.")
+    aralik = st.slider("Zaman aralığı (tüm panelleri birlikte yakınlaştırır)", df.index[0].to_pydatetime(),
+                       df.index[-1].to_pydatetime(), (df.index[0].to_pydatetime(), df.index[-1].to_pydatetime()),
+                       step=pd.Timedelta(hours=3), format="DD.MM HH:mm", key=f"mg_aralik_{k['ad']}_{gun_sayisi()}")
+kod = MODELLER.get(model_ad or "En iyi eşleşme")
+if kod:
+    mdf = simdiden(tablo(getir(FC, {"latitude": k["lat"], "longitude": k["lon"], "hourly": SAATLIK, "models": kod,
+                                    "forecast_days": GUN_EN_COK, "timezone": k["tz"]})["hourly"]), k)
+    mdf = mdf.rename(columns=lambda c: c.removesuffix(f"_{kod}")).reindex(df.index)
+    eksik = [c for c in df.columns if c not in mdf or mdf[c].isna().all()]
+    mdf[eksik] = df[eksik]                      # modelin vermediği değişkenler (ör. yağış olasılığı) ortak tahminden
+    df = mdf
 gorunen = df.loc[aralik[0]:aralik[1]]
-with st.container(border=True):
-    for panel, boy in grafik.meteogram(gorunen, k["rakim"]):
-        st.altair_chart(panel, height=boy, alt="Meteogram paneli")
 
-okuma_rehberi([
-    ("Önce büyük resme bak", "Basınç panelinde belirgin bir dip var mı? Dip, bir alçak basınç sisteminin geçişidir; "
-     "yağış, bulut ve rüzgâr genellikle bu dibin çevresinde toplanır."),
-    ("Sıcaklık–çiy noktası farkı", "Kırmızı gölgeli alan ne kadar darsa hava o kadar nemlidir. İki çizgi "
-     "birleştiğinde hava doymuştur: sis, çisenti ya da alçak bulut beklenir."),
-    ("Gündüz–gece döngüsü", "Açık gecelerde (bulut paneli boş) sıcaklık çok düşer; kapalı gecelerde bulut bir "
-     "yorgan gibi ısıyı tutar. Don ve sis riski açık, rüzgârsız gecelerde en yüksektir."),
-    ("Yağış miktarı ve olasılığı", "Mor çizgi ansambl olasılığıdır. Yüksek olasılık + az miktar = hafif ama "
-     "kesin yağış; düşük olasılık + yüksek miktar = belirsiz, sağanak tipi yağış."),
-    ("Rüzgâr: ortalama ve hamle", "Kesikli hamle çizgisi ortalamadan çok uzaklaşıyorsa hava türbülanslıdır; "
-     "sağanak ya da cephe geçişi olabilir. Okların yön değiştirdiği an çoğu zaman cephenin geçtiği andır."),
-    ("Kar mı yağmur mu?", "Yağış sırasında mavi donma seviyesi çizgisi kesikli rakım çizgisine 300–400 m kadar "
-     "yaklaşmışsa yağış kara dönebilir."),
-], baslik="Meteogram adım adım nasıl okunur?")
+saat = st.select_slider("Saat seç", options=list(gorunen.index), key=f"mg_saat_{k['ad']}_{aralik[0]:%m%d%H}_{aralik[1]:%m%d%H}",
+                        format_func=lambda t: f"{GUNLER[t.weekday()]} {t:%d.%m %H:%M}")
+r = gorunen.loc[saat]
+yorum = "Sakin bir saat: yağış yok, rüzgâr ortalamanın üstüne çıkmıyor."
+if r.temperature_2m - r.dew_point_2m <= 2:
+    yorum = "Çiy noktası sıcaklığa çok yakın: sis, çisenti ya da alçak bulut beklenir."
+if r.precipitation >= 0.5:
+    yorum = (f"Yağış sürüyor: saatte {r.precipitation:.1f} mm. " +
+             ("Bu miktar sağanaktır." if r.precipitation >= 4 else "Hafif–orta yağış."))
+if r.wind_gusts_10m >= 40:
+    yorum = f"Hamleler sert: {r.wind_gusts_10m:.0f} km/s, {yon_adi(r.wind_direction_10m)} yönünden."
+with st.container(key="yuzey_mg_saat"):
+    st.markdown(f"**{GUNLER[saat.weekday()]} {saat:%d.%m %H:%M}** · {model_ad or 'En iyi eşleşme'}  \n:gray[{yorum}]")
+    m = st.container(key="kartlar_meteogram_saat").columns(6)
+    m[0].metric("Sıcaklık", f"{r.temperature_2m:.1f}°")
+    m[1].metric("Çiy noktası", f"{r.dew_point_2m:.1f}°")
+    m[2].metric("Yağış", f"{r.precipitation:.1f} mm")
+    m[3].metric("Rüzgâr", f"{r.wind_speed_10m:.0f} km/s")
+    m[4].metric("Hamle", f"{r.wind_gusts_10m:.0f} km/s")
+    m[5].metric("Basınç", f"{r.pressure_msl:.0f} hPa")
+
+sol, sag = st.columns([2.3, 1], gap="medium")
+with sol, st.container(border=True):
+    for panel, boy in grafik.meteogram(gorunen, k["rakim"], imlec=saat):
+        st.altair_chart(panel, height=boy, alt="Meteogram paneli")
+with sag, st.container(key="yuzey_mg_rehber"):
+    st.markdown("#### Meteogram nasıl okunur?")
+    st.markdown("""
+1. **Önce basınca bak.** Düşen basınç yaklaşan sistemi, yükselen basınç durulan havayı gösterir. Dip, alçak basıncın geçtiği andır; yağış ve rüzgâr çoğu zaman bu dibin çevresinde toplanır.
+2. **Sıcaklık ile çiy noktasını karşılaştır.** İki çizgi 2°'den fazla yaklaşırsa sis ya da alçak bulut beklenir.
+3. **Yağışta miktara bak.** Saatte 0,5 mm altı çisenti, 4 mm üstü sağanaktır. Yüksek olasılık + az miktar = hafif ama kesin yağış.
+4. **Hamleyi ortalamayla kıyasla.** Hamle ortalamanın iki katına yaklaşıyorsa hava türbülanslıdır; okların yön değiştirdiği an çoğu zaman cephenin geçtiği andır.
+5. **Kar mı yağmur mu?** Donma seviyesi çizgisi rakım çizgisine 300–400 m yaklaşmışsa yağış kara dönebilir.
+""")
+    st.caption("Kesikli dikey çizgi yukarıda seçtiğin saattir. Modelleri değiştirip karşılaştırmak için "
+               "**Modeller** sayfasına da bakabilirsin.")

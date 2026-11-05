@@ -13,7 +13,7 @@ DENIZ_SAATLIK = ("wave_height,wave_direction,wave_period,wind_wave_height,wind_w
                  "swell_wave_period,swell_wave_direction,sea_surface_temperature,ocean_current_velocity,"
                  "sea_level_height_msl")
 SEVIYE_AD = ["Uygun", "Dikkat", "Riskli", "Tehlikeli"]
-SEVIYE_RENK = ["#2F9E44", "#FAB005", "#F76707", "#E03131"]
+SEVIYE_RENK = ["#8CBF5A", "#F1D24E", "#F0A060", "#E05545"]
 AY_EVRE = [(1.0, "🌑", "Yeni ay"), (6.4, "🌒", "Büyüyen hilal"), (8.4, "🌓", "İlk dördün"),
            (13.8, "🌔", "Büyüyen ay"), (15.8, "🌕", "Dolunay"), (21.1, "🌖", "Küçülen ay"), (23.1, "🌗", "Son dördün"),
            (28.5, "🌘", "Küçülen hilal"), (29.6, "🌑", "Yeni ay")]

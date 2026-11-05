@@ -1,6 +1,6 @@
-# "AURA" teması (Stitch referansı): koyu temada AURA Weather (kozmik lacivert zemin, elektrik camgöbeği vurgu, kehribar
-# ikincil renk), açık temada Sky-Sync Dawn (şafak zemini, gökyüzü mavisi vurgu). Başlıklar Space Grotesk, metin Inter,
-# ölçüm etiketleri ve sayılar Space Mono. Atmosferik arka plan, cam kartlar ve mobil düzen hava/tasarim.py'de.
+# "Karadeniz" teması: koyu temada arduvaz yeşili zemin ve fıstık yeşili vurgu, açık temada açık yeşil-gri zemin ve koyu
+# yaprak yeşili vurgu. Başlıklar Space Grotesk, metin Inter, ölçüm değerleri Space Mono. Manzara, ölçerler, grafik
+# kartları ve mobil düzen hava/tasarim.py'de.
 
 [client]
 # Sağ üstteki menü yalnızca kullanıcıya gereken seçenekleri gösterir; Deploy düğmesi ve geliştirici seçenekleri gizli.
@@ -9,8 +9,8 @@ toolbarMode = "minimal"
 [theme]
 showWidgetBorder = true
 showSidebarBorder = false
-baseRadius = "10px"
-buttonRadius = "8px"
+baseRadius = "12px"
+buttonRadius = "10px"
 font = "'Inter':https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
 headingFont = "'Space Grotesk':https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap"
 codeFont = "'Space Mono':https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
@@ -22,39 +22,39 @@ linkUnderline = false
 paddingTop = "1.2rem"
 
 [theme.light]
-primaryColor = "#0284C7"
-backgroundColor = "#F8FAFC"
-secondaryBackgroundColor = "#EEF3F9"
-textColor = "#0F172A"
-borderColor = "#DCE4EE"
-linkColor = "#0369A1"
-blueColor = "#0284C7"
-greenColor = "#0F9F6E"
-redColor = "#E11D48"
-orangeColor = "#D97706"
-yellowColor = "#B45309"
-violetColor = "#7C3AED"
-chartCategoricalColors = ["#0284C7", "#F59E0B", "#FB7185", "#0F9F6E", "#7C3AED", "#0F172A", "#38BDF8"]
+primaryColor = "#3F7A3A"
+backgroundColor = "#E8EEE2"
+secondaryBackgroundColor = "#F4F7F0"
+textColor = "#1C2829"
+borderColor = "#CAD6C4"
+linkColor = "#476F17"
+blueColor = "#2A6FB0"
+greenColor = "#3F7A3A"
+redColor = "#B5352B"
+orangeColor = "#B2602A"
+yellowColor = "#8A6200"
+violetColor = "#6B4FA0"
+chartCategoricalColors = ["#2E6B3A", "#2A6FB0", "#B2602A", "#8A6200", "#6B4FA0", "#1C2829"]
 
 [theme.dark]
-primaryColor = "#4CD7F6"
-backgroundColor = "#0A0E18"
-secondaryBackgroundColor = "#171B26"
-textColor = "#DFE2F1"
-borderColor = "#2A3140"
-linkColor = "#4CD7F6"
-blueColor = "#4CD7F6"
-greenColor = "#4ADE80"
-redColor = "#FFB4AB"
-orangeColor = "#FFB95F"
-yellowColor = "#FDE68A"
+primaryColor = "#C6E066"
+backgroundColor = "#1C2829"
+secondaryBackgroundColor = "#243537"
+textColor = "#E8EFE6"
+borderColor = "#38504F"
+linkColor = "#C6E066"
+blueColor = "#7FB2E5"
+greenColor = "#8CBF5A"
+redColor = "#FF8F7E"
+orangeColor = "#F0A060"
+yellowColor = "#F1D24E"
 violetColor = "#C4B5FD"
-chartCategoricalColors = ["#4CD7F6", "#FFB95F", "#FFB4A8", "#4ADE80", "#C4B5FD", "#DFE2F1", "#06B6D4"]
+chartCategoricalColors = ["#8CBF5A", "#7FB2E5", "#F0A060", "#F1D24E", "#C4B5FD", "#E8EFE6"]
 
 [theme.light.sidebar]
-backgroundColor = "#F1F5FB"
+backgroundColor = "#DFE7D7"
 secondaryBackgroundColor = "#FFFFFF"
 
 [theme.dark.sidebar]
-backgroundColor = "#0D111C"
-secondaryBackgroundColor = "#171B26"
+backgroundColor = "#182223"
+secondaryBackgroundColor = "#243537"

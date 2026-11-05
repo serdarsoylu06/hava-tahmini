@@ -8,9 +8,9 @@ import streamlit as st
 from hava.veri import simge, durum, yon_adi
 from hava.yorum import GUNLER
 
-# AURA paleti: camgöbeği (basınç/nem/yağış), kehribar (sıcaklık), mercan (uyarı); açık ve koyu temada okunur tonlar
-KIRMIZI, YESIL, TURUNCU = "#F43F5E", "#10B981", "#F59E0B"
-MAVI, MOR, GRI, CAMGOBEGI, KAHVE, LACIVERT = "#0EA5E9", "#8B5CF6", "#8A97A8", "#06B6D4", "#D97706", "#6366F1"
+# Karadeniz paleti: açık ve koyu temada okunur, renk körlüğü için birbirinden ayrışan tonlar
+KIRMIZI, YESIL, TURUNCU = "#E07A3F", "#5FAE5A", "#D9A53A"
+MAVI, MOR, GRI, CAMGOBEGI, KAHVE, LACIVERT = "#4B8FD1", "#9B7FD1", "#8A9A92", "#3FA7A0", "#B98A45", "#7E8FD8"
 SAAT = "%d.%m %H:%M"
 YUK = 150   # meteogram panel yüksekliği
 EKSEN = 42  # meteogram y eksenlerinin sabit genişliği (px)
@@ -30,7 +30,7 @@ def _x(etiket=True):
 
 def yazi_rengi(koyu):
     """Metin işaretleri temanın yazı rengini almıyor; açık/koyu temaya göre elle verilir."""
-    return "#DFE2F1" if koyu else "#0F172A"
+    return "#E8EFE6" if koyu else "#1C2829"
 
 
 def _murekkep():
@@ -53,7 +53,7 @@ def gece(df):
 def _gece_katmani(g):
     if g.empty:
         return []
-    return [alt.Chart(g).mark_rect(color="#5C7CFA", opacity=0.07).encode(x="bas:T", x2="son:T")]
+    return [alt.Chart(g).mark_rect(color="#8A9A92", opacity=0.10).encode(x="bas:T", x2="son:T")]
 
 
 def _imlec(d, hover, ipucu):
@@ -75,7 +75,7 @@ def _uzun(d, sutunlar):
             .assign(seri=lambda x: x.kod.map(sutunlar))
 
 
-def meteogram(df, rakim=None):
+def meteogram(df, rakim=None, imlec=None):
     """Meteogram panelleri: her biri ayrı, tam genişlikte bir grafik. Her panelin ipucu, o saatin
     ana değerlerinin tümünü gösterir; böylece hangi panelde gezilirse gezilsin tablo eksiksizdir."""
     d = _hazirla(df)
@@ -92,7 +92,9 @@ def meteogram(df, rakim=None):
     def panel(ad, katmanlar, ek_ipucu=(), bagimsiz=False, yukseklik=YUK, alt_metin=None):
         hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False,
                                     clear="pointerout")
-        c = alt.layer(*_gece_katmani(g), *katmanlar, *_imlec(d, hover, ortak + list(ek_ipucu)),
+        sabit = [] if imlec is None else [alt.Chart(pd.DataFrame({"t": [imlec]})).mark_rule(
+            color=_murekkep(), strokeWidth=1.5, strokeDash=[4, 3]).encode(x="t:T")]
+        c = alt.layer(*_gece_katmani(g), *katmanlar, *sabit, *_imlec(d, hover, ortak + list(ek_ipucu)),
                       title=_baslik(ad, alt_metin))
         if bagimsiz:
             c = c.resolve_scale(y="independent")
@@ -114,7 +116,7 @@ def meteogram(df, rakim=None):
     if df.temperature_2m.min() < 3:
         k.append(alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color=LACIVERT, strokeDash=[6, 3]).encode(y="y:Q"))
     paneller.append(panel("Sıcaklık", k, [T("apparent_temperature", "Hissedilen °C")], yukseklik=210,
-                          alt_metin="Kırmızı alan daraldıkça hava nemlenir; çizgiler birleşince sis/bulut. "
+                          alt_metin="Gölgeli alan daraldıkça hava nemlenir; çizgiler birleşince sis/bulut. "
                                     "Mavi kesikli çizgi 0 °C"))
 
     # 2) yağış
@@ -649,3 +651,165 @@ def aylik_yagis_grafigi(a, ay_adlari):
         tooltip=[alt.Tooltip("ay_ad:N", title="Ay"), alt.Tooltip("seri:N", title=""),
                  alt.Tooltip("mm:Q", title="mm", format=".0f")],
     ).properties(height=260)
+
+
+# ----------------------------------------------------------------- Genel bakış: önümüzdeki 24 saat (4 grafik)
+# Açık yeşil kart zemini üzerinde çizilir (her iki temada aynı); renkler renk körlüğü denetiminden geçti.
+_K_ZEMIN, _K_METIN, _K_IKINCI = "#DCE7C7", "#1C2829", "#3F5547"
+_S1, _S2, _S3, _K_ESIK = "#2E6B3A", "#2A6FB0", "#B2602A", "#B5352B"
+
+
+def _kart_ayar(c, yukseklik=210):
+    ozellik = {"height": yukseklik, "width": "container"} if yukseklik else {}
+    return c.properties(background="transparent", **ozellik).configure_view(
+        stroke=None).configure_axis(
+        labelColor=_K_IKINCI, titleColor=_K_IKINCI, labelFont="Space Mono, monospace", labelFontSize=11, titleFontSize=11,
+        titleFont="Inter, sans-serif", titleFontWeight=500, gridColor="#1C2829", gridOpacity=0.13, domainColor="#1C2829",
+        domainOpacity=0.25, tickColor="#1C2829", tickOpacity=0.25).configure_legend(
+        labelColor=_K_METIN, labelFont="Inter, sans-serif", labelFontSize=12, orient="top", direction="horizontal",
+        title=None, symbolStrokeWidth=2.5, padding=0, offset=6).configure_text(font="Space Mono, monospace").configure_title(font="Inter, sans-serif")
+
+
+_X24_DEGERLER = []      # saatlik_dortlu doldurur: 3 saatte bir işaret (alt.DateTime)
+
+
+def _x24(etiket=True):
+    return alt.X("time:T", title=None, axis=alt.Axis(format="%H", labels=etiket, values=_X24_DEGERLER or alt.Undefined,
+                                                     grid=False, labelFlush=False))
+
+
+def _gece24(d):
+    g = gece(d.set_index("time"))
+    if g.empty:
+        return []
+    return [alt.Chart(g).mark_rect(color="#1C2829", opacity=0.07).encode(x="bas:T", x2="son:T")]
+
+
+def _hover24(d, ipucu):
+    """Fareyle gezinince en yakın saatte dikey çizgi ve o saatin değerleri."""
+    h = alt.selection_point(nearest=True, on="pointerover", fields=["time"], empty=False, clear="pointerout")
+    sec = alt.Chart(d).mark_rule(opacity=0, strokeWidth=18).encode(x="time:T").add_params(h)
+    cizgi = alt.Chart(d).mark_rule(color=_K_METIN, strokeWidth=1.5).encode(
+        x="time:T", tooltip=[alt.Tooltip("saat_ad:N", title="Saat")] + ipucu).transform_filter(h)
+    return [sec, cizgi]
+
+
+def _uc_etiket(d, alan, y, metin, dy=-12):
+    return [alt.Chart(d).mark_point(filled=True, size=70, color=y, stroke=_K_ZEMIN, strokeWidth=2).encode(x="time:T", y=f"{alan}:Q"),
+            alt.Chart(d).mark_text(dy=dy, fontSize=11, fontWeight="bold", color=_K_METIN).encode(
+                x="time:T", y=f"{alan}:Q", text=metin)]
+
+
+def saatlik_dortlu(df, gun_adlari):
+    """24 saatlik sıcaklık, yağış, rüzgâr ve basınç grafikleri (her biri tek y ekseni). df: saatlik, ilk satır şimdi."""
+    d = df.iloc[:24].reset_index()
+    d["son"] = d["time"] + pd.Timedelta(hours=1)
+    _X24_DEGERLER[:] = [alt.DateTime(year=t.year, month=t.month, date=t.day, hours=t.hour)
+                        for t in d.time if t.hour % 3 == 0]
+    d["saat_ad"] = [f"{gun_adlari[t.weekday()]} {t:%H}:00" for t in d.time]
+    d["fark"] = d.temperature_2m - d.dew_point_2m
+    d["yon_ad"] = [yon_adi(x) for x in d.wind_direction_10m]
+    d["oran"] = d.wind_gusts_10m / d.wind_speed_10m.clip(lower=1)
+    d["dp3"] = d.pressure_msl.diff(3)
+    d["olas"] = d.precipitation_probability.fillna(0)
+    d["tur"] = np.select([d.precipitation <= 0, d.precipitation < 0.5, d.precipitation < 4],
+                         ["yağış yok", "çisenti", "hafif–orta"], "sağanak")
+    gece_k = _gece24(d)
+
+    # sıcaklık: üç çizgi + sis riski şeritleri + en yüksek/en düşük
+    uzun = d.melt(id_vars=["time"], value_vars=["temperature_2m", "dew_point_2m", "apparent_temperature"],
+                  var_name="kod", value_name="deger")
+    uzun["seri"] = uzun.kod.map({"temperature_2m": "Sıcaklık", "dew_point_2m": "Çiy noktası",
+                                 "apparent_temperature": "Hissedilen"})
+    sira = ["Sıcaklık", "Çiy noktası", "Hissedilen"]
+    lo = float(np.floor(min(d.dew_point_2m.min(), d.apparent_temperature.min())) - 1)
+    hi = float(np.ceil(max(d.temperature_2m.max(), d.apparent_temperature.max())) + 1)
+    y = alt.Y("deger:Q", title="°C", scale=alt.Scale(domain=[lo, hi], nice=False))
+    sis = d[d.fark <= 2]
+    sis_k = [alt.Chart(sis).mark_rect(color="#F1D24E", opacity=0.45).encode(x="time:T", x2="son:T")] if not sis.empty else []
+    cizgiler = alt.Chart(uzun).mark_line(strokeWidth=2.2, strokeCap="round").encode(
+        x=_x24(), y=y,
+        color=alt.Color("seri:N", scale=alt.Scale(domain=sira, range=[_S1, _S2, _S3]), sort=sira, legend=alt.Legend(symbolType="stroke")),
+        strokeDash=alt.StrokeDash("seri:N", scale=alt.Scale(domain=sira, range=[[1, 0], [1, 5], [6, 4]]), sort=sira, legend=None))
+    uc = d.loc[[d.temperature_2m.idxmax(), d.temperature_2m.idxmin()]].assign(
+        yazi=lambda x: [f"en yüksek {x.temperature_2m.iloc[0]:.0f}°", f"en düşük {x.temperature_2m.iloc[1]:.0f}°"])
+    sicaklik = _kart_ayar(alt.layer(*gece_k, *sis_k, cizgiler,
+                                    alt.Chart(uc).mark_point(filled=True, size=70, color=_S1, stroke=_K_ZEMIN, strokeWidth=2).encode(x="time:T", y=alt.Y("temperature_2m:Q", scale=alt.Scale(domain=[lo, hi]))),
+                                    alt.Chart(uc).mark_text(dy=-13, fontSize=11, fontWeight="bold", color=_K_METIN).encode(x="time:T", y="temperature_2m:Q", text="yazi:N"),
+                                    *_hover24(d, [alt.Tooltip("temperature_2m:Q", title="Sıcaklık (°C)", format=".0f"),
+                                                  alt.Tooltip("apparent_temperature:Q", title="Hissedilen (°C)", format=".0f"),
+                                                  alt.Tooltip("dew_point_2m:Q", title="Çiy noktası (°C)", format=".0f"),
+                                                  alt.Tooltip("fark:Q", title="Doymaya (°C)", format=".1f")])))
+
+    # yağış: saatlik miktar çubukları; altta aynı grafiğin içinde olasılık şeridi (sıfırın altındaki bant)
+    rmax = max(4.0, float(d.precipitation.max()) * 1.15)
+    bant = rmax * 0.16                                   # şeridin yüksekliği (mm biriminde, eksende gösterilmez)
+    yr = alt.Y("precipitation:Q", title="mm", scale=alt.Scale(domain=[-bant * 1.25, rmax], nice=False),
+               axis=alt.Axis(values=list(range(0, int(rmax) + 1))))
+    cubuk = alt.Chart(d[d.precipitation > 0]).mark_rect(color=_S1, cornerRadiusTopLeft=3, cornerRadiusTopRight=3,
+                                                         stroke=_K_ZEMIN, strokeWidth=2).encode(x=_x24(), x2="son:T", y=yr, y2=alt.datum(0))
+    en = d.loc[[d.precipitation.idxmax()]].assign(yazi=lambda x: [f"{x.precipitation.iloc[0]:.1f} mm".replace(".", ",")])
+    d["olas_yazi"] = [f"%{o:.0f}" if i % 3 == 0 else "" for i, o in enumerate(d.olas)]
+    d["koyu_mu"] = d.olas >= 55
+    d["b_ust"], d["b_alt"], d["b_orta"] = -bant * 0.2, -bant * 1.2, -bant * 0.7
+    d["orta"] = d.time + pd.Timedelta(minutes=30)
+    yagis = _kart_ayar(alt.layer(
+        *gece_k,
+        alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color=_K_METIN, opacity=0.3).encode(y="y:Q"),
+        cubuk,
+        alt.Chart(en[en.precipitation > 0]).mark_text(dy=-8, fontSize=11, fontWeight="bold", color=_K_METIN).encode(
+            x="orta:T", y="precipitation:Q", text="yazi:N"),
+        alt.Chart(d).mark_rect(stroke=_K_ZEMIN, strokeWidth=2, cornerRadius=3).encode(
+            x="time:T", x2="son:T", y=alt.Y("b_alt:Q"), y2="b_ust:Q",
+            color=alt.Color("olas:Q", scale=alt.Scale(domain=[0, 100], range=["#EEF3E3", _S1]),
+                            legend=alt.Legend(title="Yağış olasılığı (%)", orient="top", gradientLength=120, gradientThickness=8,
+                                              titleFontSize=11, titleColor=_K_IKINCI, titleFont="Inter, sans-serif",
+                                              direction="horizontal", titleOrient="left"))),
+        alt.Chart(d).mark_text(fontSize=9).encode(
+            x="orta:T", y="b_orta:Q", text="olas_yazi:N",
+            color=alt.condition("datum.koyu_mu", alt.value("#F3F7EF"), alt.value(_K_METIN))),
+        *_hover24(d, [alt.Tooltip("precipitation:Q", title="Miktar (mm)", format=".1f"),
+                      alt.Tooltip("olas:Q", title="Olasılık (%)", format=".0f"),
+                      alt.Tooltip("tur:N", title="Tür")])), 230)
+
+    # rüzgâr: ortalama (alan + çizgi), hamle, 45 km/s eşiği, 3 saatte bir yön oku
+    wmax = max(60.0, float(d.wind_gusts_10m.max()) * 1.1)
+    yw = alt.Y("deger:Q", title="km/s", scale=alt.Scale(domain=[0, wmax], nice=False))
+    wu = d.melt(id_vars=["time"], value_vars=["wind_speed_10m", "wind_gusts_10m"], var_name="kod", value_name="deger")
+    wu["seri"] = wu.kod.map({"wind_speed_10m": "Ortalama", "wind_gusts_10m": "Hamle"})
+    wsira = ["Ortalama", "Hamle"]
+    oklar = d.iloc[::3].assign(aci=lambda x: (x.wind_direction_10m + 180) % 360, ust=wmax * 0.93)
+    iH = d.wind_gusts_10m.idxmax()
+    hm = d.loc[[iH]].assign(yazi=lambda x: [f"hamle {x.wind_gusts_10m.iloc[0]:.0f}"])
+    ruzgar = _kart_ayar(alt.layer(
+        *gece_k,
+        alt.Chart(d).mark_area(color=_S1, opacity=0.22).encode(x=_x24(), y=alt.Y("wind_speed_10m:Q", scale=alt.Scale(domain=[0, wmax]), title="km/s")),
+        alt.Chart(wu).mark_line(strokeWidth=2.2).encode(
+            x=_x24(), y=yw, color=alt.Color("seri:N", scale=alt.Scale(domain=wsira, range=[_S1, _S2]), sort=wsira)),
+        alt.Chart(pd.DataFrame({"y": [45]})).mark_rule(color=_K_ESIK, strokeDash=[6, 4], strokeWidth=1.5).encode(y="y:Q"),
+        alt.Chart(pd.DataFrame({"y": [45], "t": [d.time.iloc[0]], "yazi": ["45 km/s: küçük tekne sınırı"]})).mark_text(
+            align="left", dy=-7, fontSize=10, color=_K_ESIK, fontWeight="bold").encode(x="t:T", y="y:Q", text="yazi:N"),
+        alt.Chart(oklar).mark_point(shape="wedge", size=150, filled=True, color=_K_METIN, opacity=0.85).encode(
+            x="time:T", y="ust:Q", angle=alt.Angle("aci:Q", scale=None)),
+        alt.Chart(hm).mark_point(filled=True, size=70, color=_S2, stroke=_K_ZEMIN, strokeWidth=2).encode(x="time:T", y="wind_gusts_10m:Q"),
+        alt.Chart(hm).mark_text(dy=-12, fontSize=11, fontWeight="bold", color=_K_METIN).encode(x="time:T", y="wind_gusts_10m:Q", text="yazi:N"),
+        *_hover24(d, [alt.Tooltip("wind_speed_10m:Q", title="Ortalama (km/s)", format=".0f"),
+                      alt.Tooltip("wind_gusts_10m:Q", title="Hamle (km/s)", format=".0f"),
+                      alt.Tooltip("yon_ad:N", title="Geldiği yön"),
+                      alt.Tooltip("oran:Q", title="Hamle / ortalama", format=".1f")])))
+
+    # basınç: alan + çizgi, dip ve son değer
+    plo, phi = float(np.floor(d.pressure_msl.min() - 1.5)), float(np.ceil(d.pressure_msl.max() + 1.5))
+    yp = alt.Y("pressure_msl:Q", title="hPa", scale=alt.Scale(domain=[plo, phi], nice=False), axis=alt.Axis(format=".0f"))
+    uclar = d.loc[[d.pressure_msl.idxmin(), d.index[-1]]].assign(
+        yazi=lambda x: [f"dip {x.pressure_msl.iloc[0]:.1f}".replace(".", ","), f"{x.pressure_msl.iloc[1]:.1f}".replace(".", ",")])
+    basinc = _kart_ayar(alt.layer(
+        *gece_k,
+        alt.Chart(d).mark_area(color=_S1, opacity=0.12).encode(x=_x24(), y=yp, y2=alt.datum(plo)),
+        alt.Chart(d).mark_line(color=_S1, strokeWidth=2.5).encode(x=_x24(), y=yp),
+        alt.Chart(uclar).mark_point(filled=True, size=70, color=_S1, stroke=_K_ZEMIN, strokeWidth=2).encode(x="time:T", y="pressure_msl:Q"),
+        alt.Chart(uclar).mark_text(dy=-12, fontSize=11, fontWeight="bold", color=_K_METIN, align="right", dx=4).encode(
+            x="time:T", y="pressure_msl:Q", text="yazi:N"),
+        *_hover24(d, [alt.Tooltip("pressure_msl:Q", title="Basınç (hPa)", format=".1f"),
+                      alt.Tooltip("dp3:Q", title="3 saatte değişim (hPa)", format="+.1f")])))
+    return {"sicaklik": sicaklik, "yagis": yagis, "ruzgar": ruzgar, "basinc": basinc, "veri": d}
