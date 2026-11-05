@@ -1,25 +1,24 @@
-/* Zaman şeridi bileşeni ("AURA" görünümü: cam kart, Space Grotesk/Space Mono). Açık tema Sky-Sync Dawn, koyu AURA. */
-.zs { --yuzey: rgba(255, 255, 255, 0.72); --zemin: rgba(15, 23, 42, 0.04); --cizgi: rgba(255, 255, 255, 0.65);
-      --ince: rgba(15, 23, 42, 0.07); --metin: #0F172A; --ikinci: #334155; --soluk: #55657A;
-      --vurgu: #0284C7; --vurgu-metin: #FFFFFF; --vurgu-zemin: rgba(14, 165, 233, 0.10); --sicak: #D97706;
-      --mavi: #0284C7; --mavi-zemin: rgba(14, 165, 233, 0.10); --uyari: #C2410C; --uyari-zemin: rgba(245, 158, 11, 0.12);
-      --gece: rgba(99, 102, 241, 0.07); --yagis: #38BDF8; --cig: #0F9F6E; --his: #FB7185; --ruzgar: #0369A1;
-      --isik: inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
-      --golge: 0 8px 32px -4px rgba(106, 130, 251, 0.10), 0 2px 8px -2px rgba(253, 160, 133, 0.10);
+/* Zaman şeridi bileşeni ("Karadeniz" görünümü). Açık ve koyu tema renkleri hava/tasarim.py ile aynı. */
+.zs { --yuzey: #FFFFFF; --zemin: rgba(28, 40, 41, 0.04); --cizgi: #CAD6C4;
+      --ince: rgba(28, 40, 41, 0.08); --metin: #1C2829; --ikinci: #3F5547; --soluk: #56695D;
+      --vurgu: #3F7A3A; --vurgu-metin: #FFFFFF; --vurgu-zemin: rgba(79, 138, 76, 0.12); --sicak: #2E6B3A;
+      --mavi: #2A6FB0; --mavi-zemin: rgba(42, 111, 176, 0.10); --uyari: #8A6200; --uyari-zemin: rgba(241, 210, 78, 0.22);
+      --gece: rgba(28, 40, 41, 0.06); --yagis: #2A6FB0; --cig: #2A6FB0; --his: #B2602A; --ruzgar: #2E6B3A;
+      --isik: none; --golge: none;
       container-type: inline-size; font-family: "Inter", var(--st-font, sans-serif); color: var(--metin); }
-.zs.koyu { --yuzey: rgba(23, 27, 38, 0.72); --zemin: rgba(255, 255, 255, 0.04); --cizgi: rgba(255, 255, 255, 0.09);
-           --ince: rgba(255, 255, 255, 0.06); --metin: #DFE2F1; --ikinci: #BCC9CD; --soluk: #9AA6AD;
-           --vurgu: #4CD7F6; --vurgu-metin: #003640; --vurgu-zemin: rgba(76, 215, 246, 0.10); --sicak: #FFB95F;
-           --mavi: #4CD7F6; --mavi-zemin: rgba(76, 215, 246, 0.10); --uyari: #FFB95F; --uyari-zemin: rgba(255, 185, 95, 0.12);
-           --gece: rgba(99, 102, 241, 0.10); --yagis: #06B6D4; --cig: #4ADE80; --his: #FFB4A8; --ruzgar: #4CD7F6;
-           --isik: inset 0 1px 0 0 rgba(255, 255, 255, 0.08); --golge: 0 18px 40px -24px rgba(0, 0, 0, 0.7); }
+.zs.koyu { --yuzey: #243537; --zemin: rgba(255, 255, 255, 0.04); --cizgi: #38504F;
+           --ince: rgba(255, 255, 255, 0.07); --metin: #E8EFE6; --ikinci: #AEC0B6; --soluk: #93A69C;
+           --vurgu: #C6E066; --vurgu-metin: #1C2829; --vurgu-zemin: rgba(198, 224, 102, 0.14); --sicak: #C6E066;
+           --mavi: #7FB2E5; --mavi-zemin: rgba(127, 178, 229, 0.12); --uyari: #F1D24E; --uyari-zemin: rgba(241, 210, 78, 0.14);
+           --gece: rgba(0, 0, 0, 0.18); --yagis: #7FB2E5; --cig: #7FB2E5; --his: #F0A060; --ruzgar: #8CBF5A;
+           --isik: none; --golge: none; }
 .zs * { box-sizing: border-box; }
 .zs button { font: inherit; color: inherit; cursor: pointer; }
 .zs .mono { font-family: "Space Mono", ui-monospace, monospace; }
 
 .zs-ozet { font-family: "Space Grotesk", "Inter", sans-serif; letter-spacing: -.02em; font-size: clamp(18px, 2.4vw, 24px); line-height: 1.35; font-weight: 600; margin: 0 0 14px; max-width: 920px; }
-.zs-kart { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 12px; box-shadow: var(--isik), var(--golge);
-           backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%); }
+.zs-ozet:empty { display: none; }
+.zs-kart { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 16px; }
 
 /* masaüstü / telefon geçişi: bileşenin kendi genişliğine göre */
 .zs-tel { display: none; }

@@ -85,7 +85,8 @@ def ozet(df: pd.DataFrame):
     return " ".join(cumle[:3])
 
 
-def zaman_seridi(df: pd.DataFrame, konum_ad: str, koyu: bool, key="zaman_seridi"):
+def zaman_seridi(df: pd.DataFrame, konum_ad: str, koyu: bool, key="zaman_seridi", ozet_goster=True):
+    """ozet_goster=False: özet cümlesi sayfada başka yerde (Genel bakış'taki manzarada) gösteriliyorsa tekrarlanmaz."""
     d = df.iloc[:SAAT]
     _BILESEN(key=f"{key}_{'koyu' if koyu else 'acik'}",
-             data={"saatler": saatler(d), "ozet": ozet(d), "konum": konum_ad, "koyu": koyu})
+             data={"saatler": saatler(d), "ozet": ozet(d) if ozet_goster else "", "konum": konum_ad, "koyu": koyu})

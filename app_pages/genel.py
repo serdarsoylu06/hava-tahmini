@@ -1,10 +1,11 @@
 import pandas as pd
 import streamlit as st
 
-from hava import deniz, grafik, tasarim, zaman_seridi
+from hava import deniz, grafik, kayit, tasarim, zaman_seridi
 from hava.arayuz import gun_sayisi, uyari_kartlari
 from hava.veri import ansambl, durum, konum, simge, tahmin, yon_adi
-from hava.yorum import SIRA, uyarilar
+from hava.yerler import nokta_konumu
+from hava.yorum import GUNLER, SIRA, uyarilar
 
 k = konum()
 koyu = st.context.theme.type == "dark"
@@ -18,99 +19,228 @@ uye = ansambl(k, "ecmwf_ifs025", "temperature_2m", 10)
 gmax = uye.resample("D").max()
 guven = (gmax.quantile(0.9, axis=1) - gmax.quantile(0.1, axis=1))
 
-# ---------------------------------------------------------------- anlık durum
-bugun = gunluk.iloc[0]
-sol, sag = st.columns([1.1, 1], gap="medium")
-with sol:
-    tasarim.kahraman(
-        " · ".join(x for x in (k["ad"], k["bolge"], f"{an:%d.%m %H:%M} yerel") if x), simdi["temperature_2m"],
-        durum(simdi["weather_code"]), f"hissedilen {simdi['apparent_temperature']:.0f}°",
-        [("Yüksek/düşük", f"{bugun.temperature_2m_max:.0f}° / {bugun.temperature_2m_min:.0f}°"),
-         ("Yağış", f"%{bugun.precipitation_probability_max:.0f}"),
-         ("Gün doğumu", f"{bugun.sunrise:%H:%M}"), ("Gün batımı", f"{bugun.sunset:%H:%M}")],
-        int(simdi["weather_code"]), bool(simdi["is_day"]))
-    st.page_link("app_pages/iklim.py", label="Mevsim normaliyle karşılaştır", icon=":material/history:")
+# ---------------------------------------------------------------- yeni kullanıcı rehberi (oturumda bir kez)
+REHBER = [
+    ("Manzara ve tahmincinin notu", "Manzara şu anki havayı ve günün saatini gösterir: yağmurda damlalar, sisli havada "
+     "vadiye inen bulut, gece karanlık gökyüzü. Altındaki cümle önümüzdeki saatlerin kısa özetidir."),
+    ("Grafikler ve saat saat şerit", "Önümüzdeki 24 saatin sıcaklık, yağış, rüzgâr ve basınç grafiklerinin üstünde "
+     "gezinince o saatin değerleri görünür. Aşağıdaki şeritte bir saate dokununca bütün değerler o saate hizalanır."),
+    ("Nelere dikkat etmeli?", "Fırtına, dalga, sis, don gibi durumlar tahminden otomatik bulunur. Her uyarının "
+     "altında neden önemli olduğu ve hangi sayfada izleneceği yazar."),
+]
+st.session_state.setdefault("rehber", 1)
 
-with sag, st.container(key="kartlar_genel"):
-    son3 = saatlik.pressure_msl.loc[:an].tail(4)
-    egilim = son3.iloc[-1] - son3.iloc[0] if len(son3) > 1 else 0
-    fark = simdi["temperature_2m"] - simdi["dew_point_2m"]
-    m = st.columns(6)          # tek satır: CSS üçerli ya da ikişerli sarar
-    m[0].metric("Rüzgâr", f"{simdi['wind_speed_10m']:.0f} km/s", f"{yon_adi(simdi['wind_direction_10m'])} yönünden",
-                delta_color="off", delta_arrow="off",
-                help="Rüzgâr adı, **geldiği** yöne göre verilir: poyraz kuzeydoğudan, lodos güneybatıdan eser.")
-    m[1].metric("Hamle", f"{simdi['wind_gusts_10m']:.0f} km/s",
-                f"ortalamanın {simdi['wind_gusts_10m'] / max(simdi['wind_speed_10m'], 1):.1f} katı",
-                delta_color="off", delta_arrow="off",
-                help="Hamle birkaç saniyelik en kuvvetli esintidir. Ortalamanın 2 katından fazlaysa hava "
-                     "türbülanslıdır (sağanak, dağ etkisi).")
-    m[2].metric("Nem", f"%{simdi['relative_humidity_2m']:.0f}", f"çiy noktası {simdi['dew_point_2m']:.0f}°",
-                delta_color="off", delta_arrow="off",
-                help=f"Sıcaklık ile çiy noktası arasındaki fark {fark:.1f}°. Fark 2°'nin altına inerse "
-                     "hava doymaya yakındır: sis, çisenti veya alçak bulut beklenir. Konfor için çiy noktası "
-                     "daha iyi ölçüttür; 18° üstü bunaltıcıdır.")
-    m[3].metric("Basınç", f"{simdi['pressure_msl']:.0f} hPa", f"{egilim:+.1f} hPa / 3 saat", delta_color="off",
-                chart_data=saatlik.pressure_msl.loc[an - pd.Timedelta(hours=12): an + pd.Timedelta(hours=24)].round(1).tolist(),
-                chart_type="line",
-                help="Deniz seviyesine indirgenmiş basınç. Tek başına değeri değil **eğilimi** önemlidir: "
-                     "3 saatte 3 hPa'dan fazla düşüş kötüleşen havanın en güvenilir habercisidir. Çizgi: son 12 ve "
-                     "önümüzdeki 24 saat.")
-    m[4].metric("UV indeksi", f"{simdi['uv_index']:.0f}", f"bugün en fazla {bugun.uv_index_max:.0f}",
-                delta_color="off", delta_arrow="off",
-                help="0–2 düşük, 3–5 orta, 6–7 yüksek, 8–10 çok yüksek, 11+ aşırı. 3 ve üstünde öğle "
-                     "saatlerinde güneş koruması önerilir.")
-    m[5].metric("Görüş", f"{simdi['visibility'] / 1000:.0f} km", f"bulut %{simdi['cloud_cover']:.0f}",
-                delta_color="off", delta_arrow="off",
-                help="1 km altı sis, 1–5 km pus/puslu hava sayılır. Model görüşü kaba bir tahmindir.")
+
+def _rehber(adim):
+    st.session_state.rehber = adim
+
+
+if st.session_state.rehber:
+    adim = st.session_state.rehber
+    with st.container(key="rehber", horizontal=True, vertical_alignment="center", gap="medium"):
+        b, m = REHBER[adim - 1]
+        st.markdown(f":gray[İlk kez mi buradasın? Kısa tanıtım, {adim} / {len(REHBER)}]  \n**{b}**  \n{m}", width="stretch")
+        st.button("Rehberi kapat", type="tertiary", on_click=_rehber, args=(0,))
+        if adim > 1:
+            st.button("Geri", on_click=_rehber, args=(adim - 1,))
+        st.button("Bitir" if adim == len(REHBER) else "Sonraki", type="primary",
+                  on_click=_rehber, args=(0 if adim == len(REHBER) else adim + 1,))
+
+# ---------------------------------------------------------------- manzara ve ölçerler
+bugun = gunluk.iloc[0]
+evre = tasarim.gun_evresi(an, pd.Timestamp(bugun.sunrise), pd.Timestamp(bugun.sunset))
+son3 = saatlik.pressure_msl.loc[:an].tail(4)
+egilim = son3.iloc[-1] - son3.iloc[0] if len(son3) > 1 else 0
+fark = simdi["temperature_2m"] - simdi["dew_point_2m"]
+ozet = zaman_seridi.ozet(ileri.iloc[:zaman_seridi.SAAT])
+
+sol, sag = st.columns([2.1, 1], gap="medium")
+with sol:
+    tasarim.manzara(
+        ", ".join(x for x in (k["ad"], k["bolge"]) if x) + f" · {GUNLER[an.weekday()]} {an:%d.%m}, saat {an:%H:%M}",
+        simdi["temperature_2m"], durum(simdi["weather_code"]),
+        f"Hissedilen {simdi['apparent_temperature']:.0f}° · en yüksek {bugun.temperature_2m_max:.0f}°, "
+        f"en düşük {bugun.temperature_2m_min:.0f}° · görüş {simdi['visibility'] / 1000:.0f} km",
+        ozet, simdi["weather_code"], evre, tohum=round(k["lat"] * 100 + k["lon"] * 7))
+with sag:
+    oran = simdi["wind_gusts_10m"] / max(simdi["wind_speed_10m"], 1)
+    tasarim.olcerler([
+        ("Nem", f"Çiy noktası {simdi['dew_point_2m']:.0f}°; doymaya {fark:.0f}° var" if fark > 0.5 else
+         "Hava doymuş: sis ya da alçak bulut", f"Nem yüzde {simdi['relative_humidity_2m']:.0f}", "halka",
+         simdi["relative_humidity_2m"] / 100, "#C6E066", f"%{simdi['relative_humidity_2m']:.0f}"),
+        ("Hamle", f"km/s · ortalama {simdi['wind_speed_10m']:.0f}, {yon_adi(simdi['wind_direction_10m'])} yönünden "
+         f"({oran:.1f} kat)", f"Hamle saatte {simdi['wind_gusts_10m']:.0f} kilometre", "yarim",
+         simdi["wind_gusts_10m"] / 80, "#F1D24E", f"{simdi['wind_gusts_10m']:.0f}"),
+        ("Basınç", f"hPa · 3 saatte {egilim:+.1f}; {'düşüyor, hava bozabilir' if egilim <= -1 else 'yükseliyor' if egilim >= 1 else 'durağan'}",
+         f"Basınç {simdi['pressure_msl']:.0f} hektopaskal", "yarim",
+         (simdi["pressure_msl"] - 980) / 60, "#8CBF5A", f"{simdi['pressure_msl']:.0f}"),
+        ("UV indeksi", f"Bugün en fazla {bugun.uv_index_max:.0f}; 3 ve üstünde öğle güneşinden korun",
+         f"UV indeksi {simdi['uv_index']:.0f}", "yarim", simdi["uv_index"] / 11, "#F0A060", f"{simdi['uv_index']:.0f}"),
+    ], koyu)
+
+# ---------------------------------------------------------------- noktalarım
+noktalar = kayit.oku()[:4]
+if noktalar:
+    tasarim.bolum("", "Noktalarım", "Kayıtlı yerlerin şu anki durumu")
+
+    def _sec(n):
+        st.session_state.harita_nokta = {"lat": n["lat"], "lon": n["lon"], "ad": n["ad"], "kayitli": True}
+
+    kol = st.columns(len(noktalar), gap="small")
+    for c, n in zip(kol, noktalar):
+        with c:
+            nk = nokta_konumu(n["lat"], n["lon"], n["ad"], "Kayıtlı nokta")
+            ns, nh, _ = tahmin(nk)
+            nu = sorted(uyarilar(nh[nh.index >= an.floor("h")].iloc[:48], nk.get("rakim")), key=lambda u: SIRA[u.seviye])
+            nu = [u for u in nu if u.seviye in ("tehlike", "dikkat")]
+            secili = abs(n["lat"] - k["lat"]) < 1e-4 and abs(n["lon"] - k["lon"]) < 1e-4
+            rakim = nk.get("rakim")
+            tasarim.nokta_karti(n["ad"], f"{rakim:.0f} m" if isinstance(rakim, (int, float)) else "Kayıtlı nokta",
+                                f"{ns['temperature_2m']:.0f}°", durum(ns["weather_code"]),
+                                nu[0].baslik if nu else None, bool(nu) and nu[0].seviye == "tehlike", secili)
+            st.button("Seçili" if secili else "Bu noktaya geç", key=f"nk_{n['ad']}", on_click=_sec, args=(n,),
+                      disabled=secili, width="stretch", type="tertiary")
+
+# ---------------------------------------------------------------- önümüzdeki 24 saat
+with st.container(horizontal=True, vertical_alignment="bottom"):
+    tasarim.bolum("", "Önümüzdeki 24 saat", "Grafiklerin üstünde gezin, o saatin değerleri görünür")
+    tablo_24 = st.toggle("Tablo olarak göster", key="tablo_24")
+g = grafik.saatlik_dortlu(ileri, GUNLER)
+ACIKLAMA = {
+    "sicaklik": ("Sıcaklık", "Sarı şeritler sıcaklıkla çiy noktası arasında 2° ya da daha az fark olan saatler: sis ve alçak bulut ihtimali."),
+    "yagis": ("Yağış", "Çubuklar saatlik miktar: 0,5 mm altı çisenti, 4 mm üstü sağanaktır. Alttaki şerit yağış olasılığı; koyulaştıkça artar."),
+    "ruzgar": ("Rüzgâr", "Oklar rüzgârın estiği yönü gösterir. Hamle ortalamanın iki katına yaklaşıyorsa hava türbülanslıdır."),
+    "basinc": ("Basınç", "3 saatte 3 hPa'dan fazla düşüş kötüleşen havanın, dipten sonra hızlı yükseliş sistemin geçtiğinin işaretidir."),
+}
+d24 = g["veri"]
+OZET = {
+    "sicaklik": f"{d24.temperature_2m.min():.0f}° – {d24.temperature_2m.max():.0f}°",
+    "yagis": f"toplam {d24.precipitation.sum():.1f} mm".replace(".", ","),
+    "ruzgar": f"hamle en çok {d24.wind_gusts_10m.max():.0f} km/s",
+    "basinc": f"{d24.pressure_msl.iloc[-1] - d24.pressure_msl.iloc[0]:+.1f} hPa / 24 saat".replace(".", ","),
+}
+for satir in (("sicaklik", "yagis"), ("ruzgar", "basinc")):
+    kol = st.columns(2, gap="medium")
+    for c, ad in zip(kol, satir):
+        with c, st.container(key=f"kart_{ad}"):
+            b, a = ACIKLAMA[ad]
+            st.markdown(f"### {b} <span style='float:right;font-family:Space Mono,monospace;font-size:13px;font-weight:700'>{OZET[ad]}</span>",
+                        unsafe_allow_html=True)
+            st.caption(a)
+            st.altair_chart(g[ad], theme=None, width="stretch")
+
+if tablo_24:
+    t = d24.assign(saat=d24.saat_ad, yon=d24.yon_ad)
+    st.dataframe(
+        t[["saat", "temperature_2m", "apparent_temperature", "dew_point_2m", "precipitation", "olas",
+           "wind_speed_10m", "wind_gusts_10m", "yon", "pressure_msl", "visibility"]],
+        hide_index=True, alt="Önümüzdeki 24 saatin saatlik değerleri",
+        column_config={
+            "saat": "Saat",
+            "temperature_2m": st.column_config.NumberColumn("Sıcaklık", format="%.0f °C"),
+            "apparent_temperature": st.column_config.NumberColumn("Hissedilen", format="%.0f °C"),
+            "dew_point_2m": st.column_config.NumberColumn("Çiy noktası", format="%.0f °C"),
+            "precipitation": st.column_config.NumberColumn("Yağış", format="%.1f mm"),
+            "olas": st.column_config.ProgressColumn("Olasılık", format="%d%%", min_value=0, max_value=100),
+            "wind_speed_10m": st.column_config.NumberColumn("Rüzgâr", format="%.0f km/s"),
+            "wind_gusts_10m": st.column_config.NumberColumn("Hamle", format="%.0f km/s"),
+            "yon": "Yön",
+            "pressure_msl": st.column_config.NumberColumn("Basınç", format="%.1f hPa"),
+            "visibility": st.column_config.NumberColumn("Görüş", format="%.0f m"),
+        })
 
 # ---------------------------------------------------------------- saat saat zaman şeridi
-# Sıcaklık, yağış, rüzgâr, basınç ve uyarılar aynı saat ekseninde; telefonda mini şerit + saat listesine döner.
-tasarim.bolum("01", "Saat saat", f"Önümüzdeki {zaman_seridi.SAAT} saat")
-zaman_seridi.zaman_seridi(ileri, k["ad"], koyu)
+tasarim.bolum("", "Saat saat", f"Önümüzdeki {zaman_seridi.SAAT} saat; bir saate dokun, bütün değerler hizalansın")
+zaman_seridi.zaman_seridi(ileri, k["ad"], koyu, ozet_goster=False)
 
-# ---------------------------------------------------------------- uyarılar
-tasarim.bolum("02", "Nelere dikkat etmeli?", f"Önümüzdeki {gun_sayisi()} günün tahmini otomatik tarandı")
-st.caption("Her kartın altında olayın neden önemli olduğunu ve hangi grafikte izleneceğini bulabilirsin.")
+# ---------------------------------------------------------------- uyarılar ve denize çıkış
 liste = uyarilar(donem, k["rakim"], guven.loc[guven.index < donem.index[-1]]) + deniz.uyarilar(k, gun_sayisi())
 if any(u.seviye in ("tehlike", "dikkat") for u in liste):          # deniz uyarısı geldiyse "sakin" kartı düşer
     liste = [u for u in liste if u.seviye != "iyi"]
-uyari_kartlari(sorted(liste, key=lambda u: SIRA[u.seviye]))
+liste = sorted(liste, key=lambda u: SIRA[u.seviye])
+
+deniz_bilgi = None
+if deniz.kiyida_mi(k["lat"], k["lon"]):
+    bulunan = deniz.en_yakin_deniz(k["lat"], k["lon"])
+    if bulunan is not None:
+        dlat, dlon, km, deniz_yonu = bulunan
+        dv = deniz.deniz_verisi(dlat, dlon, dict(k, lat=dlat, lon=dlon), 3).dropna(subset=["wave_height"])
+        s = deniz.guvenlik(dv, saatlik, deniz_yonu).genel
+        s = s[s.index >= an.floor("h")].iloc[:24]
+        if len(s) >= 12:
+            deniz_bilgi = (s, dv, km)
+
+if deniz_bilgi:
+    sol, sag = st.columns([7, 5], gap="medium")
+else:
+    sol, sag = st.container(), None
+with sol:
+    tasarim.bolum("", "Nelere dikkat etmeli?", f"Önümüzdeki {gun_sayisi()} günün tahmini otomatik tarandı")
+    uyari_kartlari(liste, sutun=1 if deniz_bilgi else 2)
+if deniz_bilgi:
+    s, dv, km = deniz_bilgi
+    seviye = [0 if x == 0 else 1 if x == 1 else 2 for x in s]
+    uygun = deniz.pencereler(s == 0, en_az_saat=2)
+    kotu = s[s >= 2]
+    g_ = lambda t: f"{GUNLER[t.weekday()]} {t:%H:%M}"
+    dalga_simdi = dv.wave_height.reindex(s.index).iloc[0]
+    if s.iloc[0] >= 2:
+        cumle = "Şu an küçük tekneler için **uygun değil**" + (f" (dalga {dalga_simdi:.1f} m).".replace(".", ",", 1) if dalga_simdi == dalga_simdi else ".")
+    elif s.iloc[0] == 1:
+        cumle = "Şu an denize **dikkatli** çıkılabilir."
+    else:
+        cumle = "Şu an denize çıkılabilir."
+    if uygun and not (s.iloc[0] == 0 and uygun[0][0] == s.index[0]):
+        cumle += f" En yakın uygun aralık **{g_(uygun[0][0])}–{uygun[0][1]:%H:%M}**."
+    elif uygun:
+        cumle += f" Uygun aralığın sonu: **{uygun[0][1]:%H:%M}**."
+    else:
+        cumle += " Önümüzdeki 24 saatte uygun bir aralık yok."
+    sonra = kotu[kotu.index > s.index[0]] if s.iloc[0] < 2 else kotu.iloc[0:0]
+    if not sonra.empty:
+        cumle += f" **{g_(sonra.index[0])}** itibarıyla koşullar kötüleşiyor, kıyıda kal."
+    with sag:
+        tasarim.bolum("", "Denize çıkılır mı?", f"En yakın deniz noktası, {km:.0f} km")
+        with st.container(key="yuzey_deniz"):
+            tasarim.deniz_seridi(
+                seviye, ["Şimdi" if i == 0 else f"{t:%H}" if i % 3 == 0 else "" for i, t in enumerate(s.index)],
+                [f"{g_(t)}: {['uygun', 'dikkatli ol', 'uygun değil'][v]} (dalga {dv.wave_height.get(t, float('nan')):.1f} m)"
+                 for t, v in zip(s.index, seviye)], cumle, koyu)
+            st.page_link("app_pages/balikcilik.py", label="Üç günlük deniz tahmini", icon=":material/sailing:")
 
 # ---------------------------------------------------------------- 10 gün
-st.space("small")
-tasarim.bolum("03", "10 günlük tahmin")
-sol, sag = st.columns([1.4, 1], gap="large")
-with sol:
-    tasarim.on_gun_listesi(gunluk, guven)
-with sag:
-    st.caption("Çubuk o günün en düşük–en yüksek sıcaklık aralığıdır; renk soğukta camgöbeğinden sıcakta "
-               "kehribar ve mercana döner. Mavi yüzde, %20 ve üstü yağış olasılığıdır. Bir güne gel: rüzgâr, UV ve **tahmin güveni** "
-               "görünür; tümü aşağıdaki tabloda.")
-
-with st.expander("Günlük ayrıntı tablosu", icon=":material/table_view:"):
+with st.container(horizontal=True, vertical_alignment="bottom"):
+    tasarim.bolum("", "10 günlük tahmin")
+    gorunum = st.segmented_control("Görünüm", ["Kartlar", "Tablo"], default="Kartlar", key="gun_gorunum",
+                                   label_visibility="collapsed")
+if gorunum == "Tablo":
     t = gunluk.reset_index()
     t["gun"] = [grafik.gunluk_etiket(x, t.time.iloc[0].date()) for x in t.time]
     t["durum"] = [f"{simge(c)} {durum(c)}" for c in t.weather_code]
+    t["yon"] = [yon_adi(x) for x in t.wind_direction_10m_dominant]
     t["guven"] = guven.reindex(t.time).values
     st.dataframe(
-        t[["gun", "durum", "temperature_2m_min", "temperature_2m_max", "precipitation_probability_max",
-           "precipitation_sum", "snowfall_sum", "wind_gusts_10m_max", "uv_index_max", "guven"]],
+        t[["gun", "durum", "temperature_2m_min", "temperature_2m_max", "precipitation_sum",
+           "precipitation_probability_max", "snowfall_sum", "wind_gusts_10m_max", "yon", "uv_index_max", "guven"]],
         hide_index=True, alt="Günlük tahmin tablosu",
         column_config={
-            "gun": "Gün", "durum": "Durum",
+            "gun": "Gün", "durum": "Gökyüzü",
             "temperature_2m_min": st.column_config.NumberColumn("En düşük", format="%.0f °C"),
             "temperature_2m_max": st.column_config.NumberColumn("En yüksek", format="%.0f °C"),
-            "precipitation_probability_max": st.column_config.ProgressColumn(
-                "Yağış olasılığı", format="%d%%", min_value=0, max_value=100),
             "precipitation_sum": st.column_config.NumberColumn("Yağış", format="%.1f mm"),
+            "precipitation_probability_max": st.column_config.ProgressColumn(
+                "Olasılık", format="%d%%", min_value=0, max_value=100),
             "snowfall_sum": st.column_config.NumberColumn("Kar", format="%.1f cm"),
             "wind_gusts_10m_max": st.column_config.NumberColumn("En kuvvetli hamle", format="%.0f km/s"),
+            "yon": "Hâkim yön",
             "uv_index_max": st.column_config.NumberColumn("UV", format="%.0f"),
             "guven": st.column_config.NumberColumn(
                 "Belirsizlik", format="± %.1f °C",
                 help="ECMWF ansamblının 51 üyesinden en yüksek sıcaklığın %10–%90 aralığı. "
                      "2 °C altı yüksek, 2–4 °C orta, 4 °C üstü düşük güven."),
         })
-    st.caption("**Tahmin güveni nasıl hesaplanıyor?** ECMWF aynı tahmini 51 kez, başlangıç koşullarını hafifçe "
-               "değiştirerek çalıştırır. Üyeler aynı sonucu veriyorsa güven yüksektir; birbirinden "
-               "uzaklaşıyorsa o gün için tek bir sayıya değil aralığa bakmak gerekir.")
+else:
+    tasarim.gun_kartlari(gunluk, guven)
+st.caption("Daire rengi gökyüzünü gösterir: sarı açık, açık yeşil parçalı bulutlu, koyu yeşil yağışlı, gri kapalı ya da "
+           "sisli; içindeki sayı en yüksek sıcaklık. Soluk daireler tahmin güveninin düşük olduğu günler: ECMWF'nin 51 "
+           "ansambl üyesi o gün için 4 °C'den fazla ayrışıyor.")

@@ -5,7 +5,7 @@ from hava import deniz, grafik, tasarim
 from hava.arayuz import gun_sayisi, okuma_rehberi
 from hava.veri import konum, simdiden, tahmin, yon_adi
 from hava.yerler import YONLER, kerteriz
-from hava.yorum import gun, zaman
+from hava.yorum import GUNLER, gun, zaman
 
 k = konum()
 tasarim.baslik("Deniz", f"Balıkçılık ve deniz · {k['ad']}",
@@ -59,11 +59,33 @@ m[5].metric("Ay", f"{ay_simge} {ay_ad}", f"%{aydinlik:.0f} aydınlık", delta_co
             border=True)
 
 # ---------------------------------------------------------------- denize çıkılır mı?
-st.subheader("Denize çıkılır mı?", anchor=False, divider="gray")
-st.altair_chart(grafik.guvenlik_seridi(s, d, hava, deniz.SEVIYE_AD, deniz.SEVIYE_RENK),
-                alt="Saat saat denize çıkış durumu")
+st.subheader("Denize çıkılır mı?", anchor=False)
 uygun = deniz.pencereler(s.genel <= 1, en_az_saat=3)
 kotu = s.genel >= 2
+g_ = lambda t: f"{GUNLER[t.weekday()]} {t:%H:%M}"
+if s.genel.iloc[0] >= 2:
+    ozet = f"Şu an küçük tekneler için **{deniz.SEVIYE_AD[seviye].lower()}**."
+else:
+    ozet = f"Şu an durum: **{deniz.SEVIYE_AD[seviye].lower()}**."
+if uygun:
+    a0, b0 = uygun[0]
+    son_ = f"{b0:%H:%M}" if b0.date() == a0.date() else g_(b0)
+    ozet += f" İlk uygun ya da dikkatle çıkılabilecek aralık **{g_(a0)} – {son_}**."
+else:
+    ozet += " Seçilen dönemde en az 3 saat sürecek uygun bir aralık yok."
+sonra = s.genel[(s.genel >= 2) & (s.index > s.index[0])]
+if s.genel.iloc[0] < 2 and not sonra.empty:
+    ozet += f" **{g_(sonra.index[0])}** itibarıyla koşullar kötüleşiyor."
+gece = (hava.is_day.reindex(s.index) == 0)
+ipucu = {t: f"{g_(t)}: {deniz.SEVIYE_AD[int(v)]} · dalga {d.wave_height.get(t, float('nan')):.1f} m · hamle "
+            f"{hava.wind_gusts_10m.get(t, float('nan')):.0f} km/s" for t, v in s.genel.items()}
+with st.container(key="yuzey_deniz_izgara"):
+    st.markdown(ozet)
+    tasarim.deniz_izgara(s.genel.iloc[:72], gece, ipucu, GUNLER)
+with st.expander("Etkenlere göre ayrıntı: dalga, rüzgâr, görüş", icon=":material/stacked_bar_chart:"):
+    st.altair_chart(grafik.guvenlik_seridi(s, d, hava, deniz.SEVIYE_AD, deniz.SEVIYE_RENK),
+                    alt="Saat saat denize çıkış durumu, etkenlere göre")
+
 c1, c2 = st.columns(2)
 with c1:
     if uygun:
@@ -88,6 +110,36 @@ with c2:
         st.error(f"{deniz.pencereler(s.kara_ruzgari, 1)[0][0]:%d.%m %H:%M} itibarıyla rüzgâr **karadan denize** "
                  "esiyor. Kıyıda deniz sakin görünür ama açıldıkça rüzgâr ve dalga artar; motor arızasında tekne "
                  "açığa sürüklenir.", title="Kara rüzgârı", icon=":material/air:")
+
+# ---------------------------------------------------------------- rüzgâr, su ve ışık, dönüş saati
+gunes = gunluk.reindex([an.normalize()]).iloc[0] if an.normalize() in gunluk.index else gunluk.iloc[0]
+k1, k2, k3 = st.columns([1, 1, 1.2], gap="medium")
+with k1, st.container(key="yuzey_deniz_ruzgar"):
+    st.markdown("#### Rüzgâr, şimdi")
+    tasarim.pusula(hava.wind_direction_10m.iloc[0], hava.wind_speed_10m.iloc[0], hava.wind_gusts_10m.iloc[0],
+                   yon_adi(hava.wind_direction_10m.iloc[0]), st.context.theme.type == "dark")
+with k2, st.container(key="yuzey_deniz_su"):
+    st.markdown("#### Su ve ışık")
+    tasarim.bilgi_listesi([
+        ("Su sıcaklığı", f"{d.sea_surface_temperature.iloc[0]:.1f} °C"),
+        ("Dalga periyodu", f"{d.wave_period.iloc[0]:.0f} sn"),
+        ("Gün doğumu", f"{pd.Timestamp(gunes.sunrise):%H:%M}"),
+        ("Gün batımı", f"{pd.Timestamp(gunes.sunset):%H:%M}"),
+        ("Ay", f"{ay_ad}, %{aydinlik:.0f}"),
+        ("Görüş", f"{hava.visibility.iloc[0] / 1000:.0f} km"),
+    ])
+with k3, st.container(key="kart_deniz_ogren"):
+    st.markdown("#### Dönüş saatini planla")
+    if uygun:
+        donus = uygun[0][1] - pd.Timedelta(hours=1)
+        st.markdown(f"Dalga bir anda değil, yavaş yavaş büyür. Uygun aralığın bitiminden en az bir saat önce kıyıya "
+                    f"dönmeye başla: ilk aralık için bu, en geç **{g_(donus)}** demek.")
+    else:
+        st.markdown("Dalga bir anda değil, yavaş yavaş büyür. Uygun aralığın bitiminden en az bir saat önce kıyıya "
+                    "dönmeye başla.")
+    st.markdown("#### Rüzgâr dalgası ve soluğan")
+    st.markdown("Rüzgâr dalgası o anki rüzgârla oluşur; kısa aralıklı ve diktir. Soluğan uzaktaki bir fırtınadan gelir; "
+                "rüzgâr dinse de saatlerce sürer. Aşağıdaki dalga grafiğinde ikisi ayrı çizilir.")
 
 with st.expander("Eşikler nasıl belirlendi? Beaufort ve Douglas ölçekleri", icon=":material/menu_book:"):
     st.markdown("""
