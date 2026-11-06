@@ -138,6 +138,8 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 /* ayarlar dişlisi: betik gezinme çubuğunun son menüsünün yanına sabitler; konumlanana dek görünmez */
 .st-key-ayarlar {{ position: fixed !important; z-index: 1000001; width: auto !important; visibility: hidden; top: 10px; right: 56px; }}
 .st-key-ayarlar.ayar-hazir {{ visibility: visible; }}
+/* Noktalarım: yalnızca simge (açıklama üzerine gelince) */
+.st-key-noktalarim button {{ padding-left: 10px; padding-right: 10px; }}
 .st-key-ayarlar button {{ min-height: 34px; height: 34px; padding: 0 8px; border: 0; background: transparent; }}
 .st-key-ayarlar button:hover {{ background: color-mix(in srgb, {r['metin']} 8%, transparent); }}
 .st-key-ayarlar button [data-testid="stIconMaterial"] {{ font-size: 20px; }}
@@ -330,8 +332,6 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
   .st-key-ust_cubuk > div {{ min-width: 0; }}
   .st-key-ust_cubuk .st-key-yer {{ width: auto !important; flex: 1 1 auto; }}
   .st-key-ust_cubuk [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ display: none; }}
-  .st-key-noktalarim button [data-testid="stMarkdownContainer"] {{ display: none; }}
-  .st-key-noktalarim button {{ padding-left: 10px; padding-right: 10px; }}
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
   [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - .3rem) !important; min-width: 0 !important; }}
   .mz {{ min-height: 400px; }}

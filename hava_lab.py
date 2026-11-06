@@ -116,7 +116,7 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
                + f" · {s.get('timezone', '?')}", width="stretch", help="Saatler konumun yerel saatidir.")
     tazelik_yeri = st.empty()                   # veri saati rozeti: sayfa çalıştıktan sonra doldurulur
     noktalar = kayit.oku()
-    with st.popover("Noktalarım", icon=":material/bookmarks:", key="noktalarim"):
+    with st.popover("", icon=":material/bookmarks:", key="noktalarim", help="Noktalarım: kayıtlı yerler"):
         if noktalar:
             st.pills("Kayıtlı noktalar", [n["ad"] for n in noktalar], key="kayitli_secim", on_change=kayitli_sec)
         else:
