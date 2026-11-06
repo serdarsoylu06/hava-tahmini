@@ -29,7 +29,7 @@ REHBER = [
     ("Ölçerler", "Nem, hamle, basınç ve UV. Her ölçerin altındaki satır değerin ne anlama geldiğini söyler.",
      [f"{_SOL}:last-child"]),
     ("24 saat grafikleri", "Grafiklerin üstünde gezinince o saatin değerleri görünür; aşağıdaki saat saat şeritte "
-     "bir saate dokununca bütün değerler o saate hizalanır.", [".st-key-esit_satir_24_sicaklik", ".st-key-esit_satir_24_ruzgar"]),
+     "bir saate dokununca bütün değerler o saate hizalanır.", [".st-key-esit_satir_deste"]),
     ("Nelere dikkat etmeli?", "Fırtına, dalga, sis, don gibi durumlar tahminden otomatik bulunur. Her uyarıda neden "
      "önemli olduğu ve hangi sayfada izleneceği yazar.", [".st-key-rehber_uyari"]),
 ]
@@ -144,15 +144,19 @@ OZET = {
     "ruzgar": f"hamle en çok {d24.wind_gusts_10m.max():.0f} km/s",
     "basinc": f"{d24.pressure_msl.iloc[-1] - d24.pressure_msl.iloc[0]:+.1f} hPa / 24 saat".replace(".", ","),
 }
-for satir in (("sicaklik", "yagis"), ("ruzgar", "basinc")):
-    kol = st.container(key=f"esit_satir_24_{satir[0]}").columns(2, gap="medium")  # aynı satırdaki kartlar eşit yükseklikte
-    for c, ad in zip(kol, satir):
-        with c, st.container(key=f"kart_{ad}"):
-            b, a = ACIKLAMA[ad]
-            st.markdown(f"### {b} <span style='float:right;font-family:Space Mono,monospace;font-size:13px;font-weight:700'>{OZET[ad]}</span>",
-                        unsafe_allow_html=True)
-            st.caption(a)
-            st.altair_chart(g[ad], theme=None, width="stretch")
+# Dört kart tek destede: masaüstünde 2×2 (eşit yükseklik), telefonda yana kaydırılan tek kart + sekmeler
+# (CSS: tasarim.py, st-key-esit_satir_deste; sekme betiği aşağıda).
+st.html('<div class="deste-sekme" role="tablist" aria-label="24 saat grafikleri">'
+        + "".join(f'<button type="button" role="tab" data-i="{i}"{" class=on" if i == 0 else ""}>{ACIKLAMA[ad][0]}</button>'
+                  for i, ad in enumerate(ACIKLAMA)) + "</div>")
+kol = st.container(key="esit_satir_deste").columns(4, gap="medium")
+for c, ad in zip(kol, ACIKLAMA):
+    with c, st.container(key=f"kart_{ad}"):
+        b, a = ACIKLAMA[ad]
+        st.markdown(f"### {b} <span style='float:right;font-family:Space Mono,monospace;font-size:13px;font-weight:700'>{OZET[ad]}</span>",
+                    unsafe_allow_html=True)
+        st.caption(a)
+        st.altair_chart(g[ad], theme=None, width="stretch")
 
 if tablo_24:
     t = d24.assign(saat=d24.saat_ad, yon=d24.yon_ad)

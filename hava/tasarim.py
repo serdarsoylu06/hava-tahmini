@@ -134,7 +134,8 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 [data-testid="stTopNav"] button, [data-testid="stTopNavLink"] {{ border-radius: 8px; }}
 {"" if bolum is None else f'''[data-testid="stTopNav"] > div:nth-child({bolum + 1}) [data-testid="stTopNavSection"] {{
     background: color-mix(in srgb, {r['vurgu']} 24%, transparent); font-weight: 600; }}
-[data-testid="stTopNav"] > div:nth-child({bolum + 1}) [data-testid="stTopNavSection"] p {{ font-weight: 600; }}'''}
+[data-testid="stTopNav"] > div:nth-child({bolum + 1}) [data-testid="stTopNavSection"] p {{ font-weight: 600; }}
+.st-key-alt_menu > div:nth-child({bolum + 1}) a {{ color: {r['vurgu']}; background: color-mix(in srgb, {r['vurgu']} 16%, transparent); }}'''}
 /* ayarlar dişlisi: betik gezinme çubuğunun son menüsünün yanına sabitler; konumlanana dek görünmez */
 .st-key-ayarlar {{ position: fixed !important; z-index: 1000001; width: auto !important; visibility: hidden; top: 10px; right: 56px; }}
 .st-key-ayarlar.ayar-hazir {{ visibility: visible; }}
@@ -146,6 +147,12 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 .st-key-ayarlar button > div > div[aria-hidden="true"] {{ display: none; }}
 [class*="st-key-yuzey_"] {{ {kart} padding: var(--ara-4) var(--ara-5); }}
 .st-key-rehber {{ font-size: 13px; }}
+/* 24 saat destesi: masaüstünde 2×2 */
+.st-key-esit_satir_deste [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap !important; row-gap: var(--ara-4); }}
+.st-key-esit_satir_deste [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {{ flex: 1 1 calc(50% - 1rem) !important; min-width: calc(50% - 1rem) !important; }}
+.deste-sekme {{ display: none; }}
+/* alt menü yalnızca telefonda */
+.st-key-alt_menu {{ display: none !important; }}
 /* 10 günlük lejant: tek satırlık bilgi şeridi */
 .gl {{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--ara-2) var(--ara-5); padding: var(--ara-2) var(--ara-4);
     border: 1px solid {r['cizgi']}; border-radius: 12px; background: {r['yuzey']}; font-size: 12.5px; color: {r['ikinci']}; }}
@@ -304,7 +311,13 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 .gk-alt b {{ font-family: {MONO}; font-weight: 700; color: {r['metin']}; }}
 .gk-durum {{ font-size: 12px; color: {r['ikinci']}; min-height: 16px; }}
 @media (max-width: 1100px) {{ .gk {{ grid-template-columns: repeat(5, minmax(0,1fr)); }} }}
-@media (max-width: 640px) {{ .gk {{ grid-template-columns: repeat(2, minmax(0,1fr)); }} }}
+@media (max-width: 640px) {{
+  /* 10 gün: yana kaydırılan şerit */
+  .gk {{ display: flex; overflow-x: auto; scroll-snap-type: x proximity; gap: var(--ara-2); padding-bottom: 4px !important; scrollbar-width: none; }}
+  .gk::-webkit-scrollbar {{ display: none; }}
+  .gk li {{ flex: 0 0 76px; scroll-snap-align: start; padding: var(--ara-2) var(--ara-1); }}
+  .gk-daire {{ width: 40px; height: 40px; font-size: 13px; }}
+}}
 
 /* ---------------- deniz ızgarası, pusula, bilgi listesi ---------------- */
 .di {{ display: flex; flex-direction: column; gap: var(--ara-3); }}
@@ -333,8 +346,44 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
   .st-key-ust_cubuk .st-key-yer {{ width: auto !important; flex: 1 1 auto; }}
   .st-key-ust_cubuk [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ display: none; }}
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
+  /* alt menü: başparmak erişiminde bölümler + sağ uçta Ayarlar dişlisi */
+  [data-testid="stMainBlockContainer"] {{ padding-bottom: 96px !important; }}
+  .st-key-alt_menu {{ display: flex !important; position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 999990;
+      height: 60px; padding: 0 60px 0 6px; border-radius: 18px; background: color-mix(in srgb, {r['yuzey']} 94%, transparent);
+      backdrop-filter: blur(10px); border: 1px solid {r['cizgi']}; box-shadow: {golge_ust}; align-items: center; }}
+  .st-key-alt_menu > div {{ flex: 1 1 0; min-width: 0; }}
+  .st-key-alt_menu a {{ flex-direction: column; gap: 2px; padding: 6px 2px !important; border-radius: 12px; justify-content: center; }}
+  .st-key-alt_menu a p {{ font-size: 11px !important; margin: 0; }}
+  .st-key-alt_menu a [data-testid="stIconMaterial"] {{ font-size: 22px; }}
+  .st-key-ayarlar {{ position: fixed !important; top: auto !important; left: auto !important; right: 22px !important; bottom: 22px !important; z-index: 999991; }}
+  .st-key-ayarlar button {{ height: 36px; }}
+  /* manzara kısa, ölçerler 2×2 */
+  .mz {{ min-height: 0 !important; }}
+  .mz-icerik {{ padding: var(--ara-4) !important; gap: 2px; }}
+  .mz-yer {{ font-size: 12.5px; }}
+  .mz-sicak {{ font-size: 68px; }}
+  .mz-durum {{ font-size: 17px; }}
+  .mz-ek {{ font-size: 12.5px; }}
+  .mz-not {{ font-size: 14px; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }}
+  .ol {{ grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--ara-2); }}
+  .ol-kart {{ padding: var(--ara-2) var(--ara-3); gap: var(--ara-2); }}
+  .ol-gosterge {{ width: 50px; }}
+  .ol-gosterge img {{ width: 50px !important; height: auto !important; }}
+  .ol-gosterge span {{ font-size: 11.5px; }}
+  .ol-gosterge.halka span {{ top: 17px; }}
+  .ol-gosterge.yarim span {{ top: 13px; }}
+  .ol-kart h3 {{ font-size: 13.5px; }}
+  .ol-kart p {{ font-size: 11.5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }}
+  /* 24 saat: tek kart, yana kaydır */
+  .deste-sekme {{ display: flex; gap: 6px; overflow-x: auto; margin-bottom: var(--ara-2); scrollbar-width: none; }}
+  .deste-sekme button {{ flex: none; font: 600 13px/1 Inter, sans-serif; padding: 8px 14px; border-radius: 999px; border: 1px solid {r['cizgi']};
+      background: transparent; color: {r['ikinci']}; }}
+  .deste-sekme button.on {{ background: {r['vurgu']}; border-color: {r['vurgu']}; color: #1C2829; }}
+  .st-key-esit_satir_deste [data-testid="stHorizontalBlock"] {{ flex-wrap: nowrap !important; overflow-x: auto; scroll-snap-type: x mandatory;
+      scrollbar-width: none; gap: var(--ara-3) !important; }}
+  .st-key-esit_satir_deste [data-testid="stHorizontalBlock"]::-webkit-scrollbar {{ display: none; }}
+  .st-key-esit_satir_deste [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {{ flex: 0 0 100% !important; min-width: 100% !important; scroll-snap-align: start; }}
   [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - .3rem) !important; min-width: 0 !important; }}
-  .mz {{ min-height: 400px; }}
 }}
 </style>""")
 

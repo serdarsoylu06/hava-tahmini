@@ -167,7 +167,9 @@ st.html("""<script>
     const ogeler = [...document.querySelectorAll('[data-testid="stTopNav"] > div')].filter(e => e.offsetWidth > 0);
     const son = ogeler[ogeler.length - 1];
     const h = document.querySelector('header[data-testid="stHeader"]');
-    if (son) {
+    if (window.matchMedia('(max-width: 640px)').matches) {   // telefonda dişli alt menünün sağ ucunda (CSS)
+      el.style.left = el.style.right = el.style.top = '';
+    } else if (son) {
       const r = son.getBoundingClientRect();
       el.style.left = (r.right + 6) + 'px'; el.style.right = 'auto';
       el.style.top = (r.top + r.height / 2 - el.offsetHeight / 2) + 'px';
@@ -178,9 +180,32 @@ st.html("""<script>
     }
     el.classList.add('ayar-hazir');
   };
-  setInterval(yerlestir, 400); window.addEventListener('resize', yerlestir); yerlestir();
+  // 24 saat destesi: telefonda sekmeye dokununca o karta kayar, kaydırınca sekme güncellenir
+  const deste = () => {
+    const blok = document.querySelector('.st-key-esit_satir_deste [data-testid="stHorizontalBlock"]');
+    const sekme = document.querySelector('.deste-sekme');
+    if (!blok || !sekme || blok.dataset.bagli) return;
+    blok.dataset.bagli = '1';
+    const kartlar = () => [...blok.querySelectorAll(':scope > [data-testid="stColumn"]')];
+    sekme.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      const k = kartlar()[+b.dataset.i]; if (k) blok.scrollTo({ left: k.offsetLeft - blok.offsetLeft, behavior: 'smooth' });
+    });
+    blok.addEventListener('scroll', () => {
+      const i = Math.round(blok.scrollLeft / Math.max(1, (kartlar()[1]?.offsetLeft || 1) - (kartlar()[0]?.offsetLeft || 0)));
+      sekme.querySelectorAll('button').forEach((b, j) => b.classList.toggle('on', j === i));
+    }, { passive: true });
+  };
+  setInterval(() => { yerlestir(); deste(); }, 400); window.addEventListener('resize', yerlestir); yerlestir();
 })();
 </script>""", unsafe_allow_javascript=True)
+# Telefonda alt menü (masaüstünde gizli; CSS: tasarim.py, st-key-alt_menu): bölümlerin ilk sayfaları. Dişli (Ayarlar)
+# telefonda bu menünün sağ ucuna yerleşir.
+with st.container(key="alt_menu", horizontal=True, horizontal_alignment="distribute", gap=None):
+    for ad, (bolum, i) in {"Genel": ("", 0), "Tahmin": ("Tahmin", 0), "Deniz": ("Deniz", 0), "Atmosfer": ("Atmosfer", 0)}.items():
+        hedef = MENU[bolum][i]
+        st.page_link(hedef, label=ad, icon=hedef.icon)
+
 if st.session_state.pop("tura_git", False) and sayfa.url_path != "":
     st.switch_page("app_pages/genel.py")
 
