@@ -47,9 +47,10 @@ Depo gizliyse Streamlit'e GitHub erişim izni vermen gerekir. Uygulama herkese a
 
 **Bilinmesi gerekenler:**
 - Bir süre kimse açmazsa uygulama uykuya geçer; ilk açılış bir dakika kadar sürebilir.
-- Sunucunun diski kalıcı değildir: `.onbellek/` (yanıt önbelleği) ve `kayitlar/` (Noktalarım) her yeniden
-  başlatmada silinir. Kayıtlı noktalar sunucudaki tek bir dosyada tutulduğu için uygulamayı açan herkes aynı
-  listeyi görür ve değiştirebilir.
+- Sunucunun diski kalıcı değildir: `.onbellek/` (yanıt önbelleği) her yeniden başlatmada silinir.
+- Kayıtlı noktalar (Noktalarım) her ziyaretçinin kendi tarayıcısında, bir çerezde saklanır: başkası göremez,
+  yeniden başlatmada kaybolmaz. Başka bir tarayıcıda ya da cihazda liste boş başlar; çerezler silinirse liste de
+  silinir. En fazla 15 nokta tutulur.
 
 **Netlify neden olmaz?** Netlify statik siteler ve kısa ömürlü fonksiyonlar içindir. Streamlit ise sürekli açık
 duran bir Python sunucusu ve WebSocket bağlantısı gerektirir.
