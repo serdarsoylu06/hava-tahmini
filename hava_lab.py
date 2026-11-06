@@ -73,11 +73,17 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
     else:
         yerler = yerlesimler()
         etiketler = list(yerler)
+        # Seçili yer adres satırında tutulur (?yer=Giresun): sayfa yenilenince korunur, bağlantı paylaşılabilir.
+        adresteki = st.query_params.get("yer")
+        if adresteki and adresteki not in yerler:
+            etiketler.append(adresteki)              # daha önce internette aranmış bir ad
         secim = st.selectbox(
-            "Konum", etiketler, index=etiketler.index("Ankara"), key="yer", accept_new_options=True,
+            "Konum", etiketler, index=etiketler.index(adresteki or "Ankara"), key="yer", accept_new_options=True,
             placeholder="Şehir, ilçe ya da yer ara…", label_visibility="collapsed", width="stretch",
             help="Yazdıkça öneriler anında süzülür (Türkiye'deki il, ilçe ve kasabalar ile dünyanın büyük şehirleri). "
                  "Listede olmayan bir yeri yazıp Enter'a basarsan internette aranır.")
+        if secim and st.query_params.get("yer") != secim:
+            st.query_params["yer"] = secim
         if secim in yerler:
             st.session_state.konum = konum_kaydi(yerler[secim])
             s = {"latitude": yerler[secim]["enlem"], "longitude": yerler[secim]["boylam"],

@@ -55,9 +55,13 @@ with sag:
                    "Bu tahmine güvenebilirsin.", title="Modeller uyumlu", icon=":material/verified:")
     else:
         saat = (asim.index[0] - fark.index[0]).total_seconds() / 3600
-        st.warning(f"İlk **{saat:.0f} saat** modeller uyumlu. {zaman(asim.index[0])} itibarıyla farklar "
-                   f"{esik[0]} {birim}'i aşıyor; en büyük fark {fark.max():.1f} {birim} "
-                   f"({zaman(fark.idxmax())}).", title="Uyum bozuluyor", icon=":material/call_split:")
+        en_buyuk = f"en büyük fark {fark.max():.1f} {birim} ({zaman(fark.idxmax())})"
+        if saat < 1:
+            metin = f"Modeller en baştan ayrışıyor: farklar şimdiden {esik[0]} {birim}'i aşıyor; {en_buyuk}."
+        else:
+            metin = (f"İlk **{saat:.0f} saat** modeller uyumlu. {zaman(asim.index[0])} itibarıyla farklar "
+                     f"{esik[0]} {birim}'i aşıyor; {en_buyuk}.")
+        st.warning(metin, title="Uyum bozuluyor", icon=":material/call_split:")
     st.caption("Fark tek başına \"hangisi doğru\"yu söylemez; tahminin **ne kadar emin** olduğunu söyler. "
                "Modeller ayrıştığında olası senaryoları görmek için Ansambl sayfasına geç.")
     st.page_link("app_pages/ansambl.py", label="Ansambl sayfasına git", icon=":material/arrow_forward:")

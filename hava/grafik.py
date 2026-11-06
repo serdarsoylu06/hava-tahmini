@@ -29,7 +29,8 @@ def _x(etiket=True):
 
 
 def _eksen_saatli(zamanlar):
-    """Gün etiketi gece yarısında (kalın), araya 6 saatte bir küçük ve soluk saat etiketi."""
+    """Gün etiketi gece yarısında (kalın), araya 6 saatte bir daha küçük ve ince saat etiketi.
+    Saydamlık kullanılmaz: koyu zeminde okunurluk (kontrast) düşmesin."""
     gun = "hours(datum.value) == 0"
     # İlk işaret bir gece yarısı: dar ekranda çakışan etiketler "parity" ile ayıklanırken (her ikinciden biri
     # kalır) gün etiketleri hep çift sıraya düşer ve korunur, saatler önce düşer.
@@ -39,8 +40,7 @@ def _eksen_saatli(zamanlar):
                 for t in pd.date_range(ilk, zt.max(), freq="6h")]
     return alt.Axis(values=degerler, labelOverlap="parity", labelFlush=False,
                     labelExpr=f"{gun} ? timeFormat(datum.value, '%d.%m') : timeFormat(datum.value, '%H:%M')",
-                    labelFontSize=alt.condition(gun, alt.value(11), alt.value(9)),
-                    labelOpacity=alt.condition(gun, alt.value(1), alt.value(0.5)),
+                    labelFontSize=alt.condition(gun, alt.value(11), alt.value(10)),
                     labelFontWeight=alt.condition(gun, alt.value("bold"), alt.value("normal")))
 
 
