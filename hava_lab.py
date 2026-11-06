@@ -121,17 +121,19 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
             st.pills("Kayıtlı noktalar", [n["ad"] for n in noktalar], key="kayitli_secim", on_change=kayitli_sec)
         else:
             st.caption("Henüz kayıtlı nokta yok. Sık baktığın yerleri (av noktası, yayla, kamp yeri) kaydedip tek "
-                       "dokunuşla seçebilirsin.")
+                       "dokunuşla seçebilirsin. Noktalar yalnızca bu tarayıcıda saklanır; başkası göremez.")
         anahtar = f"kayit_adi_{st.session_state.konum['lat']}_{st.session_state.konum['lon']}"
         st.text_input("Bu konumu kaydet", value=st.session_state.konum["ad"], key=anahtar,
                       help="Örn. \"Tirebolu açığı – lüfer\". Aynı adla kaydedersen eski kaydın yerini alır.")
         st.button("Kaydet", icon=":material/bookmark_add:", on_click=kaydet, args=(anahtar,), type="primary",
                   width="stretch")
         if noktalar:
-            st.caption("Sil")
+            st.caption("Sil · noktalar yalnızca bu tarayıcıda saklanır")
             for n in noktalar:
                 st.button(n["ad"], icon=":material/delete:", key=f"sil_{n['ad']}", on_click=kayit.sil,
                           args=(n["ad"],), width="stretch")
+
+kayit.cerez_yaz()                               # değiştiyse kayıtlı noktaları tarayıcı çerezine yaz
 
 # ---------------------------------------------------------------- ayarlar: üst gezinme çubuğunda, Öğren'in yanında dişli
 # Kenar çubuğu yok. Açılır pencere sayfa akışında oluşturulur, küçük bir betik onu gezinme çubuğunun son menüsünün
