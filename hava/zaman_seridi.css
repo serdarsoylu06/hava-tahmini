@@ -68,20 +68,24 @@
 .zs-uyari .yagis { background: var(--mavi-zemin); border: 1px solid var(--yagis); color: var(--mavi); }
 .zs-bos { font-size: 12px; color: var(--soluk); padding: 12px 0; }
 
-.zs-ayrinti { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
-.zs-ayrinti > div { flex: 1 1 360px; min-width: 0; padding: 16px; }
-.zs-bas { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
+/* seçili saat: tek kart, üç bölge (sıcaklık | değerler | neye bakmalı) */
+.zs-ayrinti { display: grid; grid-template-columns: auto minmax(260px, 1.2fr) minmax(220px, 1fr); align-items: center;
+              gap: 14px 24px; margin-top: 12px; padding: 14px 18px; }
+.zs-bas { min-width: 130px; }
+.zs-neye { border-left: 1px solid var(--ince); padding-left: 20px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+@media (max-width: 900px) { .zs-ayrinti { grid-template-columns: auto minmax(0, 1fr); }
+  .zs-neye { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--ince); padding: 12px 0 0; } }
 .zs-etiket { font-family: "Space Mono", monospace; font-size: 10.5px; letter-spacing: .08em; color: var(--soluk); }
 .zs-etiket.vurgu { color: var(--vurgu); margin-bottom: 6px; }
 .zs-buyuk { font-family: "Space Grotesk", sans-serif; font-size: 54px; font-weight: 700; letter-spacing: -.06em; line-height: 1.05; color: var(--vurgu); }
 .zs-durum { font-family: "Space Grotesk", sans-serif; font-size: 14px; font-weight: 600; }
-.zs-degerler { flex: 1 1 260px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
+.zs-degerler { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px;
                background: var(--ince); border: 1px solid var(--ince); border-radius: 6px; overflow: hidden; }
 .zs-degerler > div { background: var(--zemin); padding: 7px 10px; min-width: 0; }
 .zs-degerler .ad { font-size: 11px; color: var(--soluk); }
 .zs-degerler .dg { font-family: "Space Mono", monospace; font-weight: 700; font-size: 14px; white-space: nowrap; }
 .zs-degerler .dg small { font-size: 11px; color: var(--soluk); font-weight: 400; }
-.zs-ipucu { font-size: 14px; line-height: 1.55; color: var(--ikinci); }
+.zs-ipucu { font-size: 13.5px; line-height: 1.5; color: var(--ikinci); }
 
 /* ---------------- telefon ---------------- */
 .zs-mini { overflow-x: auto; margin: 0 0 10px; }

@@ -109,9 +109,10 @@ if noktalar:
     def _sec(n):
         st.session_state.harita_nokta = {"lat": n["lat"], "lon": n["lon"], "ad": n["ad"], "kayitli": True}
 
-    kol = st.columns(len(noktalar), gap="small")
+    # kompakt: kart en çok dört sütun genişliğinde; tıklama düğmesi kartın altında ince bir bağlantı
+    kol = st.columns(4, gap="small")
     for c, n in zip(kol, noktalar):
-        with c:
+        with c, st.container(key=f"nokta_{n['ad']}", gap=None):
             nk = nokta_konumu(n["lat"], n["lon"], n["ad"], "Kayıtlı nokta")
             ns, nh, _ = tahmin(nk)
             nu = sorted(uyarilar(nh[nh.index >= an.floor("h")].iloc[:48], nk.get("rakim")), key=lambda u: SIRA[u.seviye])
@@ -121,12 +122,13 @@ if noktalar:
             tasarim.nokta_karti(n["ad"], f"{rakim:.0f} m" if isinstance(rakim, (int, float)) else "Kayıtlı nokta",
                                 f"{ns['temperature_2m']:.0f}°", durum(ns["weather_code"]),
                                 nu[0].baslik if nu else None, bool(nu) and nu[0].seviye == "tehlike", secili)
-            st.button("Seçili" if secili else "Bu noktaya geç", key=f"nk_{n['ad']}", on_click=_sec, args=(n,),
-                      disabled=secili, width="stretch", type="tertiary")
+            if not secili:
+                st.button("Bu noktaya geç", key=f"nk_{n['ad']}", on_click=_sec, args=(n,), width="stretch",
+                          type="tertiary", icon=":material/arrow_forward:")
 
 # ---------------------------------------------------------------- önümüzdeki 24 saat
 with st.container(horizontal=True, vertical_alignment="bottom"):
-    tasarim.bolum("", "Önümüzdeki 24 saat", "Grafiklerin üstünde gezin, o saatin değerleri görünür")
+    tasarim.bolum("", "Önümüzdeki 24 saat")
     tablo_24 = st.toggle("Tablo olarak göster", key="tablo_24")
 g = grafik.saatlik_dortlu(ileri, GUNLER)
 ACIKLAMA = {
@@ -194,7 +196,8 @@ if deniz.kiyida_mi(k["lat"], k["lon"]):
             deniz_bilgi = (s, dv, km)
 
 if deniz_bilgi:
-    sol, sag = st.columns([7, 5], gap="medium")
+    # esit_satir: uyarı sütunu ile deniz kartı aynı yükseklikte biter (uyarı kartları boşluğu paylaşır)
+    sol, sag = st.container(key="esit_satir_uyari_deniz").columns([7, 5], gap="medium")
 else:
     sol, sag = st.container(), None
 with sol, st.container(key="rehber_uyari"):
@@ -264,6 +267,4 @@ if gorunum == "Tablo":
         })
 else:
     tasarim.gun_kartlari(gunluk, guven)
-st.caption("Daire rengi gökyüzünü gösterir: sarı açık, açık yeşil parçalı bulutlu, koyu yeşil yağışlı, gri kapalı ya da "
-           "sisli; içindeki sayı en yüksek sıcaklık. Soluk daireler tahmin güveninin düşük olduğu günler: ECMWF'nin 51 "
-           "ansambl üyesi o gün için 4 °C'den fazla ayrışıyor.")
+tasarim.gun_lejanti()
