@@ -30,7 +30,8 @@ m[1].metric("Toplam yağış", f"{df.precipitation.sum():.1f} mm", border=True,
             chart_data=df.precipitation.resample("6h").sum().round(1).tolist(), chart_type="bar",
             help="1 mm = metrekareye 1 litre su. Grafik 6 saatlik toplamları gösterir.")
 m[2].metric("Toplam kar", f"{df.snowfall.sum():.1f} cm", border=True,
-            chart_data=df.snowfall.resample("6h").sum().round(1).tolist(), chart_type="bar")
+            chart_data=df.snowfall.resample("6h").sum().round(1).tolist() if df.snowfall.sum() > 0 else None,
+            chart_type="bar")
 m[3].metric("En kuvvetli hamle", f"{df.wind_gusts_10m.max():.0f} km/s", border=True,
             chart_data=df.wind_gusts_10m.iloc[::3].round().tolist(), chart_type="area",
             help=f"{zaman(df.wind_gusts_10m.idxmax())}")
@@ -41,13 +42,16 @@ m[4].metric("Basınç değişimi", f"{dp:+.0f} hPa", border=True, delta_color="o
 uyari_kartlari(uyarilar(df, k["rakim"]), sayfa="app_pages/meteogram.py", sutun=3)
 
 # ---------------------------------------------------------------- model, saat seçimi ve o saatin değerleri
-with st.container(horizontal=True, vertical_alignment="bottom", gap="medium"):
+# Üç denetim tek bir kartta: telefonda dağınık durmasınlar (CSS: tasarim.py, st-key-mg_kontrol)
+kontrol = st.container(key="mg_kontrol", gap="small")
+with kontrol, st.container(horizontal=True, vertical_alignment="bottom", gap="medium"):
     model_ad = st.segmented_control("Tahmin modeli", list(MODELLER), default="En iyi eşleşme", key="mg_model",
                                     help="Farklı modeller aynı sonucu veriyorsa tahmine daha çok güvenebilirsin. "
                                          "\"En iyi eşleşme\" konuma göre en uygun modelleri birleştirir.")
-    aralik = st.slider("Zaman aralığı (tüm panelleri birlikte yakınlaştırır)", df.index[0].to_pydatetime(),
+    aralik = st.slider("Zaman aralığı", df.index[0].to_pydatetime(),
                        df.index[-1].to_pydatetime(), (df.index[0].to_pydatetime(), df.index[-1].to_pydatetime()),
-                       step=pd.Timedelta(hours=3), format="DD.MM HH:mm", key=f"mg_aralik_{k['ad']}_{gun_sayisi()}")
+                       step=pd.Timedelta(hours=3), format="DD.MM HH:mm", key=f"mg_aralik_{k['ad']}_{gun_sayisi()}",
+                       help="Tüm panelleri birlikte yakınlaştırır.")
 kod = MODELLER.get(model_ad or "En iyi eşleşme")
 if kod:
     mdf = simdiden(tablo(getir(FC, {"latitude": k["lat"], "longitude": k["lon"], "hourly": SAATLIK, "models": kod,
@@ -68,8 +72,9 @@ def panelden_sec(anahtar):
         st.session_state[SAAT_ANAHTAR] = gorunen.index[min(int(s[0]["i"]), len(gorunen) - 1)]
 
 
-saat = st.select_slider("Saat seç (ya da aşağıdaki herhangi bir panele tıkla)", options=list(gorunen.index),
-                        key=SAAT_ANAHTAR, format_func=lambda t: f"{GUNLER[t.weekday()]} {t:%d.%m %H:%M}")
+saat = kontrol.select_slider("Saat", options=list(gorunen.index), key=SAAT_ANAHTAR,
+                             format_func=lambda t: f"{GUNLER[t.weekday()]} {t:%d.%m %H:%M}",
+                             help="Aşağıdaki herhangi bir panele tıklayarak da seçebilirsin.")
 r = gorunen.loc[saat]
 yorum = "Sakin bir saat: yağış yok, rüzgâr ortalamanın üstüne çıkmıyor."
 if r.temperature_2m - r.dew_point_2m <= 2:
