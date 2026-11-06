@@ -58,7 +58,15 @@ def _metin(s):
 
 def stil(koyu):
     r = _renkler(koyu)
-    kart = f"background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 16px;"
+    # Katmanlı gölge: üst kenarda ince ışık + yakın temas gölgesi + yumuşak, geniş gölge. Açık temada daha hafif.
+    if koyu:
+        isik, yakin, uzak, uzak_ust = ".05", "rgba(0,0,0,.22)", "rgba(0,0,0,.4)", "rgba(0,0,0,.5)"
+    else:
+        isik, yakin, uzak, uzak_ust = ".7", "rgba(28,40,41,.06)", "rgba(28,40,41,.12)", "rgba(28,40,41,.16)"
+    golge = f"inset 0 1px 0 rgba(255,255,255,{isik}), 0 2px 4px {yakin}, 0 10px 24px -6px {uzak}"
+    golge_ust = f"inset 0 1px 0 rgba(255,255,255,{isik}), 0 4px 8px {yakin}, 0 16px 32px -8px {uzak_ust}"
+    golge_acik = f"inset 0 1px 0 rgba(255,255,255,.5), 0 2px 4px {yakin}, 0 10px 24px -6px {uzak}"  # açık yeşil kart
+    kart = f"background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 16px; box-shadow: {golge};"
     st.html(f"""<style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,300,0,0&display=block');
@@ -107,7 +115,14 @@ def stil(koyu):
 [class*="st-key-uyari_satir"] [data-testid="stElementContainer"]:has([data-testid="stAlert"]) {{ flex: 1 1 auto; }}
 [class*="st-key-uyari_satir"] [data-testid="stAlert"], [class*="st-key-uyari_satir"] [data-testid="stAlertContainer"] {{
     height: 100%; box-sizing: border-box; }}
-[data-testid="stAlertContainer"] {{ border-radius: 14px; }}
+[data-testid="stAlertContainer"] {{ border-radius: 14px; box-shadow: {golge}; }}
+/* üzerine gelince hafif kalkma (yalnızca bilgi kartları; açılır bölümler ve araç çubuğu sabit) */
+[class*="st-key-yuzey_"], [class*="st-key-kart_"], [data-testid="stMetric"], .ol-kart, .nk, .gk li, .mz {{
+    transition: transform .2s ease, box-shadow .2s ease; }}
+[class*="st-key-yuzey_"]:hover, [data-testid="stMetric"]:hover, .ol-kart:hover, .nk:hover, .gk li:hover {{
+    transform: translateY(-2px); box-shadow: {golge_ust}; }}
+[class*="st-key-kart_"]:hover {{ transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 8px {yakin}, 0 16px 32px -8px {uzak_ust}; }}
+@media (prefers-reduced-motion: reduce) {{ [class*="st-key-yuzey_"], [class*="st-key-kart_"], [data-testid="stMetric"], .ol-kart, .nk, .gk li {{ transition: none; transform: none !important; }} }}
 [data-testid="stExpander"] details {{ {kart} }}
 
 /* üst arama çubuğu ve yüzey kapları */
@@ -116,7 +131,7 @@ def stil(koyu):
 .st-key-rehber {{ background: {r['yuzey']}; border: 2px solid {r['vurgu']}; border-radius: 18px; padding: 16px 20px; }}
 
 /* açık yeşil grafik kartları: her iki temada aynı zemin, yazılar koyu */
-[class*="st-key-kart_"] {{ background: {KART}; border-radius: 18px; padding: 16px 16px 8px; color: {KART_METIN}; }}
+[class*="st-key-kart_"] {{ background: {KART}; border-radius: 18px; padding: 16px 16px 8px; color: {KART_METIN}; box-shadow: {golge_acik}; }}
 [class*="st-key-kart_"] p, [class*="st-key-kart_"] h3, [class*="st-key-kart_"] h4, [class*="st-key-kart_"] li, [class*="st-key-kart_"] strong, [class*="st-key-kart_"] span, [class*="st-key-kart_"] label {{ color: {KART_METIN}; }}
 [class*="st-key-kart_"] [data-testid="stCaptionContainer"] p {{ color: {KART_IKINCI}; }}
 /* esit_satir: yan yana kartlar aynı yükseklikte */
@@ -130,7 +145,7 @@ def stil(koyu):
 [data-testid="stVegaLiteChart"] svg.marks, [data-testid="stVegaLiteChart"] canvas {{ background: transparent !important; }}
 
 /* ---------------- manzara (anlık durum) ---------------- */
-.mz {{ position: relative; overflow: hidden; border-radius: 20px; min-height: 420px; color: #F3F7EF; container-type: inline-size; }}
+.mz {{ position: relative; overflow: hidden; border-radius: 20px; min-height: 420px; color: #F3F7EF; container-type: inline-size; box-shadow: {golge}; }}
 .mz svg.mz-sahne {{ position: absolute; inset: 0; width: 100%; height: 100%; }}
 .mz-katman {{ position: absolute; inset: 0; overflow: hidden; pointer-events: none; }}
 .mz-ortu {{ position: absolute; inset: 0; background: radial-gradient(120% 95% at 0% 0%, rgba(14,24,24,.6), transparent 62%); }}

@@ -28,6 +28,22 @@ def _x(etiket=True):
                                gridOpacity=0.5))
 
 
+def _eksen_saatli(zamanlar):
+    """Gün etiketi gece yarısında (kalın), araya 6 saatte bir küçük ve soluk saat etiketi."""
+    gun = "hours(datum.value) == 0"
+    # İlk işaret bir gece yarısı: dar ekranda çakışan etiketler "parity" ile ayıklanırken (her ikinciden biri
+    # kalır) gün etiketleri hep çift sıraya düşer ve korunur, saatler önce düşer.
+    zt = pd.DatetimeIndex(zamanlar)
+    ilk = zt.min().ceil("D")
+    degerler = [alt.DateTime(year=t.year, month=t.month, date=t.day, hours=t.hour)
+                for t in pd.date_range(ilk, zt.max(), freq="6h")]
+    return alt.Axis(values=degerler, labelOverlap="parity", labelFlush=False,
+                    labelExpr=f"{gun} ? timeFormat(datum.value, '%d.%m') : timeFormat(datum.value, '%H:%M')",
+                    labelFontSize=alt.condition(gun, alt.value(11), alt.value(9)),
+                    labelOpacity=alt.condition(gun, alt.value(1), alt.value(0.5)),
+                    labelFontWeight=alt.condition(gun, alt.value("bold"), alt.value("normal")))
+
+
 def yazi_rengi(koyu):
     """Metin işaretleri temanın yazı rengini almıyor; açık/koyu temaya göre elle verilir."""
     return "#E8EFE6" if koyu else "#1C2829"
@@ -290,7 +306,7 @@ def model_karsilastirma(seriler: pd.DataFrame, birim):
     sec = alt.selection_point(fields=["model"], bind="legend")
     hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False, clear="pointerout")
     zoom = alt.selection_interval(bind="scales", encodings=["x"])
-    x = alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount="day"))
+    x = alt.X("time:T", title=None, axis=_eksen_saatli(seriler.index))
     genis = seriler.reset_index()
     genis.columns = ["time"] + [f"m{i}" for i in range(seriler.shape[1])]
     ipucu = [alt.Tooltip("time:T", title="Zaman", format=SAAT)] + [
@@ -319,7 +335,7 @@ def yayilim(s: pd.Series, birim, esikler):
             color=alt.Color("ad:N", title=None, legend=alt.Legend(orient="top"),
                             scale=alt.Scale(domain=list(bolge.ad), range=[YESIL, "#FAB005", KIRMIZI]))),
         alt.Chart(d).mark_area(color=GRI, opacity=0.5, line={"color": GRI}).encode(
-            alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount="day")),
+            alt.X("time:T", title=None, axis=_eksen_saatli(s.index)),
             alt.Y("fark:Q", title=f"Fark ({birim})"),
             tooltip=[alt.Tooltip("time:T", title="Zaman", format=SAAT),
                      alt.Tooltip("fark:Q", title="Modeller arası fark", format=".1f")]),
