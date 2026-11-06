@@ -55,6 +55,8 @@ def kaydet(anahtar):
 
 
 tasarim.stil(st.context.theme.type == "dark")
+_koyu = st.context.theme.type == "dark"
+st.logo(f"assets/logo_{'koyu' if _koyu else 'acik'}.svg", size="large")   # kenar çubuğu yok: başlıkta tam logo
 
 # ---------------------------------------------------------------- üst çubuk: konum arama ve kayıtlı noktalar
 # Telefonda kenar çubuğu kapalı durduğu için konum seçimi sayfanın en üstünde, her sayfada aynı yerde.
@@ -79,7 +81,7 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
             etiketler.append(adresteki)              # daha önce internette aranmış bir ad
         secim = st.selectbox(
             "Konum", etiketler, index=etiketler.index(adresteki or "Ankara"), key="yer", accept_new_options=True,
-            placeholder="Şehir, ilçe ya da yer ara…", label_visibility="collapsed", width="stretch",
+            placeholder="Şehir, ilçe ya da yer ara…", label_visibility="collapsed", width=340,
             help="Yazdıkça öneriler anında süzülür (Türkiye'deki il, ilçe ve kasabalar ile dünyanın büyük şehirleri). "
                  "Listede olmayan bir yeri yazıp Enter'a basarsan internette aranır.")
         if secim and st.query_params.get("yer") != secim:
@@ -104,6 +106,10 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
                                       "tz": s.get("timezone") or "auto", "rakim": s.get("elevation"),
                                       "bolge": ", ".join(x for x in (s.get("admin1"), s.get("country")) if x)}
 
+    rakim = s.get("elevation")
+    st.caption(f"{s['latitude']:.2f}° K, {s['longitude']:.2f}° D"
+               + (f" · {rakim:.0f} m" if isinstance(rakim, (int, float)) else "")
+               + f" · {s.get('timezone', '?')}", width="stretch", help="Saatler konumun yerel saatidir.")
     tazelik_yeri = st.empty()                   # veri saati rozeti: sayfa çalıştıktan sonra doldurulur
     noktalar = kayit.oku()
     with st.popover("Noktalarım", icon=":material/bookmarks:", key="noktalarim"):
@@ -123,26 +129,56 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
                 st.button(n["ad"], icon=":material/delete:", key=f"sil_{n['ad']}", on_click=kayit.sil,
                           args=(n["ad"],), width="stretch")
 
-# ---------------------------------------------------------------- kenar çubuğu: ayarlar
-with st.sidebar:
-    st.subheader("Ayarlar", anchor=False)
+# ---------------------------------------------------------------- ayarlar: üst gezinme çubuğunda, Öğren'in yanında dişli
+# Kenar çubuğu yok. Açılır pencere sayfa akışında oluşturulur, küçük bir betik onu gezinme çubuğunun son menüsünün
+# hemen sağına sabitler (dar ekranda menü toplanınca sağ üste). Konumlama: tasarim.py, .st-key-ayarlar.
+def turu_baslat():
+    st.session_state.rehber = 1
+    st.session_state.tura_git = True
+
+
+with st.popover("", icon=":material/settings:", key="ayarlar", help="Ayarlar"):
+    st.markdown("**Ayarlar**")
     st.slider("Tahmin süresi (gün)", 2, 10, 5, key="gun",
               help="Meteogram, modeller, ansambl ve uyarılar bu aralığı kullanır. Uzadıkça belirsizlik artar.")
-    rakim = s.get("elevation")
-    st.caption(f"**{st.session_state.konum['ad']}** · {s['latitude']:.2f}° K, {s['longitude']:.2f}° D"
-               + (f" · rakım {rakim:.0f} m" if isinstance(rakim, (int, float)) else "") + "  \n"
-               f"Saatler yerel saattir ({s.get('timezone', '?')}).")
-    st.caption(":material/touch_app: Canlı radar ya da Tahmin haritaları sayfasında bir noktaya tıklayarak da konum "
-               "seçebilirsin.")
     st.toggle("Örnek veri (çevrimdışı)", key="ornek_veri",
               value=os.environ.get("HAVA_ORNEK", "") in ("1", "true", "evet"),
               help="Geliştirme ve deneme için: veri servislerine hiç istek atmadan sentetik bir senaryo (geçen bir "
                    "alçak basınç sistemi, yağış, kuvvetli rüzgâr, don, sis) gösterir. Değerler gerçek değildir. "
                    "Radar ve uydu görüntüsü yine gerçektir.")
-    st.space("medium")
+    st.divider()
+    st.button("Sayfa turunu başlat", icon=":material/tour:", on_click=turu_baslat, width="stretch",
+              help="Genel bakış sayfasının bölümlerini dört adımda tanıtır.")
+    st.caption(":material/touch_app: Canlı radar ya da Tahmin haritaları sayfasında bir noktaya tıklayarak da konum "
+               "seçebilirsin.")
     st.caption("Veri: [Open-Meteo](https://open-meteo.com) (CC BY 4.0) · ECMWF, DWD, NOAA, Météo-France, "
-               "UK Met Office modelleri · ölçümler: NOAA Aviation Weather Center, Iowa Environmental Mesonet · yer adları: "
-               "[GeoNames](https://www.geonames.org) (CC BY 4.0)")
+               "UK Met Office modelleri · ölçümler: NOAA Aviation Weather Center, Iowa Environmental Mesonet · yer "
+               "adları: [GeoNames](https://www.geonames.org) (CC BY 4.0)")
+st.html("""<script>
+(() => {
+  if (window.__ayarKur) return; window.__ayarKur = true;
+  const yerlestir = () => {
+    const el = document.querySelector('.st-key-ayarlar');
+    if (!el) return;
+    const ogeler = [...document.querySelectorAll('[data-testid="stTopNav"] > div')].filter(e => e.offsetWidth > 0);
+    const son = ogeler[ogeler.length - 1];
+    const h = document.querySelector('header[data-testid="stHeader"]');
+    if (son) {
+      const r = son.getBoundingClientRect();
+      el.style.left = (r.right + 6) + 'px'; el.style.right = 'auto';
+      el.style.top = (r.top + r.height / 2 - el.offsetHeight / 2) + 'px';
+    } else if (h) {
+      const r = h.getBoundingClientRect();
+      el.style.left = 'auto'; el.style.right = '56px';
+      el.style.top = (r.top + r.height / 2 - el.offsetHeight / 2) + 'px';
+    }
+    el.classList.add('ayar-hazir');
+  };
+  setInterval(yerlestir, 400); window.addEventListener('resize', yerlestir); yerlestir();
+})();
+</script>""", unsafe_allow_javascript=True)
+if st.session_state.pop("tura_git", False) and sayfa.url_path != "":
+    st.switch_page("app_pages/genel.py")
 
 if st.session_state.get("ornek_veri"):
     st.badge("Örnek veri modu: gösterilen değerler sentetiktir, gerçek tahmin değildir", icon=":material/science:",

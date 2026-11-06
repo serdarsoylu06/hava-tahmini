@@ -1,0 +1,3 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 40" width="132" height="40"><g><rect x="0" y="0" width="40" height="40" rx="11" fill="#3F7A3A"/>
+<circle cx="16" cy="16" r="6.5" fill="none" stroke="#F4F7F0" stroke-width="2.6"/>
+<path d="M10 29.5h17a5.5 5.5 0 0 0 0-11 7.5 7.5 0 0 0-14.3 2.2A4.5 4.5 0 0 0 10 29.5z" fill="#3F7A3A" stroke="#F4F7F0" stroke-width="2.6" stroke-linejoin="round"/></g><text x="50" y="26.5" font-family="Space Grotesk, Inter, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="700" fill="#1C2829" letter-spacing="-0.3">Hava<tspan fill="#3F7A3A">Lab</tspan></text></svg>

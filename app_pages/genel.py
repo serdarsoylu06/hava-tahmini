@@ -19,7 +19,7 @@ uye = ansambl(k, "ecmwf_ifs025", "temperature_2m", 10)
 gmax = uye.resample("D").max()
 guven = (gmax.quantile(0.9, axis=1) - gmax.quantile(0.1, axis=1))
 
-# ---------------------------------------------------------------- yeni kullanıcı rehberi (oturumda bir kez)
+# ---------------------------------------------------------------- sayfa turu (Ayarlar > Sayfa turunu başlat)
 # Büyük bir kutu yerine ince bir satır: anlatılan bölüm sayfada çerçevelenir ve köşesine numarası konur, böylece
 # rehber "nereye bakmalı" sorusunu yerinde gösterir. (ad, açıklama, çerçevelenecek bölümlerin CSS seçicisi)
 _SOL = '.st-key-esit_satir_genel [data-testid="stColumn"]'
@@ -33,7 +33,7 @@ REHBER = [
     ("Nelere dikkat etmeli?", "Fırtına, dalga, sis, don gibi durumlar tahminden otomatik bulunur. Her uyarıda neden "
      "önemli olduğu ve hangi sayfada izleneceği yazar.", [".st-key-rehber_uyari"]),
 ]
-st.session_state.setdefault("rehber", 1)
+st.session_state.setdefault("rehber", 0)   # tur ayarlardan başlatılır
 
 
 def _rehber(adim):
@@ -41,9 +41,8 @@ def _rehber(adim):
 
 
 adim = st.session_state.rehber
-with st.container(key="rehber", horizontal=True, vertical_alignment="center", gap="small",
-                  horizontal_alignment="right"):
-    if adim:
+if adim:
+    with st.container(key="rehber", horizontal=True, vertical_alignment="center", gap="small"):
         b, m, secici = REHBER[adim - 1]
         st.markdown(f":material/lightbulb: **{adim}/{len(REHBER)} · {b}** :gray[— {m}]", width="stretch")
         st.button("", icon=":material/chevron_left:", key="rehber_geri", type="tertiary", help="Önceki",
@@ -68,9 +67,6 @@ with st.container(key="rehber", horizontal=True, vertical_alignment="center", ga
 {etkin} {{ outline: 2px solid var(--kd-vurgu); outline-offset: 5px; border-radius: 20px; transition: outline-color .2s; }}
 {etkin_n} {{ background: var(--kd-vurgu); color: #1C2829; border-color: var(--kd-vurgu); }}
 </style>""")
-    else:
-        st.button("Sayfa turu", icon=":material/help:", key="rehber_ac", type="tertiary",
-                  help="Bu sayfanın bölümlerini dört adımda tanı", on_click=_rehber, args=(1,))
 
 # ---------------------------------------------------------------- manzara ve ölçerler
 bugun = gunluk.iloc[0]

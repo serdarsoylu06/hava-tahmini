@@ -127,7 +127,18 @@ def stil(koyu):
 [data-testid="stExpander"] details {{ {kart} }}
 
 /* üst arama çubuğu ve yüzey kapları */
-.st-key-ust_cubuk {{ {kart} padding: var(--ara-2) var(--ara-3); }}
+.st-key-ust_cubuk {{ padding: 0 0 var(--ara-3); margin-bottom: var(--ara-1); border-bottom: 1px solid {r['cizgi']}; }}
+.st-key-ust_cubuk [data-testid="stCaptionContainer"] p {{ font: 12px/1.4 'Space Mono', monospace; color: {r['ikinci']}; margin: 0; }}
+/* üst gezinme şeridi: hafif buzlu zemin ve ince alt çizgi */
+header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
+[data-testid="stTopNav"] button, [data-testid="stTopNavLink"] {{ border-radius: 8px; }}
+/* ayarlar dişlisi: betik gezinme çubuğunun son menüsünün yanına sabitler; konumlanana dek görünmez */
+.st-key-ayarlar {{ position: fixed !important; z-index: 1000001; width: auto !important; visibility: hidden; top: 10px; right: 56px; }}
+.st-key-ayarlar.ayar-hazir {{ visibility: visible; }}
+.st-key-ayarlar button {{ min-height: 34px; height: 34px; padding: 0 8px; border: 0; background: transparent; }}
+.st-key-ayarlar button:hover {{ background: color-mix(in srgb, {r['metin']} 8%, transparent); }}
+.st-key-ayarlar button [data-testid="stIconMaterial"] {{ font-size: 20px; }}
+.st-key-ayarlar button > div > div[aria-hidden="true"] {{ display: none; }}
 [class*="st-key-yuzey_"] {{ {kart} padding: var(--ara-4) var(--ara-5); }}
 .st-key-rehber {{ font-size: 13px; }}
 .st-key-adimlar {{ flex-wrap: wrap; }}
@@ -294,6 +305,8 @@ def stil(koyu):
   [data-testid="stMainBlockContainer"] {{ padding-top: 4rem !important; }}
   .st-key-ust_cubuk {{ flex-wrap: nowrap !important; gap: var(--ara-2) !important; }}
   .st-key-ust_cubuk > div {{ min-width: 0; }}
+  .st-key-ust_cubuk .st-key-yer {{ width: auto !important; flex: 1 1 auto; }}
+  .st-key-ust_cubuk [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ display: none; }}
   .st-key-noktalarim button [data-testid="stMarkdownContainer"] {{ display: none; }}
   .st-key-noktalarim button {{ padding-left: 10px; padding-right: 10px; }}
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
