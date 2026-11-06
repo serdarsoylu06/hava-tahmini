@@ -18,20 +18,20 @@ adimlar = [
     (":material/compare_arrows:", "Modeller anlaşıyor mu?",
      "Farklı merkezlerin modelleri aynı şeyi söylüyorsa güven yüksektir. Ayrıştıkları tarihi not et.",
      "app_pages/modeller.py"),
-    (":material/stacked_line_chart:", "Senaryolara bak, tek sayıya değil",
-     "3–4 günden sonrası için ansambl bandı tek tahminden daha dürüsttür. \"%30 yağış\" yağmayacak demek değildir.",
+    (":material/stacked_line_chart:", "Senaryolara bak",
+     "Tek sayıya değil, senaryolara bak: 3–4 günden sonrası için ansambl bandı tek tahminden daha dürüsttür. \"%30 yağış\" yağmayacak demek değildir.",
      "app_pages/ansambl.py"),
     (":material/map:", "Büyük resmi haritada gör",
      "Sistemin nereden geldiğini ve ne hızla ilerlediğini görmek, zamanlamadaki hatayı tahmin etmeni sağlar.",
      "app_pages/haritalar.py"),
 ]
-kol = st.columns(len(adimlar))
-for c, (ikon, baslik, metin, sayfa) in zip(kol, adimlar):
-    with c.container(border=True, height="stretch"):
-        st.markdown(f"### {ikon}")
-        st.markdown(f"**{baslik}**")
-        st.caption(metin)
-        st.page_link(sayfa, label="Git", icon=":material/arrow_forward:")
+# Kompakt adımlar: numara + başlık; açıklama ve bağlantı tıklayınca açılan pencerede.
+with st.container(key="adimlar", horizontal=True, gap="small"):
+    for i, (ikon, baslik, metin, sayfa) in enumerate(adimlar, 1):
+        with st.popover(f"{i} · {baslik}", icon=ikon, width="stretch"):
+            st.markdown(f"**{ikon} {baslik}**")
+            st.markdown(metin)
+            st.page_link(sayfa, label="Bu sayfaya git", icon=":material/arrow_forward:")
 
 st.subheader("Tahmin ne kadar ileriye güvenilir?", anchor=False)
 sol, sag = st.columns([1.4, 1], gap="large")

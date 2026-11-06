@@ -1,3 +1,5 @@
+import html
+
 import streamlit as st
 
 from hava import tasarim
@@ -20,38 +22,31 @@ if tik:
     st.session_state.harita_nokta = {"lat": round(tik["lat"], 3), "lon": round(tik["lon"], 3)}
     st.rerun()
 
-sol, orta, sag = st.columns(3, gap="medium")
-with sol.container(border=True, height="stretch"):
-    st.markdown("**:material/radar: Radar neyi gösterir?**")
-    st.markdown("""
-Radar, gönderdiği sinyalin yağmur damlası ve kar tanelerinden **geri yansımasını** ölçer. Renk ne kadar sıcaksa
-(sarı → kırmızı → mor) yağış o kadar yoğundur.
-
-- **Hücre hâlinde, hızlı büyüyen kırmızı lekeler** gök gürültülü sağanaktır.
-- **Geniş, düzgün mavi alanlar** cephesel, uzun süren yağıştır.
-- Animasyonda yağışın **hangi yöne ve ne hızla** ilerlediğine bak: bir saat sonra nerede olacağını
-  kendin kestirebilirsin (meteorologların "nowcasting" dediği şey budur).
-""")
-with orta.container(border=True, height="stretch"):
-    st.markdown("**:material/satellite_alt: Uydu neyi gösterir?**")
-    st.markdown("""
-Meteosat, Ekvator üzerinde 36.000 km yükseklikten 15 dakikada bir görüntü alır.
-
-- **Doğal renk** gündüz gözün göreceği gibidir; gece kızılötesine geçer.
-- **Kızılötesinde** beyaz = soğuk = yüksek bulut tepesi. En parlak beyaz, kuleleşmiş fırtına bulutlarıdır.
-- **Virgül biçimli bulut bantları** gelişmiş alçak basınç sistemleridir; kuyruğu soğuk cepheyi gösterir.
-- Radarın göremediği yerleri (denizler, sınır ötesi) uydu görür; ama bulutun yağış verip vermediğini radar söyler.
-""")
-with sag.container(border=True, height="stretch"):
-    st.markdown("**:material/air: Rüzgâr akışı neyi gösterir?**")
-    st.markdown("""
-Akan çizgiler **modelin** bu saat için hesapladığı 10 m rüzgârıdır (gözlem değil). Renk hızı gösterir.
-
-- Akışın **döndüğü** yerler basınç merkezleridir: alçak basınç etrafında saat yönünün tersine dönüş.
-- **İki akışın karşılaştığı** (yakınsadığı) hatlarda hava yükselir; radarda yağış bandını sık sık tam bu hatta
-  görürsün.
-- Dağların ve boğazların rüzgârı nasıl yönlendirdiğine bak.
-""")
+# Kompakt bilgi kartları: tek cümlelik özet; "nelere bakmalı?" maddeleri istenince açılır (Meteogram rehberiyle aynı).
+BILGI = [
+    (":material/radar:", "Radar neyi gösterir?",
+     "Yağmur damlası ve kar tanelerinden geri yansıyan sinyal. Renk ne kadar sıcaksa (sarı → kırmızı → mor) yağış o kadar yoğun.",
+     [("Hızlı büyüyen kırmızı hücreler", "Gök gürültülü sağanaktır."),
+      ("Geniş, düzgün mavi alanlar", "Cephesel, uzun süren yağıştır."),
+      ("Yağışın yönü ve hızı", "Animasyonda nereye ilerlediğine bak: bir saat sonra nerede olacağını kendin kestirebilirsin "
+       "(meteorologların \"nowcasting\" dediği şey).")]),
+    (":material/satellite_alt:", "Uydu neyi gösterir?",
+     "Meteosat, 36.000 km yükseklikten 15 dakikada bir görüntü alır. Gündüz doğal renk, gece kızılötesi.",
+     [("Parlak beyaz", "Kızılötesinde beyaz = soğuk = yüksek bulut tepesi; en parlakları kuleleşmiş fırtına bulutları."),
+      ("Virgül biçimli bantlar", "Gelişmiş alçak basınç sistemleri; kuyruğu soğuk cepheyi gösterir."),
+      ("Radarla birlikte oku", "Uydu denizleri ve sınır ötesini de görür; bulutun yağış verip vermediğini ise radar söyler.")]),
+    (":material/air:", "Rüzgâr akışı neyi gösterir?",
+     "Akan çizgiler modelin bu saat için hesapladığı 10 m rüzgârı (gözlem değil). Renk hızı gösterir.",
+     [("Dönen akış", "Basınç merkezleri: alçak basınç etrafında saat yönünün tersine dönüş."),
+      ("Karşılaşan akışlar", "Yakınsama hatlarında hava yükselir; radarda yağış bandını çoğu zaman tam bu hatta görürsün."),
+      ("Dağlar ve boğazlar", "Rüzgârın yerel engellerle nasıl yön değiştirdiğine bak.")]),
+]
+for kol, (ikon, baslik_, ozet_, maddeler) in zip(st.columns(3, gap="medium"), BILGI):
+    with kol.container(border=True, height="stretch"):
+        st.markdown(f"**{ikon} {baslik_}**  \n:gray[{ozet_}]")
+        st.html('<div class="okuma-liste okuma-kart">' + "".join(
+            f'<details class="okuma"><summary><b>{i}</b>{html.escape(b)}</summary><p>{html.escape(m)}</p></details>'
+            for i, (b, m) in enumerate(maddeler, 1)) + "</div>")
 
 st.caption("Kaynaklar: radar [RainViewer](https://www.rainviewer.com) (gri gölgeli alanlarda radar kapsaması yok), uydu "
            "[EUMETSAT](https://view.eumetsat.int) Meteosat MTG (yaklaşık 30–45 dk gecikmeli), rüzgâr Open-Meteo "

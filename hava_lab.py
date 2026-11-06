@@ -106,7 +106,7 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
 
     tazelik_yeri = st.empty()                   # veri saati rozeti: sayfa çalıştıktan sonra doldurulur
     noktalar = kayit.oku()
-    with st.popover("Noktalarım", icon=":material/bookmarks:"):
+    with st.popover("Noktalarım", icon=":material/bookmarks:", key="noktalarim"):
         if noktalar:
             st.pills("Kayıtlı noktalar", [n["ad"] for n in noktalar], key="kayitli_secim", on_change=kayitli_sec)
         else:

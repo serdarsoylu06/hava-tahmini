@@ -130,6 +130,21 @@ def renk_skalasi(ayar, alanlar):
     return sev, [mcolors.to_hex(cmap(x)) for x in np.linspace(0.05, 0.95, len(sev) - 1)]
 
 
+def cetvel_html(seviyeler, renkler, birim, ad=""):
+    """Renk ölçeği HTML olarak: keskin, temaya uyan yazılar, haritanın altında geniş. Çok basamak varsa
+    etiketler birer atlanır (ilk ve son hep kalır) ki dar ekranda üst üste binmesin."""
+    n = len(renkler)
+    atla = 2 if n > 12 else 1
+    hucre = "".join(f'<i style="background:{r}"></i>' for r in renkler)
+    son = len(seviyeler) - 1
+    goster = [i for i in range(son + 1) if i % atla == 0 and son - i >= atla or i == son]   # sondan bir önceki son ile çakışmasın
+    etiket = "".join(f'<span style="left:{i / n * 100:.2f}%">{float(seviyeler[i]):g}</span>' for i in goster)
+    return (f'<div class="cetvel" role="img" aria-label="Renk ölçeği {ad} {birim}">'
+            f'<div class="cetvel-ust"><b>{ad}</b><span>{birim}</span></div>'
+            f'<div class="cetvel-renk" style="grid-template-columns:repeat({n},1fr)">{hucre}</div>'
+            f'<div class="cetvel-etiket">{etiket}</div></div>')
+
+
 def cetvel(seviyeler, renkler, birim):
     """Haritanın renk ölçeği: saydam zeminli PNG (yazılar gri, açık ve koyu temada okunur)."""
     import matplotlib.pyplot as plt
@@ -389,7 +404,8 @@ def harita(lats, lons, alan, izo, ok_b, ok_y, ayar, sev, renkler, konum, koyu):
                   get_color=[255, 255, 255], background=True, get_background_color=[224, 49, 49, 235],
                   background_padding=[6, 3]),
     ]
-    yak = float(np.clip(np.log2(360 / (kapsam[1] - kapsam[0])) + 0.75, 2, 8))
+    # veri dikdörtgeni haritayı doldursun (önceki +0,75 yarısını boş bırakıyordu)
+    yak = float(np.clip(np.log2(360 / (kapsam[1] - kapsam[0])) + 1.25, 2, 8))
     return pdk.Deck(
         layers=katman, map_provider="carto", map_style=KOYU_STIL if koyu else ACIK,
         initial_view_state=pdk.ViewState(latitude=(kapsam[2] + kapsam[3]) / 2,

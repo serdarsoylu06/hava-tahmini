@@ -1,3 +1,4 @@
+import html
 from functools import partial
 
 import pandas as pd
@@ -88,20 +89,27 @@ with st.container(key="yuzey_mg_saat"):
     m[4].metric("Hamle", f"{r.wind_gusts_10m:.0f} km/s")
     m[5].metric("Basınç", f"{r.pressure_msl:.0f} hPa")
 
-sol, sag = st.columns([2.3, 1], gap="medium")
-with sol, st.container(border=True):
+# Okuma rehberi yan sütunda yer kaplamaz: grafik kartının başlığındaki açılır pencerede, adımlar tek satır;
+# ayrıntı istenince açılır. Grafikler tam genişliğe yayılır.
+OKUMA = [
+    ("Önce basınca bak", "Düşen basınç yaklaşan sistemi, yükselen basınç durulan havayı gösterir. Dip, alçak basıncın "
+     "geçtiği andır; yağış ve rüzgâr çoğu zaman bu dibin çevresinde toplanır."),
+    ("Sıcaklık ile çiy noktasını karşılaştır", "İki çizgi 2°'den fazla yaklaşırsa sis ya da alçak bulut beklenir."),
+    ("Yağışta miktara bak", "Saatte 0,5 mm altı çisenti, 4 mm üstü sağanaktır. Yüksek olasılık + az miktar = hafif ama "
+     "kesin yağış."),
+    ("Hamleyi ortalamayla kıyasla", "Hamle ortalamanın iki katına yaklaşıyorsa hava türbülanslıdır; okların yön "
+     "değiştirdiği an çoğu zaman cephenin geçtiği andır."),
+    ("Kar mı yağmur mu?", "Donma seviyesi çizgisi rakım çizgisine 300–400 m yaklaşmışsa yağış kara dönebilir."),
+]
+with st.container(border=True):
+    with st.container(key="mg_baslik", horizontal=True, vertical_alignment="center"):
+        st.caption("Kesikli dikey çizgi seçtiğin saattir; bir panele tıklayınca tüm panellerde o saate taşınır.",
+                   width="stretch")
+        with st.popover("Nasıl okunur?", icon=":material/menu_book:", key="mg_okuma"):
+            adimlar = "".join(f'<details class="okuma"><summary><b>{i}</b>{html.escape(b)}</summary>'
+                              f'<p>{html.escape(m)}</p></details>' for i, (b, m) in enumerate(OKUMA, 1))
+            st.html(f'<div class="okuma-liste">{adimlar}</div>')
+            st.caption("Modelleri karşılaştırmak için **Modeller** sayfasına bak.")
     for n, (panel, boy) in enumerate(grafik.meteogram(gorunen, k["rakim"], imlec=saat)):
         st.altair_chart(panel, height=boy, alt="Meteogram paneli", key=f"mg_panel_{n}", selection_mode="saat",
                         on_select=partial(panelden_sec, f"mg_panel_{n}"))
-with sag, st.container(key="yuzey_mg_rehber"):
-    st.markdown("#### Meteogram nasıl okunur?")
-    st.markdown("""
-1. **Önce basınca bak.** Düşen basınç yaklaşan sistemi, yükselen basınç durulan havayı gösterir. Dip, alçak basıncın geçtiği andır; yağış ve rüzgâr çoğu zaman bu dibin çevresinde toplanır.
-2. **Sıcaklık ile çiy noktasını karşılaştır.** İki çizgi 2°'den fazla yaklaşırsa sis ya da alçak bulut beklenir.
-3. **Yağışta miktara bak.** Saatte 0,5 mm altı çisenti, 4 mm üstü sağanaktır. Yüksek olasılık + az miktar = hafif ama kesin yağış.
-4. **Hamleyi ortalamayla kıyasla.** Hamle ortalamanın iki katına yaklaşıyorsa hava türbülanslıdır; okların yön değiştirdiği an çoğu zaman cephenin geçtiği andır.
-5. **Kar mı yağmur mu?** Donma seviyesi çizgisi rakım çizgisine 300–400 m yaklaşmışsa yağış kara dönebilir.
-""")
-    st.caption("Kesikli dikey çizgi seçtiğin saattir: herhangi bir panele tıklayınca tüm panellerde o saate taşınır ve "
-               "üstteki kart o saatin değerlerini gösterir. Modelleri değiştirip karşılaştırmak için "
-               "**Modeller** sayfasına da bakabilirsin.")
