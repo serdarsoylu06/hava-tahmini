@@ -119,6 +119,14 @@ def stil(koyu):
 [class*="st-key-kart_"] {{ background: {KART}; border-radius: 18px; padding: 16px 16px 8px; color: {KART_METIN}; }}
 [class*="st-key-kart_"] p, [class*="st-key-kart_"] h3, [class*="st-key-kart_"] h4, [class*="st-key-kart_"] li, [class*="st-key-kart_"] strong, [class*="st-key-kart_"] span, [class*="st-key-kart_"] label {{ color: {KART_METIN}; }}
 [class*="st-key-kart_"] [data-testid="stCaptionContainer"] p {{ color: {KART_IKINCI}; }}
+/* esit_satir: yan yana kartlar aynı yükseklikte */
+[class*="st-key-esit_satir"] [data-testid="stHorizontalBlock"] {{ align-items: stretch !important; }}
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ height: 100%; }}
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"],
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [class*="st-key-"] {{ flex: 1 1 auto; }}
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:only-child {{ flex: 1 1 auto; }}
+[class*="st-key-esit_satir"] [data-testid="stElementContainer"]:only-child > [data-testid="stHtml"] {{ height: 100%; }}
+[class*="st-key-esit_satir"] [data-testid="stHtml"] > .mz, [class*="st-key-esit_satir"] [data-testid="stHtml"] > .ol {{ height: 100%; box-sizing: border-box; }}
 [data-testid="stVegaLiteChart"] svg.marks, [data-testid="stVegaLiteChart"] canvas {{ background: transparent !important; }}
 
 /* ---------------- manzara (anlık durum) ---------------- */
@@ -150,7 +158,7 @@ def stil(koyu):
 @media (prefers-reduced-motion: reduce) {{ .mz * {{ animation: none !important; }} .mz-damla, .mz-tane, .mz-simsek {{ display: none; }} }}
 
 /* ---------------- ölçerler ---------------- */
-.ol {{ display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }}
+.ol {{ display: grid; grid-template-columns: minmax(0,1fr); grid-auto-rows: 1fr; gap: 12px; }}
 .ol-kart {{ {kart} padding: 12px 16px; display: flex; align-items: center; gap: 14px; min-width: 0; }}
 .ol-gosterge {{ position: relative; flex: none; width: 84px; }}
 .ol-gosterge span {{ position: absolute; left: 0; right: 0; text-align: center; font-family: {MONO}; font-size: 16px; font-weight: 700; color: {r['metin']}; }}
@@ -201,9 +209,10 @@ def stil(koyu):
 /* ---------------- deniz ızgarası, pusula, bilgi listesi ---------------- */
 .di {{ display: flex; flex-direction: column; gap: 10px; }}
 .di-kaydir {{ overflow-x: auto; }}
-.di-ic {{ min-width: 640px; display: flex; flex-direction: column; gap: 4px; }}
-.di-satir {{ display: grid; grid-template-columns: 48px repeat(24, minmax(0,1fr)); gap: 2px; align-items: center; }}
-.di-satir > span {{ display: block; height: 30px; border-radius: 5px; }}
+.di-ic {{ min-width: 640px; display: flex; flex-direction: column; gap: 3px; }}
+.di-satir {{ display: grid; grid-template-columns: 48px repeat(24, minmax(0,1fr)); gap: 3px; align-items: center; }}
+.di-satir > span {{ display: block; height: 30px; border-radius: 5px; box-sizing: border-box; }}
+.di-satir > span.di-gece {{ filter: brightness(.72) saturate(.85); }}
 .di-satir b {{ font-family: {BASLIK}; font-size: 14px; font-weight: 600; color: {r['metin']}; }}
 .di-saat > span {{ height: auto; font-family: {MONO}; font-size: 11px; color: {r['soluk']}; }}
 .di-bos {{ background: transparent; }}
@@ -398,7 +407,7 @@ def nokta_karti(ad, tur, sicak, durum, uyari=None, uyari_tehlike=False, secili=F
 
 # ----------------------------------------------------------------- denize çıkış
 DENIZ_RENK = ("var(--kd-vurgu)", "var(--kd-sari)",
-              "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, transparent 4px 8px)")
+              "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, color-mix(in srgb, var(--kd-tehlike) 40%, transparent) 4px 8px)")
 
 
 def deniz_seridi(seviyeler, saatler, ipuclari, ozet, koyu):
@@ -470,18 +479,18 @@ def lejant_html(ogeler):
 
 # ----------------------------------------------------------------- Deniz sayfası
 IZGARA_RENK = ("var(--kd-vurgu)", "var(--kd-sari)", "#F0A060",
-               "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, transparent 4px 8px)")
+               "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, color-mix(in srgb, var(--kd-tehlike) 40%, transparent) 4px 8px)")
 
 
 def deniz_izgara(seviye, gece, ipucu, gun_adlari):
     """Gün gün, saat saat denize çıkış ızgarası. seviye: 0 uygun … 3 tehlikeli (saatlik Series); gece ve ipucu aynı
-    dizinde. Her satır bir gün, her hücre bir saat; geçmiş saatler boş, gece saatlerinin altında koyu bir çizgi var."""
+    dizinde. Her satır bir gün, her hücre bir saat; geçmiş saatler boş, gece saatleri koyulaştırılmış."""
     satirlar = []
     for gun, parca in seviye.groupby(seviye.index.normalize()):
         hucre = ['<span class="di-bos"></span>'] * 24
         for t, s in parca.items():
-            hucre[t.hour] = (f'<span title="{html.escape(ipucu[t])}" style="background:{IZGARA_RENK[int(s)]};'
-                             f'{"box-shadow:inset 0 -5px 0 rgba(28,40,41,.45)" if gece[t] else ""}"></span>')
+            hucre[t.hour] = (f'<span{" class=\"di-gece\"" if gece[t] else ""} title="{html.escape(ipucu[t])}" '
+                             f'style="background:{IZGARA_RENK[int(s)]}"></span>')
         uygun = int((parca == 0).sum())
         satirlar.append(f'<div class="di-satir" role="img" aria-label="{gun_adlari[gun.weekday()]} {gun:%d.%m}: '
                         f'{len(parca)} saatin {uygun} saati uygun"><b>{gun_adlari[gun.weekday()]}</b>{"".join(hucre)}</div>')
@@ -490,7 +499,7 @@ def deniz_izgara(seviye, gece, ipucu, gun_adlari):
 <div class="di-satir di-saat" aria-hidden="true"><b></b>{baslik}</div>{"".join(satirlar)}</div></div>
 <div class="lejant"><span><i style="background:var(--kd-vurgu)"></i>Uygun</span><span><i style="background:var(--kd-sari)"></i>Dikkat</span>
 <span><i style="background:#F0A060"></i>Riskli</span><span><i style="background:{IZGARA_RENK[3]};border:1px solid var(--kd-tehlike);box-sizing:border-box"></i>Tehlikeli</span>
-<span><i style="background:var(--kd-yuzey2);box-shadow:inset 0 -4px 0 rgba(28,40,41,.45)"></i>Gece saatleri</span></div></div>""")
+<span><i style="background:#F0A060;filter:brightness(.72) saturate(.85)"></i>Gece saatleri (koyu ton)</span></div></div>""")
 
 
 def pusula(gelis, hiz, hamle, yon_ad, koyu):

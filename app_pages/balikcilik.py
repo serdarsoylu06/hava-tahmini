@@ -86,7 +86,8 @@ with st.expander("Etkenlere göre ayrıntı: dalga, rüzgâr, görüş", icon=":
     st.altair_chart(grafik.guvenlik_seridi(s, d, hava, deniz.SEVIYE_AD, deniz.SEVIYE_RENK),
                     alt="Saat saat denize çıkış durumu, etkenlere göre")
 
-c1, c2 = st.columns(2)
+# uyari_satir anahtarı: iki sütun eşit yükseklikte (CSS: tasarim.py)
+c1, c2 = st.container(key="uyari_satir_deniz").columns(2)
 with c1:
     if uygun:
         bitis = lambda a, b: f"{b:%H:%M}" if b.date() == a.date() else zaman(b)
@@ -113,7 +114,8 @@ with c2:
 
 # ---------------------------------------------------------------- rüzgâr, su ve ışık, dönüş saati
 gunes = gunluk.reindex([an.normalize()]).iloc[0] if an.normalize() in gunluk.index else gunluk.iloc[0]
-k1, k2, k3 = st.columns([1, 1, 1.2], gap="medium")
+# esit_satir anahtarı: üç kart eşit yükseklikte (CSS: tasarim.py)
+k1, k2, k3 = st.container(key="esit_satir_deniz").columns([1, 1, 1.2], gap="medium")
 with k1, st.container(key="yuzey_deniz_ruzgar"):
     st.markdown("#### Rüzgâr, şimdi")
     tasarim.pusula(hava.wind_direction_10m.iloc[0], hava.wind_speed_10m.iloc[0], hava.wind_gusts_10m.iloc[0],
