@@ -113,7 +113,7 @@ def stil(koyu):
 /* uyarı kartları: satır satır, aynı satırdakiler eşit yükseklikte */
 [class*="st-key-uyari_satir"] [data-testid="stHorizontalBlock"] {{ align-items: stretch !important; }}
 [class*="st-key-uyari_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ height: 100%; }}
-[class*="st-key-uyari_satir"] [data-testid="stElementContainer"]:has([data-testid="stAlert"]) {{ flex: 1 1 auto; }}
+[class*="st-key-uyari_satir"] [data-testid="stElementContainer"]:has([data-testid="stAlert"]), [class*="st-key-uyari_satir"] [class*="st-key-uk_"] {{ flex: 1 1 auto; }}
 [class*="st-key-uyari_satir"] [data-testid="stAlert"], [class*="st-key-uyari_satir"] [data-testid="stAlertContainer"] {{
     height: 100%; box-sizing: border-box; }}
 [data-testid="stAlertContainer"] {{ border-radius: 14px; box-shadow: {golge}; }}
@@ -129,7 +129,55 @@ def stil(koyu):
 /* üst arama çubuğu ve yüzey kapları */
 .st-key-ust_cubuk {{ {kart} padding: var(--ara-2) var(--ara-3); }}
 [class*="st-key-yuzey_"] {{ {kart} padding: var(--ara-4) var(--ara-5); }}
-.st-key-rehber {{ background: {r['yuzey']}; border: 2px solid {r['vurgu']}; border-radius: 18px; padding: 16px 20px; }}
+.st-key-rehber {{ font-size: 13px; }}
+.st-key-adimlar {{ flex-wrap: wrap; }}
+.st-key-adimlar > div {{ flex: 1 1 200px; }}
+.st-key-adimlar button {{ min-height: 48px; justify-content: flex-start; text-align: left; }}
+/* kompakt uyarı kartları */
+[class*="st-key-uk_"] {{ border-radius: 14px; padding: var(--ara-3) var(--ara-3) var(--ara-3) var(--ara-4);
+    border: 1px solid transparent; flex-wrap: nowrap !important; }}
+[class*="st-key-uk_"] > div:first-child {{ min-width: 0; flex: 1 1 auto; }}
+[class*="st-key-uk_"] [data-testid="stMarkdownContainer"] p {{ font-size: 14px; line-height: 1.5; margin: 0; }}
+[class*="st-key-uk_"] [data-testid="stPopover"] button {{ min-height: 32px; padding: 0 8px; background: transparent; }}
+[class*="st-key-uk_tehlike"] {{ background: color-mix(in srgb, {r['tehlike']} 14%, transparent); border-color: color-mix(in srgb, {r['tehlike']} 35%, transparent); }}
+[class*="st-key-uk_dikkat"] {{ background: color-mix(in srgb, #F1D24E 20%, transparent); border-color: color-mix(in srgb, #D9A53A 40%, transparent); }}
+[class*="st-key-uk_bilgi"] {{ background: color-mix(in srgb, #4B8FD1 13%, transparent); border-color: color-mix(in srgb, #4B8FD1 30%, transparent); }}
+[class*="st-key-uk_iyi"] {{ background: color-mix(in srgb, #5FAE5A 15%, transparent); border-color: color-mix(in srgb, #5FAE5A 35%, transparent); }}
+[class*="st-key-uk_"] [data-testid="stMarkdownContainer"] strong {{ font-weight: 700; }}
+[class*="st-key-uk_tehlike"] strong {{ color: {r['tehlike']}; }}
+[class*="st-key-uk_dikkat"] strong {{ color: {r['sari_metin']}; }}
+[class*="st-key-uk_bilgi"] strong {{ color: #4B8FD1; }}
+[class*="st-key-uk_iyi"] strong {{ color: #5FAE5A; }}
+/* harita renk ölçeği */
+.cetvel {{ max-width: 680px; padding: var(--ara-1) var(--ara-2) var(--ara-4); }}
+.cetvel-ust {{ display: flex; gap: var(--ara-2); align-items: baseline; font-size: 13px; margin-bottom: var(--ara-1); }}
+.cetvel-ust b {{ color: {r['metin']}; font-weight: 600; }}
+.cetvel-ust span {{ color: {r['ikinci']}; }}
+.cetvel-renk {{ display: grid; height: 12px; border-radius: 6px; overflow: hidden; }}
+.cetvel-etiket {{ position: relative; height: 18px; margin-top: 4px; font: 11px/1 'Space Mono', monospace; color: {r['ikinci']}; }}
+.cetvel-etiket span {{ position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }}
+.cetvel-etiket span:first-child {{ transform: none; }}
+.cetvel-etiket span:last-child {{ transform: translateX(-100%); }}
+/* grafik araç çubuğu üzerine gelince başlıktaki düğmenin üstüne binmesin */
+.st-key-mg_baslik {{ margin-bottom: var(--ara-5); }}
+/* katlanır okuma adımları (Meteogram "Nasıl okunur?") */
+.okuma-liste {{ min-width: min(360px, 80vw); max-width: 420px; }}
+.okuma-liste.okuma-kart {{ min-width: 0; max-width: none; border-top: 1px solid {r['cizgi']}; }}
+.okuma-kart .okuma summary {{ font-size: 13px; }}
+.okuma {{ border-top: 1px solid {r['cizgi']}; }}
+.okuma:first-child {{ border-top: 0; }}
+.okuma summary {{ list-style: none; cursor: pointer; display: flex; align-items: center; gap: var(--ara-2);
+    padding: var(--ara-2) 0; font-size: 14px; font-weight: 600; color: {r['metin']}; }}
+.okuma summary::-webkit-details-marker {{ display: none; }}
+.okuma summary::after {{ content: "+"; margin-left: auto; color: {r['ikinci']}; font-weight: 400; }}
+.okuma[open] summary::after {{ content: "–"; }}
+.okuma summary b {{ flex: 0 0 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center;
+    justify-content: center; font: 700 11px/1 'Space Mono', monospace; background: {r['vurgu']}; color: #1C2829; }}
+.okuma p {{ margin: 0 0 var(--ara-2) 30px; font-size: 13px; line-height: 1.5; color: {r['ikinci']}; }}
+.st-key-rehber:has([data-testid="stMarkdown"]) {{ background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 14px;
+    padding: 2px var(--ara-2) 2px var(--ara-4); }}
+.st-key-rehber [data-testid="stMarkdownContainer"] p {{ font-size: 13px; margin: 0; }}
+.st-key-rehber button {{ min-height: 30px; padding: 0 6px; }}
 
 /* açık yeşil grafik kartları: her iki temada aynı zemin, yazılar koyu */
 [class*="st-key-kart_"] {{ background: {KART}; border-radius: 18px; padding: var(--ara-4) var(--ara-4) var(--ara-2); color: {KART_METIN}; box-shadow: {golge_acik}; }}
@@ -242,6 +290,12 @@ def stil(koyu):
 .bl-liste dd {{ margin: 0; font-size: 14px; font-weight: 700; color: {r['metin']}; text-align: right; }}
 
 @media (max-width: 640px) {{
+  /* telefonda üst çubuk tek satır: arama kutusu esner, veri saati ve Noktalarım yalnızca simge */
+  [data-testid="stMainBlockContainer"] {{ padding-top: 4rem !important; }}
+  .st-key-ust_cubuk {{ flex-wrap: nowrap !important; gap: var(--ara-2) !important; }}
+  .st-key-ust_cubuk > div {{ min-width: 0; }}
+  .st-key-noktalarim button [data-testid="stMarkdownContainer"] {{ display: none; }}
+  .st-key-noktalarim button {{ padding-left: 10px; padding-right: 10px; }}
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
   [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - .3rem) !important; min-width: 0 !important; }}
   .mz {{ min-height: 400px; }}

@@ -87,7 +87,7 @@ def harita_alani():
                                   sec(OK_Y, saat), ayar, sev, renkler, k, koyu),
                     height=600, on_select=tiklandi, selection_mode="single-object", key="harita_sec",
                     alt=f"{kat} haritası, {zaman[saat]:%d.%m %H:%M}")
-    st.image(harita.cetvel(list(sev), renkler, ayar["birim"]), width="content", alt="Renk ölçeği")
+    st.html(harita.cetvel_html(list(sev), renkler, ayar["birim"], kat))
     st.caption(f"Model ızgarası {dla}° aralıklı ({LA.size} nokta); yumuşatılarak çizildi. Bölge değişince veri "
                "yeniden indirilir, sonra 1 saat önbellekte kalır.")
 

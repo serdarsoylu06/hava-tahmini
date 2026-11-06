@@ -45,7 +45,7 @@ st.altair_chart(grafik.model_karsilastirma(S, f"{ad} ({birim})"), alt=f"Modeller
 # modeller arası fark
 fark = (S.max(axis=1) - S.min(axis=1)).where(S.notna().sum(axis=1) >= 3).dropna()
 st.subheader("Modeller ne kadar uyumlu?", anchor=False)
-sol, sag = st.columns([2, 1], gap="large")
+sol, sag = st.columns([2, 1], gap="large", vertical_alignment="center")
 with sol:
     st.altair_chart(grafik.yayilim(fark, birim, esik), alt="Modeller arası farkın zamanla değişimi")
 with sag:

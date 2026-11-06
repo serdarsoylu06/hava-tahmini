@@ -20,13 +20,18 @@ gmax = uye.resample("D").max()
 guven = (gmax.quantile(0.9, axis=1) - gmax.quantile(0.1, axis=1))
 
 # ---------------------------------------------------------------- yeni kullanıcı rehberi (oturumda bir kez)
+# Büyük bir kutu yerine ince bir satır: anlatılan bölüm sayfada çerçevelenir ve köşesine numarası konur, böylece
+# rehber "nereye bakmalı" sorusunu yerinde gösterir. (ad, açıklama, çerçevelenecek bölümlerin CSS seçicisi)
+_SOL = '.st-key-esit_satir_genel [data-testid="stColumn"]'
 REHBER = [
-    ("Manzara ve tahmincinin notu", "Manzara şu anki havayı ve günün saatini gösterir: yağmurda damlalar, sisli havada "
-     "vadiye inen bulut, gece karanlık gökyüzü. Altındaki cümle önümüzdeki saatlerin kısa özetidir."),
-    ("Grafikler ve saat saat şerit", "Önümüzdeki 24 saatin sıcaklık, yağış, rüzgâr ve basınç grafiklerinin üstünde "
-     "gezinince o saatin değerleri görünür. Aşağıdaki şeritte bir saate dokununca bütün değerler o saate hizalanır."),
-    ("Nelere dikkat etmeli?", "Fırtına, dalga, sis, don gibi durumlar tahminden otomatik bulunur. Her uyarının "
-     "altında neden önemli olduğu ve hangi sayfada izleneceği yazar."),
+    ("Anlık durum", "Manzara şu anki havayı ve günün saatini gösterir; altındaki cümle önümüzdeki saatlerin özetidir.",
+     [f"{_SOL}:first-child"]),
+    ("Ölçerler", "Nem, hamle, basınç ve UV. Her ölçerin altındaki satır değerin ne anlama geldiğini söyler.",
+     [f"{_SOL}:last-child"]),
+    ("24 saat grafikleri", "Grafiklerin üstünde gezinince o saatin değerleri görünür; aşağıdaki saat saat şeritte "
+     "bir saate dokununca bütün değerler o saate hizalanır.", [".st-key-esit_satir_24_sicaklik", ".st-key-esit_satir_24_ruzgar"]),
+    ("Nelere dikkat etmeli?", "Fırtına, dalga, sis, don gibi durumlar tahminden otomatik bulunur. Her uyarıda neden "
+     "önemli olduğu ve hangi sayfada izleneceği yazar.", [".st-key-rehber_uyari"]),
 ]
 st.session_state.setdefault("rehber", 1)
 
@@ -35,16 +40,37 @@ def _rehber(adim):
     st.session_state.rehber = adim
 
 
-if st.session_state.rehber:
-    adim = st.session_state.rehber
-    with st.container(key="rehber", horizontal=True, vertical_alignment="center", gap="medium"):
-        b, m = REHBER[adim - 1]
-        st.markdown(f":gray[İlk kez mi buradasın? Kısa tanıtım, {adim} / {len(REHBER)}]  \n**{b}**  \n{m}", width="stretch")
-        st.button("Rehberi kapat", type="tertiary", on_click=_rehber, args=(0,))
-        if adim > 1:
-            st.button("Geri", on_click=_rehber, args=(adim - 1,))
-        st.button("Bitir" if adim == len(REHBER) else "Sonraki", type="primary",
+adim = st.session_state.rehber
+with st.container(key="rehber", horizontal=True, vertical_alignment="center", gap="small",
+                  horizontal_alignment="right"):
+    if adim:
+        b, m, secici = REHBER[adim - 1]
+        st.markdown(f":material/lightbulb: **{adim}/{len(REHBER)} · {b}** :gray[— {m}]", width="stretch")
+        st.button("", icon=":material/chevron_left:", key="rehber_geri", type="tertiary", help="Önceki",
+                  on_click=_rehber, args=(adim - 1,), disabled=adim == 1)
+        st.button("", icon=":material/chevron_right:" if adim < len(REHBER) else ":material/check:",
+                  key="rehber_ileri", type="tertiary", help="Sonraki" if adim < len(REHBER) else "Bitir",
                   on_click=_rehber, args=(0 if adim == len(REHBER) else adim + 1,))
+        st.button("", icon=":material/close:", key="rehber_gizle", type="tertiary", help="Tanıtımı gizle",
+                  on_click=_rehber, args=(0,))
+        # tüm bölümlere küçük numara; anlatılanı çerçevele
+        isaret = "".join(f'{sec[0]}::before {{ content: "{i}"; }}' for i, (_, _, sec) in enumerate(REHBER, 1))
+        hepsi = ", ".join(sec[0] for _, _, sec in REHBER)
+        etkin = ", ".join(secici)
+        etkin_n = ", ".join(f"{x}::before" for x in secici[:1])
+        st.html(f"""<style>
+{hepsi} {{ position: relative; }}
+{", ".join(f"{sec[0]}::before" for _, _, sec in REHBER)} {{
+  position: absolute; top: -9px; left: -9px; z-index: 5; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font: 700 11px/1 'Space Mono', monospace;
+  background: var(--kd-yuzey2, #2a3a3a); color: var(--kd-ikinci); border: 1px solid var(--kd-cizgi, #4a5a5a); }}
+{isaret}
+{etkin} {{ outline: 2px solid var(--kd-vurgu); outline-offset: 5px; border-radius: 20px; transition: outline-color .2s; }}
+{etkin_n} {{ background: var(--kd-vurgu); color: #1C2829; border-color: var(--kd-vurgu); }}
+</style>""")
+    else:
+        st.button("Sayfa turu", icon=":material/help:", key="rehber_ac", type="tertiary",
+                  help="Bu sayfanın bölümlerini dört adımda tanı", on_click=_rehber, args=(1,))
 
 # ---------------------------------------------------------------- manzara ve ölçerler
 bugun = gunluk.iloc[0]
@@ -175,7 +201,7 @@ if deniz_bilgi:
     sol, sag = st.columns([7, 5], gap="medium")
 else:
     sol, sag = st.container(), None
-with sol:
+with sol, st.container(key="rehber_uyari"):
     tasarim.bolum("", "Nelere dikkat etmeli?", f"Önümüzdeki {gun_sayisi()} günün tahmini otomatik tarandı")
     uyari_kartlari(liste, sutun=1 if deniz_bilgi else 2)
 if deniz_bilgi:

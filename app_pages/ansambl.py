@@ -50,12 +50,18 @@ else:
     st.altair_chart(grafik.spagetti(U, f"{ad} ({birim})"), alt=f"Ansambl {ad.lower()} tahmini")
     bant = (U.quantile(0.9, axis=1) - U.quantile(0.1, axis=1)).resample("D").mean()
     m = st.container(key="kartlar_ansambl_1").columns(3)
-    m[0].metric("Kullanılan üye", f"{U.shape[1]}", border=True)
+    ortanca = U.median(axis=1)
+    ilk_gun = (U.quantile(0.9, axis=1) - U.quantile(0.1, axis=1)).iloc[:24] / 2
+    m[0].metric("Ortanca aralığı", f"{ortanca.min():.0f} – {ortanca.max():.0f} {birim}", border=True,
+                chart_data=ortanca.iloc[::3].round(1).tolist(), chart_type="line",
+                help=f"{U.shape[1]} üyenin ortancası; grafik dönem boyunca seyrini gösterir.")
     m[1].metric("İlk gün belirsizlik", f"± {bant.iloc[0] / 2:.1f} {birim}", border=True,
-                help="%10–%90 aralığının yarısı.")
+                chart_data=ilk_gun.round(2).tolist(), chart_type="area",
+                help="%10–%90 aralığının yarısı. Grafik ilk 24 saatin saat saat değişimi.")
     m[2].metric("Son gün belirsizlik", f"± {bant.iloc[-1] / 2:.1f} {birim}", border=True,
                 delta=f"{bant.iloc[-1] / max(bant.iloc[0], 0.1):.1f} kat", delta_color="inverse",
-                chart_data=bant.round(2).tolist(), chart_type="area")
+                chart_data=bant.round(2).tolist(), chart_type="area",
+                help="Grafik her günün ortalama belirsizliği: yükseldikçe tahmine daha az güven.")
     okuma_rehberi([
         ("Gri çizgiler", "Her biri bir ansambl üyesi, yani olası bir gelecek. Başlangıç gözlemleri ölçüm "
          "hataları kadar hafifçe değiştirilip model yeniden çalıştırılmıştır."),

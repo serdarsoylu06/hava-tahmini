@@ -344,7 +344,7 @@ def yayilim(s: pd.Series, birim, esikler):
             alt.Y("fark:Q", title=f"Fark ({birim})"),
             tooltip=[alt.Tooltip("time:T", title="Zaman", format=SAAT),
                      alt.Tooltip("fark:Q", title="Modeller arası fark", format=".1f")]),
-    ).properties(height=170)
+    ).properties(height=260)
 
 
 def spagetti(U: pd.DataFrame, birim):
