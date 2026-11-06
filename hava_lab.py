@@ -3,13 +3,77 @@ Hava Tahmini Laboratuvarı
 Çalıştırmak için:  streamlit run hava_lab.py
 Veri: Open-Meteo (ücretsiz, anahtarsız) — ECMWF, GFS, ICON, ARPEGE, UKMO modelleri
 """
+import importlib
 import os
+import re
+import sys
+import threading
+from pathlib import Path
 
 import streamlit as st
 
-from hava.veri import GEO, getir, tazelik
-from hava import kayit, tasarim
-from hava.yerler import konum_kaydi, nokta_konumu, yerlesimler
+
+# ---------------------------------------------------------------- güncelleme sonrası modülleri tazele
+# Streamlit yalnızca bu ana betiği her çalıştırmada yeniden okur; içe aktarılan hava/ modülleri süreç boyunca
+# bellekte kalır. Streamlit Cloud yeni bir sürümü çektiğinde süreci yeniden başlatmadığı için yeni hava_lab.py eski
+# modüllerle çalışıyor ve sayfa çöküyordu (ör. olmayan bir işlev). Burada hava/ klasöründeki dosyaların değişme
+# zamanlarına bakılır; biri değiştiyse bütün hava modülleri bağımlılık sırasıyla yeniden yüklenir.
+_HAVA = Path(__file__).resolve().parent / "hava"
+_KILIT = threading.Lock()
+
+
+def _hava_imzasi():
+    return {f.name: f.stat().st_mtime_ns for f in _HAVA.iterdir() if f.is_file()}
+
+
+def _yukleme_sirasi(adlar):
+    """hava modüllerini, içe aktardıkları hava modüllerinden sonra gelecek şekilde sıralar."""
+    bagli = {}
+    for ad in adlar:
+        kaynak = (_HAVA / f"{ad.split('.')[1]}.py").read_text(encoding="utf-8")
+        tek = re.findall(r"from hava\.(\w+) import", kaynak)
+        cok = [x for grup in re.findall(r"from hava import ([\w, ]+)", kaynak) for x in grup.replace(" ", "").split(",")]
+        bagli[ad] = {f"hava.{x}" for x in tek + cok} & set(adlar) - {ad}
+    sira, gorulen = [], set()
+
+    def ziyaret(ad):
+        if ad in gorulen:
+            return
+        gorulen.add(ad)
+        for b in sorted(bagli[ad]):
+            ziyaret(b)
+        sira.append(ad)
+
+    for ad in sorted(adlar):
+        ziyaret(ad)
+    return sira
+
+
+def _modulleri_tazele():
+    paket = sys.modules.get("hava")
+    if paket is None:
+        return                                   # ilk içe aktarma: zaten diskteki güncel dosyalar yüklenecek
+    imza = _hava_imzasi()
+    if getattr(paket, "_imza", None) == imza:
+        return
+    with _KILIT:
+        if getattr(paket, "_imza", None) == imza:
+            return
+        adlar = [ad for ad in list(sys.modules) if ad.startswith("hava.") and ad.count(".") == 1
+                 and (_HAVA / f"{ad.split('.')[1]}.py").exists()]
+        for ad in _yukleme_sirasi(adlar):
+            importlib.reload(sys.modules[ad])
+        paket._imza = imza
+
+
+_modulleri_tazele()
+
+from hava.veri import GEO, getir, tazelik  # noqa: E402
+from hava import kayit, tasarim  # noqa: E402
+from hava.yerler import konum_kaydi, nokta_konumu, yerlesimler  # noqa: E402
+
+if getattr(sys.modules["hava"], "_imza", None) is None:
+    sys.modules["hava"]._imza = _hava_imzasi()     # ilk yüklemedeki dosya durumu
 
 st.set_page_config(page_title="Hava tahmini laboratuvarı", page_icon=":material/partly_cloudy_day:",
                    layout="wide")
