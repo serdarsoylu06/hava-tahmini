@@ -70,9 +70,15 @@ ONBELLEK = Path(__file__).resolve().parent.parent / ".onbellek"
 GECIKME = pd.Timedelta(minutes=10)
 
 
+def simdi_tr():
+    """Türkiye saatiyle şu an (saat dilimi bilgisi atılmış). Sunucu saati UTC olabilir (Streamlit Cloud);
+    kullanıcıya gösterilen ve dönemlere bölünen saat sunucudan bağımsız olsun."""
+    return pd.Timestamp.now(tz=TZ).tz_localize(None)
+
+
 def donem():
-    """Şu anki veri dönemi, ör. 13:10–14:09 arası için "2026-11-04T13"."""
-    return (pd.Timestamp.now() - GECIKME).floor("h").strftime("%Y-%m-%dT%H")
+    """Şu anki veri dönemi (Türkiye saati), ör. 13:10–14:09 arası için "2026-11-04T13"."""
+    return (simdi_tr() - GECIKME).floor("h").strftime("%Y-%m-%dT%H")
 
 
 def _anahtar(url, params):
@@ -100,7 +106,7 @@ def indir(url, params, donem):
 def tazelik():
     """Üst çubuktaki veri saati: (rozet metni, açıklama). Bu dönemin verisi alınamayıp eskisine düşüldüyse
     rozet turuncu olur ve hangi döneme ait olduğunu söyler."""
-    bas = pd.Timestamp.now().floor("min") - GECIKME
+    bas = simdi_tr().floor("min") - GECIKME
     alindi = bas.floor("h") + GECIKME
     sonraki = alindi + pd.Timedelta(hours=1)
     eski = (st.session_state.get("veri_tazelik") or {}).get("eski")
