@@ -56,7 +56,7 @@ def _metin(s):
     return re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", html.escape(s))
 
 
-def stil(koyu):
+def stil(koyu, bolum=None):
     r = _renkler(koyu)
     # Katmanlı gölge: üst kenarda ince ışık + yakın temas gölgesi + yumuşak, geniş gölge. Açık temada daha hafif.
     if koyu:
@@ -132,6 +132,9 @@ def stil(koyu):
 /* üst gezinme şeridi: hafif buzlu zemin ve ince alt çizgi */
 header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 [data-testid="stTopNav"] button, [data-testid="stTopNavLink"] {{ border-radius: 8px; }}
+{"" if bolum is None else f'''[data-testid="stTopNav"] > div:nth-child({bolum + 1}) [data-testid="stTopNavSection"] {{
+    background: color-mix(in srgb, {r['vurgu']} 24%, transparent); font-weight: 600; }}
+[data-testid="stTopNav"] > div:nth-child({bolum + 1}) [data-testid="stTopNavSection"] p {{ font-weight: 600; }}'''}
 /* ayarlar dişlisi: betik gezinme çubuğunun son menüsünün yanına sabitler; konumlanana dek görünmez */
 .st-key-ayarlar {{ position: fixed !important; z-index: 1000001; width: auto !important; visibility: hidden; top: 10px; right: 56px; }}
 .st-key-ayarlar.ayar-hazir {{ visibility: visible; }}

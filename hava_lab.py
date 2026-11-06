@@ -14,7 +14,7 @@ from hava.yerler import konum_kaydi, nokta_konumu, yerlesimler
 st.set_page_config(page_title="Hava tahmini laboratuvarı", page_icon=":material/partly_cloudy_day:",
                    layout="wide")
 
-sayfa = st.navigation({
+MENU = {
     "": [st.Page("app_pages/genel.py", title="Genel bakış", icon=":material/home:", default=True)],
     "Tahmin": [
         st.Page("app_pages/meteogram.py", title="Meteogram", icon=":material/monitoring:"),
@@ -30,7 +30,11 @@ sayfa = st.navigation({
         st.Page("app_pages/profil.py", title="Atmosfer profili", icon=":material/vertical_align_top:"),
     ],
     "Öğren": [st.Page("app_pages/ogren.py", title="Tahmin okuma rehberi", icon=":material/school:")],
-}, position="top")
+}
+sayfa = st.navigation(MENU, position="top")
+# Açılır menüdeki bir sayfadayken üst çubukta o menünün başlığı da seçili görünsün (Streamlit yalnızca doğrudan
+# bağlantıyı, yani Genel bakış'ı işaretliyor). Gezinme çubuğunun ilk öğesi Genel bakış, sonra menüler sırayla gelir.
+_bolum = next((i for i, (ad, ss) in enumerate(MENU.items()) if ad and any(x.url_path == sayfa.url_path for x in ss)), None)
 
 
 def haritadan_vazgec():
@@ -54,7 +58,7 @@ def kaydet(anahtar):
         st.toast(f"\"{ad}\" kaydedildi.", icon=":material/bookmark_added:")
 
 
-tasarim.stil(st.context.theme.type == "dark")
+tasarim.stil(st.context.theme.type == "dark", _bolum)
 _koyu = st.context.theme.type == "dark"
 st.logo(f"assets/logo_{'koyu' if _koyu else 'acik'}.svg", size="large")   # kenar çubuğu yok: başlıkta tam logo
 
