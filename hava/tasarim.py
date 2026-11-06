@@ -383,7 +383,9 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
       scrollbar-width: none; gap: var(--ara-3) !important; }}
   .st-key-esit_satir_deste [data-testid="stHorizontalBlock"]::-webkit-scrollbar {{ display: none; }}
   .st-key-esit_satir_deste [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {{ flex: 0 0 100% !important; min-width: 100% !important; scroll-snap-align: start; }}
-  [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - .3rem) !important; min-width: 0 !important; }}
+  /* ölçüm kartları telefonda iki sütun: sütun genişliği aradaki boşluğu da hesaba katar (yoksa her kart alt satıra düşüyordu) */
+  [class*="st-key-kartlar"] [data-testid="stHorizontalBlock"] {{ gap: var(--ara-2) !important; }}
+  [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - var(--ara-2) / 2) !important; min-width: 0 !important; }}
 }}
 </style>""")
 
