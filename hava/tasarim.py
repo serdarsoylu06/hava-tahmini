@@ -357,7 +357,10 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
   .st-key-alt_menu a {{ flex-direction: column; gap: 2px; padding: 6px 2px !important; border-radius: 12px; justify-content: center; }}
   .st-key-alt_menu a p {{ font-size: 11px !important; margin: 0; }}
   .st-key-alt_menu a [data-testid="stIconMaterial"] {{ font-size: 22px; }}
-  html.bulutta .st-key-alt_menu {{ right: 78px; }}   /* Streamlit Cloud'un sağ alt rozeti için yer */
+  /* Streamlit Cloud sağ alt köşeye iki rozet koyar (profil simgesi ve taç, ~44 px yüksek). Menüyü sağdan daraltmak
+     yetmiyordu (profil simgesi "Atmosfer"e biniyordu): bulutta menü tam genişlikte, rozetlerin üstünde durur. */
+  html.bulutta .st-key-alt_menu {{ bottom: 58px; }}
+  html.bulutta [data-testid="stMainBlockContainer"] {{ padding-bottom: 144px !important; }}
   .st-key-ayarlar button {{ height: 36px; }}
   /* manzara kısa, ölçerler 2×2 */
   .mz {{ min-height: 0 !important; }}
