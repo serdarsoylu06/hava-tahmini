@@ -90,7 +90,15 @@ function masaustu(d, sec) {
       <span class="s mono${i === 0 ? " simdi" : ""}">${h.gun ? `<b>${h.gun}</b>` : ""}${i === 0 ? "ŞİMDİ" : kac(h.saat)}</span>${ikon(h.tur)}<span class="t mono">${h.t}°</span></button>`).join("")
   const ruzgar = s.map((h, i) => `<span class="zs-ruzgar${i === sec ? " secili" : ""}" style="color: ${sertMi(h) ? "var(--uyari)" : "var(--ruzgar)"}">${ok(h.yon)}
       <span class="w mono${sertMi(h) ? " sert" : ""}">${h.w}</span><span class="g mono${h.g >= 40 ? " sert" : ""}">${h.g}</span></span>`).join("")
-  const uyarilar = bol.length ? bol.map((b) => `<button type="button" class="${b.ad}" data-i="${b.bas}" style="left: ${b.bas / n * 100}%; width: ${(b.son - b.bas + 1) / n * 100}%" title="${kac(b.metin)}">${kac(b.metin)}</button>`).join("")
+  // Çakışan uyarılar alt alta ayrı şeritlere dizilir (üst üste binip okunmaz olmasınlar)
+  const serit = []
+  const sira = [...bol].sort((a, b) => a.bas - b.bas).map((b) => {
+    let k = serit.findIndex((son) => son < b.bas)
+    if (k < 0) { k = serit.length; serit.push(0) }
+    serit[k] = b.son
+    return { ...b, k }
+  })
+  const uyarilar = sira.length ? sira.map((b) => `<button type="button" class="${b.ad}" data-i="${b.bas}" style="left: ${b.bas / n * 100}%; width: ${(b.son - b.bas + 1) / n * 100}%; top: ${6 + b.k * 28}px" title="${kac(b.metin)}">${kac(b.metin)}</button>`).join("")
     : `<div class="zs-bos">Bu saatlerde sis, sert rüzgâr ya da yüksek yağış olasılığı görünmüyor.</div>`
 
   return `<div class="zs-masa">
@@ -114,16 +122,14 @@ function masaustu(d, sec) {
         ${imlec(66)}${dusus}<path d="${pyol}" fill="none" stroke="var(--metin)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
         <div class="zs-dip mono"><span style="left: 0; transform: none; color: var(--soluk); font-weight: 400">${Math.round(s[0].pr)} hPa</span>${dipVar ? `<span style="left: ${(pi + 0.5) / n * 100}%">dip ${Math.round(pmin)} hPa</span>` : ""}</div></div>
       <div class="zs-ad">Dikkat</div>
-      <div class="zs-satir zs-uyari">${uyarilar}</div>
+      <div class="zs-satir zs-uyari" style="height: ${Math.max(1, serit.length) * 28 + 12}px">${uyarilar}</div>
     </div></div>
   </div>
-  <div class="zs-ayrinti">
-    <div class="zs-kart zs-bas">
-      <div><div class="zs-etiket">SEÇİLİ SAAT · ${kac(h.uzun.toLocaleUpperCase("tr"))}</div>
-        <div class="zs-buyuk">${h.t}°</div><div class="zs-durum">${kac(h.durum)}</div></div>
-      ${degerler(s, sec)}
-    </div>
-    <div class="zs-kart"><div class="zs-etiket vurgu">BU SAATTE NEYE BAKMALI?</div><div class="zs-ipucu">${kac(ipucu(s, sec))}</div></div>
+  <div class="zs-kart zs-ayrinti">
+    <div class="zs-bas"><div class="zs-etiket">SEÇİLİ SAAT · ${kac(h.uzun.toLocaleUpperCase("tr"))}</div>
+      <div class="zs-buyuk">${h.t}°</div><div class="zs-durum">${kac(h.durum)}</div></div>
+    ${degerler(s, sec)}
+    <div class="zs-neye"><div class="zs-etiket vurgu">BU SAATTE NEYE BAKMALI?</div><div class="zs-ipucu">${kac(ipucu(s, sec))}</div></div>
   </div>
 </div>`
 }

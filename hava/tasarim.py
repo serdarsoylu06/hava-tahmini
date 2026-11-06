@@ -141,6 +141,26 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 .st-key-ayarlar button > div > div[aria-hidden="true"] {{ display: none; }}
 [class*="st-key-yuzey_"] {{ {kart} padding: var(--ara-4) var(--ara-5); }}
 .st-key-rehber {{ font-size: 13px; }}
+/* 10 günlük lejant: tek satırlık bilgi şeridi */
+.gl {{ display: flex; flex-wrap: wrap; align-items: center; gap: var(--ara-2) var(--ara-5); padding: var(--ara-2) var(--ara-4);
+    border: 1px solid {r['cizgi']}; border-radius: 12px; background: {r['yuzey']}; font-size: 12.5px; color: {r['ikinci']}; }}
+.gl .lejant {{ margin: 0; }}
+.gl-not {{ display: inline-flex; align-items: center; gap: 6px; }}
+.gl-not i {{ display: inline-block; width: 10px; height: 10px; border-radius: 50%; }}
+.gl-not span {{ cursor: help; }}
+/* kayıtlı noktalar: kompakt kart, geçiş bağlantısı kartın altına yapışık */
+[class*="st-key-nokta_"] .nk {{ min-height: 0; padding: var(--ara-3); gap: 2px; }}
+[class*="st-key-nokta_"] button {{ min-height: 28px; font-size: 13px; justify-content: flex-start; padding-left: var(--ara-3); }}
+/* uyarılar ile deniz kartı aynı boyda: uyarı kartları sütunu doldurur */
+.st-key-esit_satir_uyari_deniz [data-testid="stHorizontalBlock"] {{ align-items: stretch !important; }}
+.st-key-esit_satir_uyari_deniz [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ height: 100%; }}
+.st-key-esit_satir_uyari_deniz .st-key-rehber_uyari {{ flex: 1 1 auto; }}
+.st-key-esit_satir_uyari_deniz .st-key-rehber_uyari > [data-testid="stLayoutWrapper"]:has([class*="st-key-uyari_satir"]) {{ flex: 1 1 auto; display: flex; flex-direction: column; }}
+.st-key-esit_satir_uyari_deniz [class*="st-key-uyari_satir"] {{ flex: 1 1 auto; }}
+.st-key-esit_satir_uyari_deniz [class*="st-key-uyari_satir"] > [data-testid="stLayoutWrapper"] {{ flex: 1 1 auto; display: flex; flex-direction: column; }}
+.st-key-esit_satir_uyari_deniz [class*="st-key-uyari_satir"] [data-testid="stHorizontalBlock"] {{ flex: 1 1 auto; }}
+.st-key-esit_satir_uyari_deniz [class*="st-key-uyari_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ display: flex; flex-direction: column; height: 100%; }}
+.st-key-esit_satir_uyari_deniz .st-key-yuzey_deniz {{ flex: 1 1 auto; }}
 .st-key-adimlar {{ flex-wrap: wrap; }}
 .st-key-adimlar > div {{ flex: 1 1 200px; }}
 .st-key-adimlar button {{ min-height: 48px; justify-content: flex-start; text-align: left; }}
@@ -553,6 +573,16 @@ def gun_kartlari(gunluk, guven=None):
  style="background:{_DAIRE[_gun_turu(g.weather_code)]};opacity:{.6 if soluk else 1}">{g.temperature_2m_max:.0f}°</span>
 <span class="gk-alt">en düşük <b>{g.temperature_2m_min:.0f}°</b></span><span class="gk-durum">{html.escape(alt_yazi)}</span></li>""")
     st.html(f'<ol class="gk">{"".join(li)}</ol>')
+
+
+def gun_lejanti():
+    """10 günlük kartların açıklaması: dağınık bir paragraf yerine renk lejantı + tek satır not."""
+    ogeler = [("Açık", _DAIRE["acik"]), ("Parçalı bulutlu", _DAIRE["parcali"]), ("Hafif yağış", _DAIRE["hafif"]),
+              ("Yağışlı", _DAIRE["yagmur"]), ("Kapalı / sis", _DAIRE["bulutlu"])]
+    st.html('<div class="gl">' + lejant_html(ogeler)
+            + '<span class="gl-not"><i style="background:#5E9A6A;opacity:.6"></i>Soluk daire: düşük güven '
+              '<span title="ECMWF ansamblının 51 üyesi o günün en yüksek sıcaklığında 4 °C\'den fazla ayrışıyor.">ⓘ</span>'
+              '</span><span class="gl-not">Dairedeki sayı en yüksek sıcaklık</span></div>')
 
 
 def lejant_html(ogeler):
