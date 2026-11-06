@@ -1,3 +1,5 @@
+from functools import partial
+
 import pandas as pd
 import streamlit as st
 
@@ -55,8 +57,18 @@ if kod:
     df = mdf
 gorunen = df.loc[aralik[0]:aralik[1]]
 
-saat = st.select_slider("Saat seç", options=list(gorunen.index), key=f"mg_saat_{k['ad']}_{aralik[0]:%m%d%H}_{aralik[1]:%m%d%H}",
-                        format_func=lambda t: f"{GUNLER[t.weekday()]} {t:%d.%m %H:%M}")
+SAAT_ANAHTAR = f"mg_saat_{k['ad']}_{aralik[0]:%m%d%H}_{aralik[1]:%m%d%H}"
+
+
+def panelden_sec(anahtar):
+    """Ortak imleç: hangi panele tıklanırsa o saat seçilir; kesikli çizgi tüm panellerde ve saat kartında aynı yere gelir."""
+    s = st.session_state[anahtar].selection.get("saat") or []
+    if s:
+        st.session_state[SAAT_ANAHTAR] = gorunen.index[min(int(s[0]["i"]), len(gorunen) - 1)]
+
+
+saat = st.select_slider("Saat seç (ya da aşağıdaki herhangi bir panele tıkla)", options=list(gorunen.index),
+                        key=SAAT_ANAHTAR, format_func=lambda t: f"{GUNLER[t.weekday()]} {t:%d.%m %H:%M}")
 r = gorunen.loc[saat]
 yorum = "Sakin bir saat: yağış yok, rüzgâr ortalamanın üstüne çıkmıyor."
 if r.temperature_2m - r.dew_point_2m <= 2:
@@ -78,8 +90,9 @@ with st.container(key="yuzey_mg_saat"):
 
 sol, sag = st.columns([2.3, 1], gap="medium")
 with sol, st.container(border=True):
-    for panel, boy in grafik.meteogram(gorunen, k["rakim"], imlec=saat):
-        st.altair_chart(panel, height=boy, alt="Meteogram paneli")
+    for n, (panel, boy) in enumerate(grafik.meteogram(gorunen, k["rakim"], imlec=saat)):
+        st.altair_chart(panel, height=boy, alt="Meteogram paneli", key=f"mg_panel_{n}", selection_mode="saat",
+                        on_select=partial(panelden_sec, f"mg_panel_{n}"))
 with sag, st.container(key="yuzey_mg_rehber"):
     st.markdown("#### Meteogram nasıl okunur?")
     st.markdown("""
@@ -89,5 +102,6 @@ with sag, st.container(key="yuzey_mg_rehber"):
 4. **Hamleyi ortalamayla kıyasla.** Hamle ortalamanın iki katına yaklaşıyorsa hava türbülanslıdır; okların yön değiştirdiği an çoğu zaman cephenin geçtiği andır.
 5. **Kar mı yağmur mu?** Donma seviyesi çizgisi rakım çizgisine 300–400 m yaklaşmışsa yağış kara dönebilir.
 """)
-    st.caption("Kesikli dikey çizgi yukarıda seçtiğin saattir. Modelleri değiştirip karşılaştırmak için "
+    st.caption("Kesikli dikey çizgi seçtiğin saattir: herhangi bir panele tıklayınca tüm panellerde o saate taşınır ve "
+               "üstteki kart o saatin değerlerini gösterir. Modelleri değiştirip karşılaştırmak için "
                "**Modeller** sayfasına da bakabilirsin.")

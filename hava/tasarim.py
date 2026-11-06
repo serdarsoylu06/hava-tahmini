@@ -494,7 +494,9 @@ def lejant_html(ogeler):
 
 
 # ----------------------------------------------------------------- Deniz sayfası
-IZGARA_RENK = ("var(--kd-vurgu)", "var(--kd-sari)", "#F0A060",
+# "Riskli" turuncusu renk körlüğünde "Dikkat" sarısından zor ayrılır: üstüne nokta deseni, "Tehlikeli"ye çizgi deseni.
+RISKLI = "radial-gradient(circle, rgba(28,40,41,.45) 1.1px, transparent 1.5px) 0 0 / 5px 5px, #F0A060"
+IZGARA_RENK = ("var(--kd-vurgu)", "var(--kd-sari)", RISKLI,
                "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, color-mix(in srgb, var(--kd-tehlike) 40%, transparent) 4px 8px)")
 
 
@@ -514,7 +516,7 @@ def deniz_izgara(seviye, gece, ipucu, gun_adlari):
     st.html(f"""<div class="di"><div class="di-kaydir"><div class="di-ic">
 <div class="di-satir di-saat" aria-hidden="true"><b></b>{baslik}</div>{"".join(satirlar)}</div></div>
 <div class="lejant"><span><i style="background:var(--kd-vurgu)"></i>Uygun</span><span><i style="background:var(--kd-sari)"></i>Dikkat</span>
-<span><i style="background:#F0A060"></i>Riskli</span><span><i style="background:{IZGARA_RENK[3]};border:1px solid var(--kd-tehlike);box-sizing:border-box"></i>Tehlikeli</span>
+<span><i style="background:{RISKLI}"></i>Riskli (noktalı)</span><span><i style="background:{IZGARA_RENK[3]};border:1px solid var(--kd-tehlike);box-sizing:border-box"></i>Tehlikeli (çizgili)</span>
 <span><i style="background:#F0A060;filter:brightness(.72) saturate(.85)"></i>Gece saatleri (koyu ton)</span></div></div>""")
 
 

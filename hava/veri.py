@@ -97,6 +97,24 @@ def indir(url, params, donem):
     return r.json()
 
 
+def tazelik():
+    """Üst çubuktaki veri saati: (rozet metni, açıklama). Bu dönemin verisi alınamayıp eskisine düşüldüyse
+    rozet turuncu olur ve hangi döneme ait olduğunu söyler."""
+    bas = pd.Timestamp.now().floor("min") - GECIKME
+    alindi = bas.floor("h") + GECIKME
+    sonraki = alindi + pd.Timedelta(hours=1)
+    eski = (st.session_state.get("veri_tazelik") or {}).get("eski")
+    if ornek_modu():
+        return ":gray-badge[:material/science: Örnek veri]", "Veri servislerine istek atılmıyor; değerler sentetik."
+    if eski:
+        return (f":orange-badge[:material/history: {eski[-5:]} verisi]",
+                f"Bu saatin verisi alınamadı; {eski} dönemine ait önceki veri gösteriliyor. "
+                f"Bir sonraki deneme {sonraki:%H:%M}.")
+    return (f":gray-badge[:material/update: {alindi:%H:%M}]",
+            f"Tahmin verisi saat başını 10 geçe yenilenir. Son yenileme {alindi:%H:%M}, sonraki {sonraki:%H:%M}. "
+            "Modellerin kendisi 6–12 saatte bir çalışır; aradaki yenilemeler en son model çıktısını getirir.")
+
+
 def ornek_modu():
     """Örnek veri modu açık mı? Kenar çubuğundaki düğme ya da HAVA_ORNEK=1 ortam değişkeni."""
     return st.session_state.get("ornek_veri", os.environ.get("HAVA_ORNEK", "") in ("1", "true", "evet"))
@@ -140,6 +158,7 @@ def getir(url, params, durdur=True, gunluk=False) -> dict | list | None:
         eski, ne_zaman = _son_kayit(url, params)
         if eski is not None:
             ne_zaman = ne_zaman.replace("T", " ") + ":10" if "T" in ne_zaman else ne_zaman
+            st.session_state["veri_tazelik"] = {"eski": ne_zaman}
             st.toast(f"{'İstek sınırı aşıldı' if sinir else 'Veri alınamadı'}; {ne_zaman} "
                      "dönemine ait önceki veri gösteriliyor.", icon=":material/history:")
             return eski

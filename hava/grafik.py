@@ -22,26 +22,28 @@ def _hazirla(df):
     return d
 
 
-def _x(etiket=True):
-    return alt.X("time:T", title=None,
-                 axis=alt.Axis(format="%d.%m", labels=etiket, tickCount="day", labelFlush=False,
-                               gridOpacity=0.5))
+def _x(zamanlar, **kw):
+    return alt.X("time:T", title=None, axis=_eksen_saatli(zamanlar, **kw))
 
 
-def _eksen_saatli(zamanlar):
-    """Gün etiketi gece yarısında (kalın), araya 6 saatte bir daha küçük ve ince saat etiketi.
-    Saydamlık kullanılmaz: koyu zeminde okunurluk (kontrast) düşmesin."""
+def _eksen_saatli(zamanlar, **kw):
+    """Gün etiketi gece yarısında (kalın), araya daha küçük ve ince saat etiketleri. Aralık kısaysa 6, orta
+    uzunluktaysa 12 saatte bir; çok uzunsa yalnızca günler. Saydamlık kullanılmaz: koyu zeminde okunurluk düşmesin."""
     gun = "hours(datum.value) == 0"
+    zt = pd.DatetimeIndex(zamanlar)
+    sure = (zt.max() - zt.min()) / pd.Timedelta(days=1)
+    adim = "6h" if sure <= 4.5 else "12h" if sure <= 8.5 else "1D"
     # İlk işaret bir gece yarısı: dar ekranda çakışan etiketler "parity" ile ayıklanırken (her ikinciden biri
     # kalır) gün etiketleri hep çift sıraya düşer ve korunur, saatler önce düşer.
-    zt = pd.DatetimeIndex(zamanlar)
-    ilk = zt.min().ceil("D")
+    ilk_gece, adim = zt.min().ceil("D"), pd.Timedelta(adim)
+    n = (ilk_gece - zt.min()) // adim
+    ilk = ilk_gece - adim * (n - n % 2)
     degerler = [alt.DateTime(year=t.year, month=t.month, date=t.day, hours=t.hour)
-                for t in pd.date_range(ilk, zt.max(), freq="6h")]
+                for t in pd.date_range(ilk, zt.max(), freq=adim)]
     return alt.Axis(values=degerler, labelOverlap="parity", labelFlush=False,
                     labelExpr=f"{gun} ? timeFormat(datum.value, '%d.%m') : timeFormat(datum.value, '%H:%M')",
                     labelFontSize=alt.condition(gun, alt.value(11), alt.value(10)),
-                    labelFontWeight=alt.condition(gun, alt.value("bold"), alt.value("normal")))
+                    labelFontWeight=alt.condition(gun, alt.value("bold"), alt.value("normal")), **kw)
 
 
 def yazi_rengi(koyu):
@@ -72,9 +74,9 @@ def _gece_katmani(g):
     return [alt.Chart(g).mark_rect(color="#8A9A92", opacity=0.10).encode(x="bas:T", x2="son:T")]
 
 
-def _imlec(d, hover, ipucu):
+def _imlec(d, hover, ipucu, *ek_param):
     """Panelin üstünde fareyi izleyen dikey çizgi + o saatin değerleri."""
-    sec = alt.Chart(d).mark_point(opacity=0).encode(x="time:T").add_params(hover)
+    sec = alt.Chart(d).mark_point(opacity=0).encode(x="time:T").add_params(hover, *ek_param)
     cizgi = alt.Chart(d).mark_rule(color=GRI, strokeDash=[3, 3]).encode(
         x="time:T", tooltip=[alt.Tooltip("time:T", title="Zaman", format=SAAT)] + ipucu
     ).transform_filter(hover)
@@ -93,8 +95,10 @@ def _uzun(d, sutunlar):
 
 def meteogram(df, rakim=None, imlec=None):
     """Meteogram panelleri: her biri ayrı, tam genişlikte bir grafik. Her panelin ipucu, o saatin
-    ana değerlerinin tümünü gösterir; böylece hangi panelde gezilirse gezilsin tablo eksiksizdir."""
-    d = _hazirla(df)
+    ana değerlerinin tümünü gösterir; böylece hangi panelde gezilirse gezilsin tablo eksiksizdir.
+    Bir panele tıklamak "saat" seçimini (satır sırası "i") döndürür: sayfa bununla ortak imleci taşır."""
+    d = _hazirla(df).assign(i=range(len(df)))
+    X = lambda: _x(df.index, gridOpacity=0.5)   # noqa: E731  tüm paneller aynı saat ekseni
     d["yon"] = d.wind_direction_10m.map(yon_adi)
     d["gidis"] = (d.wind_direction_10m + 180) % 360
     g = gece(df)
@@ -110,7 +114,8 @@ def meteogram(df, rakim=None, imlec=None):
                                     clear="pointerout")
         sabit = [] if imlec is None else [alt.Chart(pd.DataFrame({"t": [imlec]})).mark_rule(
             color=_murekkep(), strokeWidth=1.5, strokeDash=[4, 3]).encode(x="t:T")]
-        c = alt.layer(*_gece_katmani(g), *katmanlar, *sabit, *_imlec(d, hover, ortak + list(ek_ipucu)),
+        tik = alt.selection_point(fields=["i"], nearest=True, on="click", name="saat", empty=False)
+        c = alt.layer(*_gece_katmani(g), *katmanlar, *sabit, *_imlec(d, hover, ortak + list(ek_ipucu), tik),
                       title=_baslik(ad, alt_metin))
         if bagimsiz:
             c = c.resolve_scale(y="independent")
@@ -122,9 +127,9 @@ def meteogram(df, rakim=None, imlec=None):
     paneller = []
     # 1) sıcaklık
     ser = {"temperature_2m": "Sıcaklık", "apparent_temperature": "Hissedilen", "dew_point_2m": "Çiy noktası"}
-    k = [alt.Chart(d).mark_area(color=KIRMIZI, opacity=0.1).encode(_x(), y="dew_point_2m:Q", y2="temperature_2m:Q"),
+    k = [alt.Chart(d).mark_area(color=KIRMIZI, opacity=0.1).encode(X(), y="dew_point_2m:Q", y2="temperature_2m:Q"),
          alt.Chart(_uzun(d, ser)).mark_line(strokeWidth=2).encode(
-             _x(), alt.Y("deger:Q", title="°C", scale=alt.Scale(zero=False)),
+             X(), alt.Y("deger:Q", title="°C", scale=alt.Scale(zero=False)),
              alt.Color("seri:N", title=None, legend=alt.Legend(orient="top-right", direction="horizontal"),
                        scale=alt.Scale(domain=list(ser.values()), range=[KIRMIZI, TURUNCU, YESIL])),
              strokeDash=alt.StrokeDash("seri:N", legend=None, scale=alt.Scale(
@@ -139,10 +144,10 @@ def meteogram(df, rakim=None, imlec=None):
     yagan = alt.Chart(d).transform_filter("datum.precipitation > 0")
     paneller.append(panel("Yağış", [
         yagan.mark_bar(color=MAVI, opacity=0.85).encode(
-            _x(), x2="son:T", y=alt.Y("precipitation:Q", title="mm/saat", scale=alt.Scale(domain=[0, max(2, df.precipitation.max() * 1.1)])),
+            X(), x2="son:T", y=alt.Y("precipitation:Q", title="mm/saat", scale=alt.Scale(domain=[0, max(2, df.precipitation.max() * 1.1)])),
             y2=alt.Y2Datum(0)),
         alt.Chart(d).mark_line(color=MOR, strokeWidth=1.5, opacity=0.7, interpolate="step-after").encode(
-            _x(), y=alt.Y("precipitation_probability:Q", title="Olasılık %", scale=alt.Scale(domain=[0, 100]),
+            X(), y=alt.Y("precipitation_probability:Q", title="Olasılık %", scale=alt.Scale(domain=[0, 100]),
                           axis=alt.Axis(titleColor=MOR, orient="right")))],
         bagimsiz=True, yukseklik=130, alt_metin="Çubuk: saatlik miktar · mor çizgi: ansambl olasılığı"))
 
@@ -150,13 +155,13 @@ def meteogram(df, rakim=None, imlec=None):
     ser = {"wind_speed_10m": "Ortalama", "wind_gusts_10m": "Hamle"}
     paneller.append(panel("Rüzgâr", [
         alt.Chart(_uzun(d, ser)).mark_line(strokeWidth=2).encode(
-            _x(), alt.Y("deger:Q", title="km/s", scale=alt.Scale(domainMin=0)),
+            X(), alt.Y("deger:Q", title="km/s", scale=alt.Scale(domainMin=0)),
             alt.Color("seri:N", title=None, legend=alt.Legend(orient="top-right", direction="horizontal"),
                       scale=alt.Scale(domain=list(ser.values()), range=[GRI, "#ADB5BD"])),
             strokeDash=alt.StrokeDash("seri:N", legend=None, scale=alt.Scale(
                 domain=list(ser.values()), range=[[1, 0], [4, 3]]))),
         alt.Chart(d.iloc[::3]).mark_point(shape="arrow", filled=True, size=110, color=TURUNCU).encode(
-            _x(), y="wind_speed_10m:Q",
+            X(), y="wind_speed_10m:Q",
             angle=alt.Angle("gidis:Q", scale=alt.Scale(domain=[0, 360], range=[0, 360])))],
         alt_metin="Turuncu oklar rüzgârın gittiği yönü gösterir (yukarı = kuzey)"))
 
@@ -164,7 +169,7 @@ def meteogram(df, rakim=None, imlec=None):
     ser = {"cloud_cover_high": "Yüksek", "cloud_cover_mid": "Orta", "cloud_cover_low": "Alçak"}
     b = _uzun(d, ser).merge(d[["time", "son"]], on="time")
     paneller.append(panel("Bulutluluk", [alt.Chart(b).mark_rect(color="#7C93AA").encode(
-        _x(), x2="son:T", y=alt.Y("seri:N", title=None, sort=list(ser.values())),
+        X(), x2="son:T", y=alt.Y("seri:N", title=None, sort=list(ser.values())),
         opacity=alt.Opacity("deger:Q", scale=alt.Scale(domain=[0, 100], range=[0, 1]), legend=None))],
         [T("cloud_cover_low", "Alçak bulut %", ".0f"), T("cloud_cover_mid", "Orta bulut %", ".0f"),
          T("cloud_cover_high", "Yüksek bulut %", ".0f")], yukseklik=90,
@@ -173,22 +178,22 @@ def meteogram(df, rakim=None, imlec=None):
     # 5) basınç + nem
     paneller.append(panel("Basınç ve nem", [
         alt.Chart(d).mark_line(color=KAHVE, strokeWidth=2).encode(
-            _x(), y=alt.Y("pressure_msl:Q", title="Basınç hPa", scale=alt.Scale(zero=False),
+            X(), y=alt.Y("pressure_msl:Q", title="Basınç hPa", scale=alt.Scale(zero=False),
                           axis=alt.Axis(titleColor=KAHVE))),
         alt.Chart(d).mark_line(color=CAMGOBEGI, strokeWidth=1.5, opacity=0.7).encode(
-            _x(), y=alt.Y("relative_humidity_2m:Q", title="Nem %", scale=alt.Scale(domain=[0, 100]),
+            X(), y=alt.Y("relative_humidity_2m:Q", title="Nem %", scale=alt.Scale(domain=[0, 100]),
                           axis=alt.Axis(titleColor=CAMGOBEGI, orient="right")))],
         [T("relative_humidity_2m", "Nem %", ".0f")], bagimsiz=True,
         alt_metin="Düşen basınç: sistem yaklaşıyor · yükselen: hava açıyor"))
 
     # 6) donma seviyesi + kar
     k = [alt.Chart(d).mark_line(color=LACIVERT, strokeWidth=2).encode(
-        _x(), y=alt.Y("freezing_level_height:Q", title="Donma seviyesi m", scale=alt.Scale(domainMin=0),
+        X(), y=alt.Y("freezing_level_height:Q", title="Donma seviyesi m", scale=alt.Scale(domainMin=0),
                       axis=alt.Axis(titleColor=LACIVERT)))]
     if rakim is not None:
         k.append(alt.Chart(pd.DataFrame({"y": [rakim]})).mark_rule(color=KAHVE, strokeDash=[6, 3]).encode(y="y:Q"))
     kar = alt.Chart(d).transform_filter("datum.snowfall > 0").mark_bar(color="#74C0FC", opacity=0.8).encode(
-        _x(), x2="son:T", y=alt.Y("snowfall:Q", title="Kar cm/saat",
+        X(), x2="son:T", y=alt.Y("snowfall:Q", title="Kar cm/saat",
                                   scale=alt.Scale(domain=[0, max(1, df.snowfall.max() * 1.1)]),
                                   axis=alt.Axis(orient="right", titleColor="#74C0FC")), y2=alt.Y2Datum(0))
     paneller.append(panel("Donma seviyesi ve kar", [alt.layer(*k), kar],
@@ -306,7 +311,7 @@ def model_karsilastirma(seriler: pd.DataFrame, birim):
     sec = alt.selection_point(fields=["model"], bind="legend")
     hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False, clear="pointerout")
     zoom = alt.selection_interval(bind="scales", encodings=["x"])
-    x = alt.X("time:T", title=None, axis=_eksen_saatli(seriler.index))
+    x = _x(seriler.index)
     genis = seriler.reset_index()
     genis.columns = ["time"] + [f"m{i}" for i in range(seriler.shape[1])]
     ipucu = [alt.Tooltip("time:T", title="Zaman", format=SAAT)] + [
@@ -350,7 +355,7 @@ def spagetti(U: pd.DataFrame, birim):
     ist["bant"] = ist.p90 - ist.p10
     hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False, clear="pointerout")
     zoom = alt.selection_interval(bind="scales", encodings=["x"])
-    x = alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount="day"))
+    x = _x(U.index)
     ipucu = [alt.Tooltip("time:T", title="Zaman", format=SAAT), alt.Tooltip("p50:Q", title="Ortanca", format=".1f"),
              alt.Tooltip("p10:Q", title="%10 (düşük senaryo)", format=".1f"),
              alt.Tooltip("p90:Q", title="%90 (yüksek senaryo)", format=".1f"),
@@ -389,7 +394,7 @@ def cape_serisi(df, secili):
     """Atmosfer profili sayfası: CAPE zaman serisi; tıklanan saat profili seçer."""
     d = df[["cape", "precipitation_probability", "i"]].reset_index()
     sec = alt.selection_point(fields=["i"], nearest=True, on="click", name="saat")
-    x = alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount="day"))
+    x = _x(df.index)
     bolge = pd.DataFrame({"y0": [0, 100, 1000, 2500], "y1": [100, 1000, 2500, max(3500, d.cape.max())],
                           "ad": ["Kararlı", "Zayıf", "Orta", "Güçlü"]})
     ust = max(1200, d.cape.max() * 1.15)
@@ -410,10 +415,6 @@ def cape_serisi(df, secili):
 
 
 # ----------------------------------------------------------------- deniz ve balıkçılık
-def _x_gun():
-    return alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount="day", labelFlush=False))
-
-
 def guvenlik_seridi(s, d, hava, adlar, renkler):
     """Saat saat denize çıkış durumu: genel + dalga + rüzgâr + görüş satırları."""
     satirlar = {"genel": "Genel", "dalga": "Dalga", "ruzgar": "Rüzgâr", "gorus": "Görüş"}
@@ -428,7 +429,7 @@ def guvenlik_seridi(s, d, hava, adlar, renkler):
                        "kara": np.where(s.kara_ruzgari.values, "Evet: tekneyi açığa iter", "Hayır")})
     b = b.merge(ek, on="time")
     return alt.Chart(b).mark_rect(stroke="white", strokeWidth=0.4).encode(
-        _x_gun(), x2="son:T",
+        _x(s.index), x2="son:T",
         y=alt.Y("satir:N", title=None, sort=list(satirlar.values()), axis=alt.Axis(labelFontWeight=500)),
         color=alt.Color("durum:N", title=None, legend=alt.Legend(orient="top"),
                         scale=alt.Scale(domain=adlar, range=renkler)),
@@ -443,7 +444,7 @@ def guvenlik_seridi(s, d, hava, adlar, renkler):
 
 
 def dalga_grafigi(d):
-    x = _x_gun()
+    x = _x(d.index)
     ser = {"wave_height": "Toplam (belirgin)", "wind_wave_height": "Rüzgâr dalgası", "swell_wave_height": "Soluğan"}
     u = d[list(ser)].reset_index().melt(id_vars="time", var_name="kod", value_name="m")
     u["seri"] = u.kod.map(ser)
@@ -496,7 +497,7 @@ def balik_grafigi(g, guvenli, gunluk):
              alt.Tooltip("ruzgar:Q", title="Rüzgâr", format=".0f"), alt.Tooltip("durum:N", title="Deniz")]
     return alt.layer(
         alt.Chart(d).mark_rect().encode(
-            _x_gun(), x2="son:T", y=alt.Y("toplam:Q", title="Gösterge (0–100)", scale=alt.Scale(domain=[0, 100])),
+            _x(g.index), x2="son:T", y=alt.Y("toplam:Q", title="Gösterge (0–100)", scale=alt.Scale(domain=[0, 100])),
             y2=alt.Y2Datum(0),
             color=alt.Color("durum:N", title=None, legend=alt.Legend(orient="top"),
                             scale=alt.Scale(domain=["Denize çıkılabilir", "Deniz uygun değil"],
@@ -511,7 +512,7 @@ def balik_grafigi(g, guvenli, gunluk):
 def basit_seri(s: pd.Series, baslik, birim, renk, sifir=False):
     d = s.rename("v").reset_index()
     return alt.Chart(d).mark_area(color=renk, opacity=0.15, line={"color": renk, "strokeWidth": 2}).encode(
-        _x_gun(), alt.Y("v:Q", title=f"{baslik} ({birim})", scale=alt.Scale(zero=sifir)),
+        _x(s.index), alt.Y("v:Q", title=f"{baslik} ({birim})", scale=alt.Scale(zero=sifir)),
         tooltip=[alt.Tooltip("time:T", title="Zaman", format=SAAT), alt.Tooltip("v:Q", title=baslik, format=".2f")],
     ).properties(height=200)
 
@@ -530,7 +531,7 @@ def dogrulama_cizgisi(df, gercek, tahminler, birim, bar=False, gercek_ad="Gerçe
     ipucu = [alt.Tooltip("time:T", title="Zaman", format=SAAT)] + [
         alt.Tooltip(f"s{i}:Q", title=a, format=".1f") for i, a in enumerate(adlar)]
     secim = alt.selection_point(fields=["seri"], bind="legend")
-    x = alt.X("time:T", title=None, axis=alt.Axis(format="%d.%m", tickCount="day"))
+    x = _x(df.index)
     cizgi = alt.Chart(d).mark_line(interpolate="monotone").encode(
         x, alt.Y("deger:Q", title=birim, scale=alt.Scale(zero=bar)),
         alt.Color("seri:N", title="Tıkla: vurgula", scale=alt.Scale(domain=adlar, range=renkler),
