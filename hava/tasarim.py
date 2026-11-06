@@ -58,11 +58,20 @@ def _metin(s):
 
 def stil(koyu):
     r = _renkler(koyu)
-    kart = f"background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 16px;"
+    # Katmanlı gölge: üst kenarda ince ışık + yakın temas gölgesi + yumuşak, geniş gölge. Açık temada daha hafif.
+    if koyu:
+        isik, yakin, uzak, uzak_ust = ".05", "rgba(0,0,0,.22)", "rgba(0,0,0,.4)", "rgba(0,0,0,.5)"
+    else:
+        isik, yakin, uzak, uzak_ust = ".7", "rgba(28,40,41,.06)", "rgba(28,40,41,.12)", "rgba(28,40,41,.16)"
+    golge = f"inset 0 1px 0 rgba(255,255,255,{isik}), 0 2px 4px {yakin}, 0 10px 24px -6px {uzak}"
+    golge_ust = f"inset 0 1px 0 rgba(255,255,255,{isik}), 0 4px 8px {yakin}, 0 16px 32px -8px {uzak_ust}"
+    golge_acik = f"inset 0 1px 0 rgba(255,255,255,.5), 0 2px 4px {yakin}, 0 10px 24px -6px {uzak}"  # açık yeşil kart
+    kart = f"background: {r['yuzey']}; border: 1px solid {r['cizgi']}; border-radius: 16px; box-shadow: {golge};"
     st.html(f"""<style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,300,0,0&display=block');
-:root {{ --kd-zemin: {r['zemin']}; --kd-yuzey: {r['yuzey']}; --kd-yuzey2: {r['yuzey2']}; --kd-cizgi: {r['cizgi']};
+:root {{ --ara-1: 4px; --ara-2: 8px; --ara-3: 12px; --ara-4: 16px; --ara-5: 24px; --ara-6: 32px;
+        --kd-zemin: {r['zemin']}; --kd-yuzey: {r['yuzey']}; --kd-yuzey2: {r['yuzey2']}; --kd-cizgi: {r['cizgi']};
         --kd-metin: {r['metin']}; --kd-ikinci: {r['ikinci']}; --kd-soluk: {r['soluk']}; --kd-vurgu: {r['vurgu']};
         --kd-baglanti: {r['baglanti']}; --kd-sari: #F1D24E; --kd-sari-metin: {r['sari_metin']}; --kd-tehlike: {r['tehlike']};
         --kd-secili: {r['secili']}; --kd-kart: {KART}; --kd-kart-metin: {KART_METIN}; --kd-kart-ikinci: {KART_IKINCI}; }}
@@ -84,7 +93,7 @@ def stil(koyu):
 [data-testid="stHeading"] h3 {{ font-size: 1.25rem; font-weight: 600; }}
 
 /* metrik kartları */
-[data-testid="stMetric"] {{ {kart} padding: 14px 16px !important; container-type: inline-size; }}
+[data-testid="stMetric"] {{ {kart} padding: var(--ara-3) var(--ara-4) !important; container-type: inline-size; }}
 [data-testid="stMetricLabel"] p {{ font-size: 13px !important; color: {r['ikinci']}; }}
 [data-testid="stMetricValue"] {{ font-family: {MONO}; font-weight: 700; letter-spacing: -.03em;
                                  font-size: clamp(.95rem, 12cqi, 1.3rem); }}
@@ -93,7 +102,7 @@ def stil(koyu):
     white-space: normal !important; overflow: visible !important; text-overflow: clip !important;
     height: auto !important; line-height: 1.2 !important; word-break: normal !important; overflow-wrap: normal !important; }}
 [data-testid="stMetricDelta"] {{ color: {r['ikinci']}; }}
-[class*="st-key-kartlar"] [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap; gap: .6rem; }}
+[class*="st-key-kartlar"] [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap; gap: var(--ara-3); }}
 [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 1 1 120px !important; min-width: 112px !important; }}
 [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) {{ align-items: stretch !important; }}
 [data-testid="stColumn"]:has([data-testid="stMetric"]) > [data-testid="stVerticalBlock"] {{ height: 100%; }}
@@ -107,26 +116,41 @@ def stil(koyu):
 [class*="st-key-uyari_satir"] [data-testid="stElementContainer"]:has([data-testid="stAlert"]) {{ flex: 1 1 auto; }}
 [class*="st-key-uyari_satir"] [data-testid="stAlert"], [class*="st-key-uyari_satir"] [data-testid="stAlertContainer"] {{
     height: 100%; box-sizing: border-box; }}
-[data-testid="stAlertContainer"] {{ border-radius: 14px; }}
+[data-testid="stAlertContainer"] {{ border-radius: 14px; box-shadow: {golge}; }}
+/* üzerine gelince hafif kalkma (yalnızca bilgi kartları; açılır bölümler ve araç çubuğu sabit) */
+[class*="st-key-yuzey_"], [class*="st-key-kart_"], [data-testid="stMetric"], .ol-kart, .nk, .gk li, .mz {{
+    transition: transform .2s ease, box-shadow .2s ease; }}
+[class*="st-key-yuzey_"]:hover, [data-testid="stMetric"]:hover, .ol-kart:hover, .nk:hover, .gk li:hover {{
+    transform: translateY(-2px); box-shadow: {golge_ust}; }}
+[class*="st-key-kart_"]:hover {{ transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 8px {yakin}, 0 16px 32px -8px {uzak_ust}; }}
+@media (prefers-reduced-motion: reduce) {{ [class*="st-key-yuzey_"], [class*="st-key-kart_"], [data-testid="stMetric"], .ol-kart, .nk, .gk li {{ transition: none; transform: none !important; }} }}
 [data-testid="stExpander"] details {{ {kart} }}
 
 /* üst arama çubuğu ve yüzey kapları */
-.st-key-ust_cubuk {{ {kart} padding: 8px 10px; }}
-[class*="st-key-yuzey_"] {{ {kart} padding: 18px 20px; }}
+.st-key-ust_cubuk {{ {kart} padding: var(--ara-2) var(--ara-3); }}
+[class*="st-key-yuzey_"] {{ {kart} padding: var(--ara-4) var(--ara-5); }}
 .st-key-rehber {{ background: {r['yuzey']}; border: 2px solid {r['vurgu']}; border-radius: 18px; padding: 16px 20px; }}
 
 /* açık yeşil grafik kartları: her iki temada aynı zemin, yazılar koyu */
-[class*="st-key-kart_"] {{ background: {KART}; border-radius: 18px; padding: 16px 16px 8px; color: {KART_METIN}; }}
+[class*="st-key-kart_"] {{ background: {KART}; border-radius: 18px; padding: var(--ara-4) var(--ara-4) var(--ara-2); color: {KART_METIN}; box-shadow: {golge_acik}; }}
 [class*="st-key-kart_"] p, [class*="st-key-kart_"] h3, [class*="st-key-kart_"] h4, [class*="st-key-kart_"] li, [class*="st-key-kart_"] strong, [class*="st-key-kart_"] span, [class*="st-key-kart_"] label {{ color: {KART_METIN}; }}
 [class*="st-key-kart_"] [data-testid="stCaptionContainer"] p {{ color: {KART_IKINCI}; }}
+/* esit_satir: yan yana kartlar aynı yükseklikte */
+[class*="st-key-esit_satir"] [data-testid="stHorizontalBlock"] {{ align-items: stretch !important; }}
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] {{ height: 100%; }}
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"],
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [class*="st-key-"] {{ flex: 1 1 auto; }}
+[class*="st-key-esit_satir"] [data-testid="stColumn"] > [data-testid="stVerticalBlock"] > [data-testid="stElementContainer"]:only-child {{ flex: 1 1 auto; }}
+[class*="st-key-esit_satir"] [data-testid="stElementContainer"]:only-child > [data-testid="stHtml"] {{ height: 100%; }}
+[class*="st-key-esit_satir"] [data-testid="stHtml"] > .mz, [class*="st-key-esit_satir"] [data-testid="stHtml"] > .ol {{ height: 100%; box-sizing: border-box; }}
 [data-testid="stVegaLiteChart"] svg.marks, [data-testid="stVegaLiteChart"] canvas {{ background: transparent !important; }}
 
 /* ---------------- manzara (anlık durum) ---------------- */
-.mz {{ position: relative; overflow: hidden; border-radius: 20px; min-height: 420px; color: #F3F7EF; container-type: inline-size; }}
+.mz {{ position: relative; overflow: hidden; border-radius: 20px; min-height: 420px; color: #F3F7EF; container-type: inline-size; box-shadow: {golge}; }}
 .mz svg.mz-sahne {{ position: absolute; inset: 0; width: 100%; height: 100%; }}
 .mz-katman {{ position: absolute; inset: 0; overflow: hidden; pointer-events: none; }}
 .mz-ortu {{ position: absolute; inset: 0; background: radial-gradient(120% 95% at 0% 0%, rgba(14,24,24,.6), transparent 62%); }}
-.mz-icerik {{ position: relative; padding: 26px 30px 28px; display: flex; flex-direction: column; gap: 8px; max-width: 600px;
+.mz-icerik {{ position: relative; padding: var(--ara-5) var(--ara-6); display: flex; flex-direction: column; gap: var(--ara-2); max-width: 600px;
               text-shadow: 0 1px 12px rgba(14,24,24,.5); }}
 .mz-yer {{ margin: 0; font-size: 15px; font-weight: 500; }}
 .mz-ust {{ display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 22px; }}
@@ -146,12 +170,12 @@ def stil(koyu):
 @keyframes mzKar {{ 0% {{ transform: translate3d(0,-20px,0); }} 50% {{ transform: translate3d(14px,220px,0); }} 100% {{ transform: translate3d(-8px,460px,0); }} }}
 .mz-simsek {{ position: absolute; inset: 0; background: rgba(200,225,255,.5); opacity: 0; animation: mzSimsek 9s linear infinite; }}
 @keyframes mzSimsek {{ 0%, 90% {{ opacity: 0; }} 91% {{ opacity: .5; }} 92% {{ opacity: 0; }} 94% {{ opacity: .35; }} 96%, 100% {{ opacity: 0; }} }}
-@container (max-width: 520px) {{ .mz-damla:nth-of-type(2n), .mz-tane:nth-of-type(2n) {{ display: none; }} .mz-icerik {{ padding: 20px; }} }}
+@container (max-width: 520px) {{ .mz-damla:nth-of-type(2n), .mz-tane:nth-of-type(2n) {{ display: none; }} .mz-icerik {{ padding: var(--ara-4); }} }}
 @media (prefers-reduced-motion: reduce) {{ .mz * {{ animation: none !important; }} .mz-damla, .mz-tane, .mz-simsek {{ display: none; }} }}
 
 /* ---------------- ölçerler ---------------- */
-.ol {{ display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }}
-.ol-kart {{ {kart} padding: 12px 16px; display: flex; align-items: center; gap: 14px; min-width: 0; }}
+.ol {{ display: grid; grid-template-columns: minmax(0,1fr); grid-auto-rows: 1fr; gap: var(--ara-3); }}
+.ol-kart {{ {kart} padding: var(--ara-3) var(--ara-4); display: flex; align-items: center; gap: var(--ara-4); min-width: 0; }}
 .ol-gosterge {{ position: relative; flex: none; width: 84px; }}
 .ol-gosterge span {{ position: absolute; left: 0; right: 0; text-align: center; font-family: {MONO}; font-size: 16px; font-weight: 700; color: {r['metin']}; }}
 .ol-gosterge.halka span {{ top: 31px; }}
@@ -160,7 +184,7 @@ def stil(koyu):
 .ol-kart p {{ margin: 2px 0 0; font-size: 13.5px; line-height: 1.4; color: {r['ikinci']}; }}
 
 /* ---------------- nokta kartları ---------------- */
-.nk {{ {kart} padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-height: 112px; box-sizing: border-box; }}
+.nk {{ {kart} padding: var(--ara-3) var(--ara-4); display: flex; flex-direction: column; gap: var(--ara-2); min-height: 112px; box-sizing: border-box; }}
 .nk.secili {{ border: 2px solid {r['vurgu']}; }}
 .nk-ust {{ display: flex; justify-content: space-between; gap: 10px; }}
 .nk-ad {{ font-family: {BASLIK}; font-size: 16px; font-weight: 600; color: {r['metin']}; }}
@@ -170,7 +194,7 @@ def stil(koyu):
 .nk-uyari {{ font-size: 13px; font-weight: 600; }}
 
 /* ---------------- denize çıkış ---------------- */
-.dz {{ display: flex; flex-direction: column; gap: 12px; }}
+.dz {{ display: flex; flex-direction: column; gap: var(--ara-3); }}
 .dz-ust {{ display: flex; align-items: center; gap: 18px; }}
 .dz-halka {{ position: relative; flex: none; width: 100px; height: 100px; text-align: center; }}
 .dz-halka b {{ position: absolute; left: 0; right: 0; top: 30px; font-family: {MONO}; font-size: 22px; color: {r['metin']}; }}
@@ -185,8 +209,8 @@ def stil(koyu):
 .lejant i {{ display: inline-block; width: 14px; height: 10px; border-radius: 3px; }}
 
 /* ---------------- 10 gün kartları ---------------- */
-.gk {{ list-style: none; margin: 0 !important; padding: 0 !important; display: grid; grid-template-columns: repeat(10, minmax(0,1fr)); gap: 10px; container-type: inline-size; }}
-.gk li {{ {kart} margin: 0 !important; padding: 14px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center; }}
+.gk {{ list-style: none; margin: 0 !important; padding: 0 !important; display: grid; grid-template-columns: repeat(10, minmax(0,1fr)); gap: var(--ara-3); container-type: inline-size; }}
+.gk li {{ {kart} margin: 0 !important; padding: var(--ara-3) var(--ara-2); display: flex; flex-direction: column; align-items: center; gap: var(--ara-2); text-align: center; }}
 .gk-ad {{ font-family: {BASLIK}; font-size: 14px; font-weight: 600; color: {r['metin']}; }}
 .gk li:first-child .gk-ad {{ color: {r['baglanti']}; }}
 .gk-ad small {{ display: block; font-family: {MONO}; font-weight: 400; font-size: 11px; color: {r['soluk']}; }}
@@ -199,11 +223,12 @@ def stil(koyu):
 @media (max-width: 640px) {{ .gk {{ grid-template-columns: repeat(2, minmax(0,1fr)); }} }}
 
 /* ---------------- deniz ızgarası, pusula, bilgi listesi ---------------- */
-.di {{ display: flex; flex-direction: column; gap: 10px; }}
+.di {{ display: flex; flex-direction: column; gap: var(--ara-3); }}
 .di-kaydir {{ overflow-x: auto; }}
-.di-ic {{ min-width: 640px; display: flex; flex-direction: column; gap: 4px; }}
-.di-satir {{ display: grid; grid-template-columns: 48px repeat(24, minmax(0,1fr)); gap: 2px; align-items: center; }}
-.di-satir > span {{ display: block; height: 30px; border-radius: 5px; }}
+.di-ic {{ min-width: 640px; display: flex; flex-direction: column; gap: 3px; }}
+.di-satir {{ display: grid; grid-template-columns: 48px repeat(24, minmax(0,1fr)); gap: 3px; align-items: center; }}
+.di-satir > span {{ display: block; height: 30px; border-radius: 5px; box-sizing: border-box; }}
+.di-satir > span.di-gece {{ filter: brightness(.72) saturate(.85); }}
 .di-satir b {{ font-family: {BASLIK}; font-size: 14px; font-weight: 600; color: {r['metin']}; }}
 .di-saat > span {{ height: auto; font-family: {MONO}; font-size: 11px; color: {r['soluk']}; }}
 .di-bos {{ background: transparent; }}
@@ -398,7 +423,7 @@ def nokta_karti(ad, tur, sicak, durum, uyari=None, uyari_tehlike=False, secili=F
 
 # ----------------------------------------------------------------- denize çıkış
 DENIZ_RENK = ("var(--kd-vurgu)", "var(--kd-sari)",
-              "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, transparent 4px 8px)")
+              "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, color-mix(in srgb, var(--kd-tehlike) 40%, transparent) 4px 8px)")
 
 
 def deniz_seridi(seviyeler, saatler, ipuclari, ozet, koyu):
@@ -469,19 +494,21 @@ def lejant_html(ogeler):
 
 
 # ----------------------------------------------------------------- Deniz sayfası
-IZGARA_RENK = ("var(--kd-vurgu)", "var(--kd-sari)", "#F0A060",
-               "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, transparent 4px 8px)")
+# "Riskli" turuncusu renk körlüğünde "Dikkat" sarısından zor ayrılır: üstüne nokta deseni, "Tehlikeli"ye çizgi deseni.
+RISKLI = "radial-gradient(circle, rgba(28,40,41,.45) 1.1px, transparent 1.5px) 0 0 / 5px 5px, #F0A060"
+IZGARA_RENK = ("var(--kd-vurgu)", "var(--kd-sari)", RISKLI,
+               "repeating-linear-gradient(135deg, var(--kd-tehlike) 0 4px, color-mix(in srgb, var(--kd-tehlike) 40%, transparent) 4px 8px)")
 
 
 def deniz_izgara(seviye, gece, ipucu, gun_adlari):
     """Gün gün, saat saat denize çıkış ızgarası. seviye: 0 uygun … 3 tehlikeli (saatlik Series); gece ve ipucu aynı
-    dizinde. Her satır bir gün, her hücre bir saat; geçmiş saatler boş, gece saatlerinin altında koyu bir çizgi var."""
+    dizinde. Her satır bir gün, her hücre bir saat; geçmiş saatler boş, gece saatleri koyulaştırılmış."""
     satirlar = []
     for gun, parca in seviye.groupby(seviye.index.normalize()):
         hucre = ['<span class="di-bos"></span>'] * 24
         for t, s in parca.items():
-            hucre[t.hour] = (f'<span title="{html.escape(ipucu[t])}" style="background:{IZGARA_RENK[int(s)]};'
-                             f'{"box-shadow:inset 0 -5px 0 rgba(28,40,41,.45)" if gece[t] else ""}"></span>')
+            hucre[t.hour] = (f'<span{" class=\"di-gece\"" if gece[t] else ""} title="{html.escape(ipucu[t])}" '
+                             f'style="background:{IZGARA_RENK[int(s)]}"></span>')
         uygun = int((parca == 0).sum())
         satirlar.append(f'<div class="di-satir" role="img" aria-label="{gun_adlari[gun.weekday()]} {gun:%d.%m}: '
                         f'{len(parca)} saatin {uygun} saati uygun"><b>{gun_adlari[gun.weekday()]}</b>{"".join(hucre)}</div>')
@@ -489,8 +516,8 @@ def deniz_izgara(seviye, gece, ipucu, gun_adlari):
     st.html(f"""<div class="di"><div class="di-kaydir"><div class="di-ic">
 <div class="di-satir di-saat" aria-hidden="true"><b></b>{baslik}</div>{"".join(satirlar)}</div></div>
 <div class="lejant"><span><i style="background:var(--kd-vurgu)"></i>Uygun</span><span><i style="background:var(--kd-sari)"></i>Dikkat</span>
-<span><i style="background:#F0A060"></i>Riskli</span><span><i style="background:{IZGARA_RENK[3]};border:1px solid var(--kd-tehlike);box-sizing:border-box"></i>Tehlikeli</span>
-<span><i style="background:var(--kd-yuzey2);box-shadow:inset 0 -4px 0 rgba(28,40,41,.45)"></i>Gece saatleri</span></div></div>""")
+<span><i style="background:{RISKLI}"></i>Riskli (noktalı)</span><span><i style="background:{IZGARA_RENK[3]};border:1px solid var(--kd-tehlike);box-sizing:border-box"></i>Tehlikeli (çizgili)</span>
+<span><i style="background:#F0A060;filter:brightness(.72) saturate(.85)"></i>Gece saatleri (koyu ton)</span></div></div>""")
 
 
 def pusula(gelis, hiz, hamle, yon_ad, koyu):

@@ -54,7 +54,8 @@ egilim = son3.iloc[-1] - son3.iloc[0] if len(son3) > 1 else 0
 fark = simdi["temperature_2m"] - simdi["dew_point_2m"]
 ozet = zaman_seridi.ozet(ileri.iloc[:zaman_seridi.SAAT])
 
-sol, sag = st.columns([2.1, 1], gap="medium")
+# esit_satir anahtarı: manzara kartı ile ölçer sütunu aynı yükseklikte (CSS: tasarim.py)
+sol, sag = st.container(key="esit_satir_genel").columns([2.1, 1], gap="medium")
 with sol:
     tasarim.manzara(
         ", ".join(x for x in (k["ad"], k["bolge"]) if x) + f" · {GUNLER[an.weekday()]} {an:%d.%m}, saat {an:%H:%M}",
@@ -120,7 +121,7 @@ OZET = {
     "basinc": f"{d24.pressure_msl.iloc[-1] - d24.pressure_msl.iloc[0]:+.1f} hPa / 24 saat".replace(".", ","),
 }
 for satir in (("sicaklik", "yagis"), ("ruzgar", "basinc")):
-    kol = st.columns(2, gap="medium")
+    kol = st.container(key=f"esit_satir_24_{satir[0]}").columns(2, gap="medium")  # aynı satırdaki kartlar eşit yükseklikte
     for c, ad in zip(kol, satir):
         with c, st.container(key=f"kart_{ad}"):
             b, a = ACIKLAMA[ad]

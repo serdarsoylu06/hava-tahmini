@@ -7,7 +7,7 @@ import os
 
 import streamlit as st
 
-from hava.veri import GEO, getir
+from hava.veri import GEO, getir, tazelik
 from hava import kayit, tasarim
 from hava.yerler import konum_kaydi, nokta_konumu, yerlesimler
 
@@ -73,11 +73,17 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
     else:
         yerler = yerlesimler()
         etiketler = list(yerler)
+        # Seçili yer adres satırında tutulur (?yer=Giresun): sayfa yenilenince korunur, bağlantı paylaşılabilir.
+        adresteki = st.query_params.get("yer")
+        if adresteki and adresteki not in yerler:
+            etiketler.append(adresteki)              # daha önce internette aranmış bir ad
         secim = st.selectbox(
-            "Konum", etiketler, index=etiketler.index("Ankara"), key="yer", accept_new_options=True,
+            "Konum", etiketler, index=etiketler.index(adresteki or "Ankara"), key="yer", accept_new_options=True,
             placeholder="Şehir, ilçe ya da yer ara…", label_visibility="collapsed", width="stretch",
             help="Yazdıkça öneriler anında süzülür (Türkiye'deki il, ilçe ve kasabalar ile dünyanın büyük şehirleri). "
                  "Listede olmayan bir yeri yazıp Enter'a basarsan internette aranır.")
+        if secim and st.query_params.get("yer") != secim:
+            st.query_params["yer"] = secim
         if secim in yerler:
             st.session_state.konum = konum_kaydi(yerler[secim])
             s = {"latitude": yerler[secim]["enlem"], "longitude": yerler[secim]["boylam"],
@@ -98,6 +104,7 @@ with st.container(key="ust_cubuk", horizontal=True, vertical_alignment="center",
                                       "tz": s.get("timezone") or "auto", "rakim": s.get("elevation"),
                                       "bolge": ", ".join(x for x in (s.get("admin1"), s.get("country")) if x)}
 
+    tazelik_yeri = st.empty()                   # veri saati rozeti: sayfa çalıştıktan sonra doldurulur
     noktalar = kayit.oku()
     with st.popover("Noktalarım", icon=":material/bookmarks:"):
         if noktalar:
@@ -140,4 +147,9 @@ with st.sidebar:
 if st.session_state.get("ornek_veri"):
     st.badge("Örnek veri modu: gösterilen değerler sentetiktir, gerçek tahmin değildir", icon=":material/science:",
              color="orange")
-sayfa.run()
+st.session_state["veri_tazelik"] = {"eski": None}   # her çalıştırmada sıfırlanır; getir() eskiye düşerse doldurur
+try:
+    sayfa.run()
+finally:
+    rozet, aciklama = tazelik()
+    tazelik_yeri.markdown(rozet, help=aciklama, width="content")
