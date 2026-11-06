@@ -14,7 +14,9 @@ tasarim.baslik("Canlı gözlem", "Canlı radar ve uydu",
 c1, c2 = st.columns([1.4, 1], vertical_alignment="bottom")
 secili = c1.pills("Katmanlar", ["Radar", "Uydu", "Rüzgâr akışı"], selection_mode="multi",
                   default=["Radar", "Rüzgâr akışı"], key="canli_katman")
-uydu_ad = c2.selectbox("Uydu görüntüsü", list(UYDU_KATMAN), key="canli_uydu", disabled="Uydu" not in secili)
+# Uydu kapalıyken seçim kutusu gösterilmez (telefonda boşuna yer kaplıyordu); seçim oturumda korunur
+uydu_ad = (c2.selectbox("Uydu görüntüsü", list(UYDU_KATMAN), key="canli_uydu") if "Uydu" in secili
+           else st.session_state.get("canli_uydu", list(UYDU_KATMAN)[0]))
 
 tik = canli_harita(k, {"radar": "Radar" in secili, "uydu": "Uydu" in secili, "ruzgar": "Rüzgâr akışı" in secili},
                    UYDU_KATMAN[uydu_ad], koyu=st.context.theme.type == "dark")

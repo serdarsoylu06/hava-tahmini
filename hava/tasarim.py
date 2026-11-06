@@ -147,6 +147,8 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
 .st-key-ayarlar button > div > div[aria-hidden="true"] {{ display: none; }}
 [class*="st-key-yuzey_"] {{ {kart} padding: var(--ara-4) var(--ara-5); }}
 .st-key-rehber {{ font-size: 13px; }}
+/* Meteogram denetim kartı (kalkma efekti yok: bilgi kartı değil, denetim) */
+.st-key-mg_kontrol {{ {kart} padding: var(--ara-3) var(--ara-5); }}
 /* 24 saat destesi: masaüstünde 2×2 */
 .st-key-esit_satir_deste [data-testid="stHorizontalBlock"] {{ flex-wrap: wrap !important; row-gap: var(--ara-4); }}
 .st-key-esit_satir_deste [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {{ flex: 1 1 calc(50% - 1rem) !important; min-width: calc(50% - 1rem) !important; }}
@@ -386,6 +388,14 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
   /* ölçüm kartları telefonda iki sütun: sütun genişliği aradaki boşluğu da hesaba katar (yoksa her kart alt satıra düşüyordu) */
   [class*="st-key-kartlar"] [data-testid="stHorizontalBlock"] {{ gap: var(--ara-2) !important; }}
   [class*="st-key-kartlar"] [data-testid="stColumn"] {{ flex: 0 0 calc(50% - var(--ara-2) / 2) !important; min-width: 0 !important; }}
+  /* tek sayıda kart varsa sonuncusu tam genişlik: sağda boş delik kalmasın */
+  [class*="st-key-kartlar"] [data-testid="stColumn"]:last-child:nth-child(odd) {{ flex-basis: 100% !important; }}
+  /* Meteogram denetimleri: tek kart, sıkı aralık */
+  .st-key-mg_kontrol {{ padding: var(--ara-3) var(--ara-4); }}
+  .st-key-mg_kontrol [data-testid="stHorizontalBlock"], .st-key-mg_kontrol > div {{ gap: var(--ara-2) !important; }}
+  .st-key-mg_model button:has(p) {{ padding-left: 10px; padding-right: 10px; }}   /* dört model telefonda sığsın */
+  /* dokunmatikte alt menüde "üzerine gelme" vurgusu takılı kalmasın */
+  @media (hover: none) {{ .st-key-alt_menu a:hover {{ background: transparent; }} }}
 }}
 </style>""")
 
