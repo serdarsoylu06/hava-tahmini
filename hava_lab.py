@@ -161,14 +161,22 @@ with st.popover("", icon=":material/settings:", key="ayarlar", help="Ayarlar"):
 st.html("""<script>
 (() => {
   if (window.__ayarKur) return; window.__ayarKur = true;
+  // Streamlit Cloud uygulamayı bir çerçevede açar ve sağ alt köşeye kendi rozetlerini koyar: alt menü onlara binmesin
+  if (window.self !== window.top) document.documentElement.classList.add('bulutta');
   const yerlestir = () => {
     const el = document.querySelector('.st-key-ayarlar');
     if (!el) return;
     const ogeler = [...document.querySelectorAll('[data-testid="stTopNav"] > div')].filter(e => e.offsetWidth > 0);
     const son = ogeler[ogeler.length - 1];
     const h = document.querySelector('header[data-testid="stHeader"]');
-    if (window.matchMedia('(max-width: 640px)').matches) {   // telefonda dişli alt menünün sağ ucunda (CSS)
-      el.style.left = el.style.right = el.style.top = '';
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      // telefonda menüler "»" çekmecesinde: dişli onun hemen sağında (başlıkta sabit, sağdaki Cloud simgelerinden uzak)
+      const ac = document.querySelector('[data-testid="stExpandSidebarButton"]');
+      if (ac && ac.offsetWidth) {
+        const r = ac.getBoundingClientRect();
+        el.style.left = (r.right + 4) + 'px'; el.style.right = 'auto';
+        el.style.top = (r.top + r.height / 2 - el.offsetHeight / 2) + 'px';
+      }
     } else if (son) {
       const r = son.getBoundingClientRect();
       el.style.left = (r.right + 6) + 'px'; el.style.right = 'auto';
@@ -196,11 +204,19 @@ st.html("""<script>
       sekme.querySelectorAll('button').forEach((b, j) => b.classList.toggle('on', j === i));
     }, { passive: true });
   };
+  // Üst bara dokununca en başa dön: iPhone'un "saat şeridine dokun" hareketi Streamlit'te çalışmıyor (içerik sayfanın
+  // değil iç bir kutunun içinde kayıyor; Cloud'da uygulama ayrıca bir çerçevede). Düğme ve bağlantılar etkilenmez.
+  document.addEventListener('click', (e) => {
+    const h = e.target.closest('header[data-testid="stHeader"]');
+    if (!h || e.target.closest('button, a, input, [role="button"], [role="menu"], [data-testid="stTopNav"]')) return;
+    const ana = document.querySelector('[data-testid="stMain"]');
+    (ana && ana.scrollTop > 0 ? ana : window).scrollTo({ top: 0, behavior: 'smooth' });
+  });
   setInterval(() => { yerlestir(); deste(); }, 400); window.addEventListener('resize', yerlestir); yerlestir();
 })();
 </script>""", unsafe_allow_javascript=True)
 # Telefonda alt menü (masaüstünde gizli; CSS: tasarim.py, st-key-alt_menu): bölümlerin ilk sayfaları. Dişli (Ayarlar)
-# telefonda bu menünün sağ ucuna yerleşir.
+# telefonda başlıkta, "»" çekmece düğmesinin yanında.
 with st.container(key="alt_menu", horizontal=True, horizontal_alignment="distribute", gap=None):
     for ad, (bolum, i) in {"Genel": ("", 0), "Tahmin": ("Tahmin", 0), "Deniz": ("Deniz", 0), "Atmosfer": ("Atmosfer", 0)}.items():
         hedef = MENU[bolum][i]

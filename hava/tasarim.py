@@ -346,16 +346,16 @@ header[data-testid="stHeader"] {{ border-bottom: 1px solid {r['cizgi']}; }}
   .st-key-ust_cubuk .st-key-yer {{ width: auto !important; flex: 1 1 auto; }}
   .st-key-ust_cubuk [data-testid="stElementContainer"]:has([data-testid="stCaptionContainer"]) {{ display: none; }}
   [data-testid="stMetric"] {{ padding: 10px 12px !important; }}
-  /* alt menü: başparmak erişiminde bölümler + sağ uçta Ayarlar dişlisi */
+  /* alt menü: başparmak erişiminde bölümler (Ayarlar dişlisi başlıkta, "»" düğmesinin yanında) */
   [data-testid="stMainBlockContainer"] {{ padding-bottom: 96px !important; }}
   .st-key-alt_menu {{ display: flex !important; position: fixed; left: 10px; right: 10px; bottom: 10px; z-index: 999990;
-      height: 60px; padding: 0 60px 0 6px; border-radius: 18px; background: color-mix(in srgb, {r['yuzey']} 94%, transparent);
+      width: auto !important; height: 60px; padding: 0 6px; border-radius: 18px; background: color-mix(in srgb, {r['yuzey']} 94%, transparent);
       backdrop-filter: blur(10px); border: 1px solid {r['cizgi']}; box-shadow: {golge_ust}; align-items: center; }}
   .st-key-alt_menu > div {{ flex: 1 1 0; min-width: 0; }}
   .st-key-alt_menu a {{ flex-direction: column; gap: 2px; padding: 6px 2px !important; border-radius: 12px; justify-content: center; }}
   .st-key-alt_menu a p {{ font-size: 11px !important; margin: 0; }}
   .st-key-alt_menu a [data-testid="stIconMaterial"] {{ font-size: 22px; }}
-  .st-key-ayarlar {{ position: fixed !important; top: auto !important; left: auto !important; right: 22px !important; bottom: 22px !important; z-index: 999991; }}
+  html.bulutta .st-key-alt_menu {{ right: 78px; }}   /* Streamlit Cloud'un sağ alt rozeti için yer */
   .st-key-ayarlar button {{ height: 36px; }}
   /* manzara kısa, ölçerler 2×2 */
   .mz {{ min-height: 0 !important; }}
