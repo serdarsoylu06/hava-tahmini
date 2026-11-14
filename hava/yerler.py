@@ -107,7 +107,3 @@ def nokta_konumu(lat, lon, ad=None, bolge="Haritadan seçilen nokta"):
             ad = f"{lat:.2f}° K, {lon:.2f}° D"
     return {"ad": ad, "lat": lat, "lon": lon, "tz": y[i]["saat_dilimi"] if km[i] < 1500 else "auto",
             "rakim": None, "bolge": bolge}
-
-
-def adlandir(lat, lon):
-    return nokta_konumu(lat, lon)["ad"]

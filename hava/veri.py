@@ -14,7 +14,6 @@ FC = "https://api.open-meteo.com/v1/forecast"
 ENS = "https://ensemble-api.open-meteo.com/v1/ensemble"
 GEO = "https://geocoding-api.open-meteo.com/v1/search"
 DENIZ = "https://marine-api.open-meteo.com/v1/marine"
-RAKIM = "https://api.open-meteo.com/v1/elevation"
 TZ = "Europe/Istanbul"   # yalnızca bölge haritaları için; nokta tahminleri yerin kendi saatini kullanır
 SEVIYELER = [1000, 925, 850, 700, 600, 500, 400, 300, 250, 200]
 GUN_EN_COK = 10          # ortak tahmin isteği hep bu kadar gün çeker; sayfalar kendi aralığını keser

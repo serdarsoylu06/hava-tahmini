@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from hava.veri import simge, durum, yon_adi
+from hava.veri import yon_adi
 from hava.yorum import GUNLER
 
 # Karadeniz paleti: açık ve koyu temada okunur, renk körlüğü için birbirinden ayrışan tonlar
@@ -206,102 +206,6 @@ def meteogram(df, rakim=None, imlec=None):
 
 def gunluk_etiket(t, bugun):
     return "Bugün" if t.date() == bugun else f"{GUNLER[t.weekday()]} {t:%d.%m}"
-
-
-def yirmidort_saat(df, koyu=False):
-    """Önümüzdeki 24 saat: sıcaklık eğrisi, saat başı simgeler, altta yağış olasılığı çubukları."""
-    d = _hazirla(df)
-    d["simge"] = [simge(c, bool(g)) for c, g in zip(d.weather_code, d.is_day)]
-    d["durum"] = d.weather_code.map(durum)
-    d["etiket"] = d.temperature_2m.round().astype(int).astype(str) + "°"
-    d["olas_e"] = np.where(d.precipitation_probability >= 20,
-                           d.precipitation_probability.fillna(0).astype(int).astype(str) + "%", "")
-    x = alt.X("time:T", title=None, axis=alt.Axis(format="%H:%M", tickCount=6, grid=False, labelAngle=0,
-                                                                   labelFlush=True, labelOverlap=True))
-    lo, hi = d.temperature_2m.min(), d.temperature_2m.max()
-    aralik = max(hi - lo, 4)
-    # sıcaklık eğrisi grafiğin orta bandında, simgeler üstte, yağış çubukları altta kalacak biçimde ölçek
-    sy = alt.Scale(domain=[lo - aralik * 0.9, hi + aralik * 0.75])
-    d["ust"] = hi + aralik * 0.55
-    hover = alt.selection_point(fields=["time"], nearest=True, on="pointerover", empty=False, clear="pointerout")
-    ipucu = [alt.Tooltip("time:T", title="Saat", format="%H:%M"), alt.Tooltip("durum:N", title="Durum"),
-             alt.Tooltip("temperature_2m:Q", title="Sıcaklık °C", format=".1f"),
-             alt.Tooltip("apparent_temperature:Q", title="Hissedilen °C", format=".1f"),
-             alt.Tooltip("precipitation_probability:Q", title="Yağış olasılığı %"),
-             alt.Tooltip("precipitation:Q", title="Yağış mm", format=".1f"),
-             alt.Tooltip("wind_gusts_10m:Q", title="Hamle km/s", format=".0f")]
-    iki = d.iloc[::3]          # etiket, simge ve yüzdeler 3 saatte bir: dar ekranda birbirine girmesin
-    sicak = alt.layer(
-        alt.Chart(d).mark_area(opacity=0.13, color=TURUNCU, line={"color": TURUNCU, "strokeWidth": 2.5},
-                               interpolate="monotone").encode(
-            x, y=alt.Y("temperature_2m:Q", axis=None, scale=sy), y2=alt.Y2Datum(lo - aralik * 0.3)),
-        alt.Chart(iki).mark_text(dy=-13, fontSize=12, fontWeight=600, color=yazi_rengi(koyu)).encode(x, alt.Y("temperature_2m:Q", scale=sy),
-                                                                           text="etiket:N"),
-        alt.Chart(iki).mark_text(fontSize=20).encode(x, alt.Y("ust:Q", scale=sy), text="simge:N"),
-    )
-    yag = alt.layer(
-        alt.Chart(d).mark_rect(color=MAVI, opacity=0.55).encode(
-            x, x2="son:T", y=alt.Y("precipitation_probability:Q", axis=None, scale=alt.Scale(domain=[0, 420])),
-            y2=alt.Y2Datum(0)),
-        alt.Chart(iki).mark_text(dy=-7, fontSize=10, color=MAVI).encode(
-            x, alt.Y("precipitation_probability:Q", scale=alt.Scale(domain=[0, 420])), text="olas_e:N"),
-    )
-    imlec = alt.layer(
-        alt.Chart(d).mark_rule(color=GRI, strokeDash=[3, 3]).encode(x, tooltip=ipucu).transform_filter(hover),
-        alt.Chart(d).mark_point(opacity=0).encode(x).add_params(hover),
-    )
-    # sağ dolgu: son saat etiketi ("18:00") grafiğin kenarında kesilmesin
-    return alt.layer(sicak, yag, imlec).resolve_scale(y="independent").properties(
-        height=300, padding={"left": 6, "right": 22, "top": 6, "bottom": 4})
-
-
-def on_gun(gunluk, guven=None, koyu=False):
-    """iOS tarzı günlük liste: en düşük–en yüksek çubuğu, simge, yağış olasılığı."""
-    d = gunluk.reset_index().copy()
-    bugun = d.time.iloc[0].date()
-    d["gun"] = [gunluk_etiket(t, bugun) for t in d.time]
-    d["simge"] = d.weather_code.map(simge)
-    d["durum"] = d.weather_code.map(durum)
-    d["min_e"] = d.temperature_2m_min.round().astype(int).astype(str) + "°"
-    d["max_e"] = d.temperature_2m_max.round().astype(int).astype(str) + "°"
-    d["olas"] = np.where(d.precipitation_probability_max >= 20,
-                         "💧" + d.precipitation_probability_max.fillna(0).astype(int).astype(str) + "%", "")
-    d["ort"] = (d.temperature_2m_min + d.temperature_2m_max) / 2
-    d["yon"] = d.wind_direction_10m_dominant.map(yon_adi)
-    if guven is not None:
-        g = guven.reindex(d.time.dt.normalize()).values
-        d["guven"] = np.select([g < 2, g < 4, g >= 4], ["Yüksek", "Orta", "Düşük"], "—")
-    else:
-        d["guven"] = "—"
-    lo, hi = d.temperature_2m_min.min(), d.temperature_2m_max.max()
-    d["lo"], d["hi"], d["simge_x"], d["olas_x"] = lo, hi, lo - 6, hi + 4
-    y = alt.Y("gun:N", sort=None, title=None, axis=alt.Axis(labelFontSize=13, ticks=False, domain=False,
-                                                             labelFontWeight=500, labelPadding=8, grid=False))
-    sx = alt.Scale(domain=[lo - 8, hi + 9], nice=False)
-    ipucu = [alt.Tooltip("gun:N", title="Gün"), alt.Tooltip("durum:N", title="Durum"),
-             alt.Tooltip("temperature_2m_max:Q", title="En yüksek °C", format=".1f"),
-             alt.Tooltip("temperature_2m_min:Q", title="En düşük °C", format=".1f"),
-             alt.Tooltip("precipitation_sum:Q", title="Yağış mm", format=".1f"),
-             alt.Tooltip("precipitation_probability_max:Q", title="Yağış olasılığı %"),
-             alt.Tooltip("snowfall_sum:Q", title="Kar cm", format=".1f"),
-             alt.Tooltip("wind_gusts_10m_max:Q", title="En kuvvetli hamle km/s", format=".0f"),
-             alt.Tooltip("yon:N", title="Hâkim rüzgâr"),
-             alt.Tooltip("uv_index_max:Q", title="UV indeksi", format=".0f"),
-             alt.Tooltip("guven:N", title="Tahmin güveni")]
-    taban = alt.Chart(d).encode(y=y, tooltip=ipucu)
-    X = lambda c: alt.X(f"{c}:Q", scale=sx, axis=None, title=None)
-    return alt.layer(
-        taban.mark_rule(strokeWidth=7, strokeCap="round", opacity=0.13, color=GRI).encode(X("lo"), x2="hi:Q"),
-        taban.mark_rule(strokeWidth=7, strokeCap="round").encode(
-            X("temperature_2m_min"), x2="temperature_2m_max:Q",
-            color=alt.Color("ort:Q", legend=None, scale=alt.Scale(
-                domain=[-10, 0, 10, 20, 30], range=["#4C6EF5", "#22B8CF", "#82C91E", "#FAB005", "#F03E3E"],
-                clamp=True))),
-        taban.mark_text(align="right", dx=-10, fontSize=13, color=GRI).encode(X("temperature_2m_min"), text="min_e:N"),
-        taban.mark_text(align="left", dx=10, fontSize=13, fontWeight=600, color=yazi_rengi(koyu)).encode(X("temperature_2m_max"), text="max_e:N"),
-        taban.mark_text(fontSize=20).encode(X("simge_x"), text="simge:N"),
-        taban.mark_text(align="left", fontSize=12, color=MAVI).encode(X("olas_x"), text="olas:N"),
-    ).properties(height=len(d) * 40).configure_view(stroke=None)
 
 
 def model_karsilastirma(seriler: pd.DataFrame, birim):
@@ -709,12 +613,6 @@ def _hover24(d, ipucu):
     cizgi = alt.Chart(d).mark_rule(color=_K_METIN, strokeWidth=1.5).encode(
         x="time:T", tooltip=[alt.Tooltip("saat_ad:N", title="Saat")] + ipucu).transform_filter(h)
     return [sec, cizgi]
-
-
-def _uc_etiket(d, alan, y, metin, dy=-12):
-    return [alt.Chart(d).mark_point(filled=True, size=70, color=y, stroke=_K_ZEMIN, strokeWidth=2).encode(x="time:T", y=f"{alan}:Q"),
-            alt.Chart(d).mark_text(dy=dy, fontSize=11, fontWeight="bold", color=_K_METIN).encode(
-                x="time:T", y=f"{alan}:Q", text=metin)]
 
 
 def saatlik_dortlu(df, gun_adlari):

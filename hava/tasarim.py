@@ -18,14 +18,6 @@ BASLIK = "'Space Grotesk', 'Inter', sans-serif"
 KART = "#DCE7C7"
 KART_METIN = "#1C2829"
 KART_IKINCI = "#3F5547"
-SERI = ("#2E6B3A", "#2A6FB0", "#B2602A")        # 1. seri yeşil, 2. mavi, 3. turuncu
-ESIK = "#B5352B"
-
-# WMO hava kodu → Material Symbols simge adı (gündüz, gece)
-_SIMGE = [((0,), "clear_day", "bedtime"), ((1, 2), "partly_cloudy_day", "partly_cloudy_night"),
-          ((3,), "cloud", "cloud"), ((45, 48), "foggy", "foggy"), ((51, 53, 55, 56, 57), "rainy_light", "rainy_light"),
-          ((61, 63, 66), "rainy", "rainy"), ((65, 67, 80, 81, 82), "rainy_heavy", "rainy_heavy"),
-          ((71, 73, 75, 77, 85, 86), "weather_snowy", "weather_snowy"), ((95, 96, 99), "thunderstorm", "thunderstorm")]
 
 
 def _renkler(koyu):
@@ -416,14 +408,6 @@ def bolum(no, metin, aciklama=""):
     """Bölüm başlığı. `no` eski numaralı tasarımdan kaldı; bölümler bir sıra anlatmadığı için gösterilmiyor."""
     st.html(f"""<div class="bl"><h2>{html.escape(metin)}</h2>
   {f'<span class="bl-ac">{_metin(aciklama)}</span>' if aciklama else ""}</div>""")
-
-
-def simge_adi(kod, gunduz=True):
-    """WMO koduna göre Material Symbols simge adı."""
-    for kodlar, g, c in _SIMGE:
-        if kod in kodlar:
-            return g if gunduz else c
-    return "help"
 
 
 # ----------------------------------------------------------------- manzara
