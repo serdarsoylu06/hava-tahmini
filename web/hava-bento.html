@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HavaLab · Bento</title>
+<meta name="description" content="Open-Meteo verisiyle çalışan, Bento Grid düzeninde tek dosyalık hava durumu sayfası.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ["Inter", "system-ui", "sans-serif"],
+          display: ["Space Grotesk", "Inter", "sans-serif"],
+          mono: ["Space Mono", "ui-monospace", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  /* ------------------------------------------------------------------ tema değişkenleri
+     Hava durumuna göre <body data-tema="…"> değişir; arka plan, vurgu ve cam yüzey bu değişkenlerden okunur. */
+  :root {
+    --bg1: #1e6fd9; --bg2: #3fa7f0; --bg3: #f6b15a;
+    --vurgu: #ffd27a; --vurgu2: #ffffff;
+    --cam: rgba(255, 255, 255, 0.14); --cam-kenar: rgba(255, 255, 255, 0.28);
+    --cam-koyu: rgba(8, 20, 40, 0.18);
+    --metin: #ffffff; --soluk: rgba(255, 255, 255, 0.74);
+    --egri: #ffd27a; --yagis: rgba(186, 230, 253, 0.85);
+    --isik1: rgba(255, 236, 179, 0.55); --isik2: rgba(255, 255, 255, 0.18);
+  }
+  body[data-tema="gunesli"] { --bg1: #1e6fd9; --bg2: #3fa7f0; --bg3: #f6b15a; --vurgu: #ffd27a; --egri: #ffd27a;
+    --isik1: rgba(255, 236, 179, 0.6); --isik2: rgba(255, 255, 255, 0.2); }
+  body[data-tema="bulutlu"] { --bg1: #3b4a5e; --bg2: #5d6f86; --bg3: #8fa1b6; --vurgu: #e2e8f0; --egri: #f1f5f9;
+    --isik1: rgba(226, 232, 240, 0.35); --isik2: rgba(255, 255, 255, 0.12); --cam: rgba(255, 255, 255, 0.12); }
+  body[data-tema="yagmurlu"] { --bg1: #0f1b2d; --bg2: #1e3a5f; --bg3: #35577f; --vurgu: #7dd3fc; --egri: #7dd3fc;
+    --isik1: rgba(56, 189, 248, 0.28); --isik2: rgba(148, 163, 184, 0.16); --cam: rgba(255, 255, 255, 0.09);
+    --yagis: rgba(125, 211, 252, 0.9); }
+  body[data-tema="gece"] { --bg1: #050816; --bg2: #111a3a; --bg3: #2a1f5c; --vurgu: #c4b5fd; --egri: #c4b5fd;
+    --isik1: rgba(139, 92, 246, 0.28); --isik2: rgba(56, 189, 248, 0.12); --cam: rgba(255, 255, 255, 0.07);
+    --cam-kenar: rgba(255, 255, 255, 0.16); }
+  body[data-tema="karli"] { --bg1: #4f6d8f; --bg2: #7b97b5; --bg3: #a9bfd6; --vurgu: #e0f2fe; --egri: #ffffff;
+    --isik1: rgba(255, 255, 255, 0.45); --isik2: rgba(224, 242, 254, 0.25); }
+  body[data-tema="sisli"] { --bg1: #4b5563; --bg2: #6b7280; --bg3: #9ca3af; --vurgu: #f3f4f6; --egri: #f9fafb;
+    --isik1: rgba(255, 255, 255, 0.35); --isik2: rgba(255, 255, 255, 0.15); }
+  body[data-tema="firtina"] { --bg1: #0b1020; --bg2: #1e1b4b; --bg3: #4c1d95; --vurgu: #fde047; --egri: #fde047;
+    --isik1: rgba(253, 224, 71, 0.18); --isik2: rgba(139, 92, 246, 0.25); --cam: rgba(255, 255, 255, 0.08); }
+
+  html, body { min-height: 100%; }
+  body {
+    margin: 0; color: var(--metin);
+    background: var(--bg1);
+    background-image:
+      radial-gradient(900px 600px at 12% -10%, var(--isik1), transparent 60%),
+      radial-gradient(800px 600px at 100% 0%, var(--isik2), transparent 60%),
+      linear-gradient(160deg, var(--bg1) 0%, var(--bg2) 55%, var(--bg3) 120%);
+    background-attachment: fixed;
+    transition: background-color .8s ease;
+  }
+  /* tema geçişinde arka plan yumuşak değişsin: degrade geçişi desteklenmediği için üstte bir örtü solar */
+  #ortu { position: fixed; inset: 0; pointer-events: none; z-index: 0; background: var(--bg1); opacity: 0; transition: opacity .5s ease; }
+  #ortu.aktif { opacity: .55; }
+
+  /* atmosfer katmanı: yağmur çizgileri, yıldızlar, kar tanecikleri yalnızca ilgili temada görünür */
+  .atmosfer { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; opacity: 0; transition: opacity .8s ease; }
+  body[data-tema="yagmurlu"] .yagmur, body[data-tema="firtina"] .yagmur,
+  body[data-tema="gece"] .yildiz, body[data-tema="karli"] .kar { opacity: 1; }
+  .yagmur i { position: absolute; top: -12%; width: 1px; height: 14%; background: linear-gradient(transparent, rgba(186, 230, 253, .55));
+    animation: dus linear infinite; }
+  .kar i { position: absolute; top: -5%; width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .8);
+    animation: dus linear infinite; }
+  .yildiz i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; animation: parla ease-in-out infinite; }
+  @keyframes dus { to { transform: translateY(120vh); } }
+  @keyframes parla { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .atmosfer i { animation: none !important; } }
+
+  /* cam kart */
+  .cam {
+    position: relative; background: var(--cam); border: 1px solid var(--cam-kenar);
+    backdrop-filter: blur(22px) saturate(150%); -webkit-backdrop-filter: blur(22px) saturate(150%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 18px 40px -22px rgba(0, 0, 0, .45);
+    border-radius: 24px; transition: background .6s ease, border-color .6s ease;
+  }
+  .etiket { font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--soluk); }
+  .sayi { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; }
+  .vurgu { color: var(--vurgu); }
+  .iskelet { background: linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.18), rgba(255,255,255,.08));
+    background-size: 200% 100%; animation: kayan 1.4s linear infinite; border-radius: 12px; }
+  @keyframes kayan { to { background-position: -200% 0; } }
+  .odak:focus-visible { outline: 2px solid var(--vurgu); outline-offset: 2px; }
+  #grafik svg text { font-family: "Space Mono", monospace; }
+  ::selection { background: rgba(255, 255, 255, .3); }
+</style>
+</head>
+<body data-tema="gunesli" class="font-sans antialiased">
+<div id="ortu"></div>
+<div class="atmosfer yagmur" aria-hidden="true"></div>
+<div class="atmosfer kar" aria-hidden="true"></div>
+<div class="atmosfer yildiz" aria-hidden="true"></div>
+
+<div class="relative z-10 mx-auto max-w-6xl px-4 pb-10 pt-5 sm:px-6 lg:px-8">
+
+  <!-- üst çubuk: logo, konum arama, konumum, tema önizleme -->
+  <header class="mb-5 flex flex-wrap items-center gap-3">
+    <div class="mr-auto flex items-center gap-2 pr-2 sm:mr-0">
+      <span class="grid h-10 w-10 place-items-center rounded-2xl bg-white/20 ring-1 ring-white/30">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 0 1 0 9z"/></svg>
+      </span>
+      <span class="font-display text-xl font-bold">Hava<span class="vurgu">Lab</span></span>
+    </div>
+
+    <!-- telefonda arama kutusu kendi satırında, tam genişlikte -->
+    <form id="aramaForm" class="relative order-last min-w-0 basis-full sm:order-none sm:basis-auto sm:flex-1" role="search" autocomplete="off">
+      <label for="arama" class="sr-only">Konum ara</label>
+      <div class="cam flex h-12 items-center gap-2 rounded-2xl px-4">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" class="opacity-80"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="arama" type="search" placeholder="Şehir ya da ilçe ara…" class="h-full w-full bg-transparent text-[15px] placeholder-white/60 outline-none" aria-autocomplete="list" aria-controls="oneriler" aria-expanded="false">
+      </div>
+      <ul id="oneriler" role="listbox" class="cam absolute left-0 right-0 top-14 z-20 hidden max-h-72 overflow-auto rounded-2xl p-1"></ul>
+    </form>
+
+    <button id="konumum" type="button" class="odak cam flex h-12 items-center gap-2 rounded-2xl px-4 text-sm font-medium hover:bg-white/20" title="Bulunduğum yer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span class="hidden sm:inline">Konumum</span>
+    </button>
+
+    <label class="cam flex h-12 items-center gap-2 rounded-2xl px-3 text-sm">
+      <span class="etiket !text-[10px]">Tema</span>
+      <select id="temaSec" class="odak bg-transparent text-sm font-medium outline-none [&>option]:text-slate-900">
+        <option value="otomatik">Otomatik</option>
+        <option value="gunesli">Güneşli</option>
+        <option value="bulutlu">Bulutlu</option>
+        <option value="yagmurlu">Yağmurlu</option>
+        <option value="gece">Gece</option>
+        <option value="karli">Karlı</option>
+        <option value="firtina">Fırtına</option>
+      </select>
+    </label>
+  </header>
+
+  <div id="hata" class="cam mb-4 hidden items-center justify-between gap-3 rounded-2xl px-5 py-4" role="alert">
+    <span id="hataMetin">Veri alınamadı.</span>
+    <button id="yeniden" type="button" class="odak rounded-xl bg-white/20 px-4 py-2 text-sm font-semibold hover:bg-white/30">Yeniden dene</button>
+  </div>
+
+  <!-- ====================================================== BENTO GRID -->
+  <main id="izgara" class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4" aria-busy="true">
+
+    <!-- 1. kahraman: anlık durum (2×2) -->
+    <section class="cam col-span-2 row-span-2 flex min-h-[300px] flex-col justify-between overflow-hidden p-6" aria-labelledby="yerAdi">
+      <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-60 blur-3xl" style="background: var(--isik1)"></div>
+      <div class="relative">
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full" style="background: var(--vurgu); box-shadow: 0 0 0 4px rgba(255,255,255,.15)"></span>
+          <h1 id="yerAdi" class="font-display text-lg font-semibold">—</h1>
+        </div>
+        <p id="yerAlt" class="etiket mt-1">—</p>
+      </div>
+      <div class="relative flex items-end justify-between gap-4">
+        <div>
+          <div class="sayi text-[96px] font-bold leading-[.85] sm:text-[124px]"><span id="sicaklik">—</span><span class="align-top text-[.45em] opacity-80">°</span></div>
+          <p id="durum" class="mt-3 font-display text-xl font-semibold">—</p>
+          <p class="mt-1 text-sm text-white/80">Hissedilen <span id="hissedilen" class="font-semibold">—</span> · <span id="minmax">—</span></p>
+        </div>
+        <div id="buyukIkon" class="h-28 w-28 shrink-0 drop-shadow-xl sm:h-36 sm:w-36" aria-hidden="true"></div>
+      </div>
+      <p id="ozet" class="relative mt-4 max-w-md text-[15px] leading-relaxed text-white/90">—</p>
+    </section>
+
+    <!-- 2. rüzgâr pusulası -->
+    <section class="cam flex flex-col p-5" aria-labelledby="rzBaslik">
+      <h2 id="rzBaslik" class="etiket">Rüzgâr</h2>
+      <div class="flex flex-1 items-center justify-center py-2">
+        <svg id="pusula" viewBox="0 0 120 120" class="h-28 w-28" role="img" aria-label="Rüzgâr yönü">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1.5"/>
+          <g stroke="rgba(255,255,255,.35)" stroke-width="1.5">
+            <path d="M60 8v8M60 104v8M8 60h8M104 60h8"/>
+          </g>
+          <g font-family="Space Mono" font-size="9" fill="rgba(255,255,255,.75)" text-anchor="middle">
+            <text x="60" y="28">K</text><text x="60" y="99">G</text><text x="25" y="63">B</text><text x="95" y="63">D</text>
+          </g>
+          <g id="ok" style="transform-origin: 60px 60px; transition: transform 1s cubic-bezier(.2,.8,.2,1)">
+            <path d="M60 22 L67 62 L60 56 L53 62 Z" fill="var(--vurgu)"/>
+            <path d="M60 98 L64 62 L60 66 L56 62 Z" fill="rgba(255,255,255,.45)"/>
+          </g>
+          <circle cx="60" cy="60" r="4" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="flex items-end justify-between">
+        <div><span id="ruzgar" class="sayi text-3xl font-bold">—</span> <span class="text-sm text-white/75">km/s</span></div>
+        <div class="text-right text-xs text-white/80"><div id="ruzgarYon">—</div><div>hamle <span id="hamle">—</span></div></div>
+      </div>
+    </section>
+
+    <!-- 3. UV indeksi -->
+    <section class="cam flex flex-col p-5" aria-labelledby="uvBaslik">
+      <h2 id="uvBaslik" class="etiket">UV indeksi</h2>
+      <div class="relative flex flex-1 items-center justify-center">
+        <svg viewBox="0 0 120 70" class="w-full max-w-[150px]" role="img" aria-label="UV indeksi göstergesi">
+          <defs>
+            <linearGradient id="uvRenk" x1="0" x2="1">
+              <stop offset="0" stop-color="#4ade80"/><stop offset=".35" stop-color="#facc15"/>
+              <stop offset=".6" stop-color="#fb923c"/><stop offset=".85" stop-color="#ef4444"/><stop offset="1" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 62 A48 48 0 0 1 108 62" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="10" stroke-linecap="round"/>
+          <path id="uvYay" d="M12 62 A48 48 0 0 1 108 62" fill="none" stroke="url(#uvRenk)" stroke-width="10" stroke-linecap="round"
+                pathLength="100" stroke-dasharray="0 100" style="transition: stroke-dasharray 1s ease"/>
+        </svg>
+        <div class="absolute bottom-0 text-center"><div id="uv" class="sayi text-3xl font-bold">—</div></div>
+      </div>
+      <p id="uvMetin" class="mt-2 text-xs text-white/80">—</p>
+    </section>
+
+    <!-- 4. nem -->
+    <section class="cam flex flex-col p-5" aria-labelledby="nemBaslik">
+      <h2 id="nemBaslik" class="etiket">Nem</h2>
+      <div class="flex flex-1 items-center gap-4 py-2">
+        <svg viewBox="0 0 64 64" class="h-20 w-20 shrink-0 -rotate-90" role="img" aria-label="Bağıl nem">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="8"/>
+          <circle id="nemHalka" cx="32" cy="32" r="26" fill="none" stroke="var(--vurgu)" stroke-width="8" stroke-linecap="round"
+                  pathLength="100" stroke-dasharray="0 100" style="transition: stroke-dasharray 1s ease"/>
+        </svg>
+        <div><span id="nem" class="sayi text-3xl font-bold">—</span><span class="text-lg">%</span></div>
+      </div>
+      <p class="text-xs text-white/80">Çiy noktası <span id="ciy" class="font-semibold">—</span> · <span id="nemMetin">—</span></p>
+    </section>
+
+    <!-- 5. basınç -->
+    <section class="cam flex flex-col p-5" aria-labelledby="bsBaslik">
+      <h2 id="bsBaslik" class="etiket">Basınç</h2>
+      <div class="flex flex-1 items-center py-2">
+        <div><span id="basinc" class="sayi text-3xl font-bold">—</span> <span class="text-sm text-white/75">hPa</span></div>
+      </div>
+      <p class="text-xs text-white/80"><span id="basincEgilim" class="font-semibold">—</span> <span id="basincMetin"></span></p>
+    </section>
+
+    <!-- 6. saatlik SVG grafik (4 sütun) -->
+    <section class="cam col-span-2 p-5 md:col-span-4" aria-labelledby="saatBaslik">
+      <div class="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="saatBaslik" class="font-display text-lg font-semibold">Önümüzdeki 24 saat</h2>
+        <p class="text-xs text-white/75"><span class="inline-block h-0.5 w-4 align-middle" style="background: var(--egri)"></span> sıcaklık
+          &nbsp;<span class="inline-block h-2.5 w-2.5 rounded-sm align-middle" style="background: var(--yagis)"></span> yağış olasılığı · grafiğin üzerinde gezin</p>
+      </div>
+      <div id="grafik" class="odak relative h-[230px] w-full select-none rounded-xl" tabindex="0"
+           role="img" aria-label="24 saatlik sıcaklık ve yağış olasılığı grafiği. Saatler arasında ok tuşlarıyla gezinebilirsiniz.">
+        <div class="iskelet absolute inset-0"></div>
+      </div>
+    </section>
+
+    <!-- 7. hissedilen -->
+    <section class="cam flex flex-col p-5" aria-labelledby="hsBaslik">
+      <h2 id="hsBaslik" class="etiket">Hissedilen</h2>
+      <div class="flex flex-1 items-center py-2"><span id="hissedilen2" class="sayi text-3xl font-bold">—</span></div>
+      <p id="hsMetin" class="text-xs text-white/80">—</p>
+    </section>
+
+    <!-- 8. görüş -->
+    <section class="cam flex flex-col p-5" aria-labelledby="grBaslik">
+      <h2 id="grBaslik" class="etiket">Görüş</h2>
+      <div class="flex flex-1 items-center py-2"><span id="gorus" class="sayi text-3xl font-bold">—</span>&nbsp;<span class="text-sm text-white/75">km</span></div>
+      <p class="text-xs text-white/80">Bulut <span id="bulut" class="font-semibold">—</span></p>
+    </section>
+
+    <!-- 9. güneş yayı (2 sütun) -->
+    <section class="cam col-span-2 flex flex-col p-5" aria-labelledby="gnBaslik">
+      <h2 id="gnBaslik" class="etiket">Gün ışığı</h2>
+      <svg viewBox="0 0 300 110" class="mt-2 w-full" role="img" aria-label="Güneşin gökyüzündeki konumu">
+        <line x1="10" y1="92" x2="290" y2="92" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+        <path d="M30 92 Q150 -18 270 92" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5" stroke-dasharray="3 5"/>
+        <path id="gunYol" d="M30 92 Q150 -18 270 92" fill="none" stroke="var(--vurgu)" stroke-width="2.5" pathLength="100"
+              stroke-dasharray="0 100" style="transition: stroke-dasharray 1s ease"/>
+        <circle id="gunes" cx="30" cy="92" r="7" fill="var(--vurgu)" style="filter: drop-shadow(0 0 8px var(--vurgu))"/>
+      </svg>
+      <div class="mt-1 flex justify-between text-sm">
+        <div><div class="etiket !text-[10px]">Gün doğumu</div><div id="dogus" class="sayi text-xl font-semibold">—</div></div>
+        <div class="text-center"><div class="etiket !text-[10px]">Gün süresi</div><div id="gunSure" class="sayi text-xl font-semibold">—</div></div>
+        <div class="text-right"><div class="etiket !text-[10px]">Gün batımı</div><div id="batis" class="sayi text-xl font-semibold">—</div></div>
+      </div>
+    </section>
+
+    <!-- 10. 7 günlük (masaüstünde 2 sütun × 3 satır: hissedilen/görüş, gün ışığı ve yağış kartlarının yanında) -->
+    <section class="cam col-span-2 p-5 md:row-span-3 md:col-start-3 md:row-start-4" aria-labelledby="gunBaslik">
+      <h2 id="gunBaslik" class="mb-2 font-display text-lg font-semibold">7 günlük tahmin</h2>
+      <ol id="gunler" class="divide-y divide-white/10"></ol>
+    </section>
+
+    <!-- 11. yağış özeti -->
+    <section class="cam col-span-2 flex flex-col justify-between p-5 md:col-span-2" aria-labelledby="ygBaslik">
+      <h2 id="ygBaslik" class="etiket">Yağış</h2>
+      <p id="yagisMetin" class="mt-2 font-display text-lg font-semibold leading-snug">—</p>
+      <p class="mt-2 text-xs text-white/75">Şu an <span id="yagisSimdi" class="font-semibold">—</span> · bugün en yüksek olasılık <span id="yagisGun" class="font-semibold">—</span></p>
+    </section>
+  </main>
+
+  <footer class="mt-6 text-center text-xs text-white/70">
+    Veri: <a class="underline decoration-white/40 underline-offset-2 hover:text-white" href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0) ·
+    <span id="guncelleme">—</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ------------------------------------------------------------------ sabitler
+  const API = "https://api.open-meteo.com/v1/forecast";
+  const GEO = "https://geocoding-api.open-meteo.com/v1/search";
+  const VARSAYILAN = { ad: "Ankara", bolge: "Türkiye", lat: 39.9334, lon: 32.8597 };
+  const GUNLER = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+  const YONLER = ["K", "KKD", "KD", "DKD", "D", "DGD", "GD", "GGD", "G", "GGB", "GB", "BGB", "B", "BKB", "KB", "KKB"];
+  const WMO = {
+    0: "Açık", 1: "Az bulutlu", 2: "Parçalı bulutlu", 3: "Kapalı", 45: "Sis", 48: "Kırağılı sis",
+    51: "Hafif çisenti", 53: "Çisenti", 55: "Yoğun çisenti", 56: "Donan çisenti", 57: "Yoğun donan çisenti",
+    61: "Hafif yağmur", 63: "Yağmur", 65: "Kuvvetli yağmur", 66: "Donan yağmur", 67: "Kuvvetli donan yağmur",
+    71: "Hafif kar", 73: "Kar", 75: "Yoğun kar", 77: "Kar taneleri", 80: "Hafif sağanak", 81: "Sağanak",
+    82: "Şiddetli sağanak", 85: "Kar sağanağı", 86: "Yoğun kar sağanağı", 95: "Gök gürültülü fırtına",
+    96: "Dolulu fırtına", 99: "Şiddetli dolulu fırtına",
+  };
+  const $ = (id) => document.getElementById(id);
+  const kac = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const yuvarla = (v) => (v == null || Number.isNaN(v) ? "—" : Math.round(v));
+
+  // ------------------------------------------------------------------ kalıcı tercihler (tarayıcı izin vermezse sessizce geç)
+  const sakla = { al(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+                  koy(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* özel pencere vb. */ } } };
+
+  // ------------------------------------------------------------------ hava kodu → tema ve simge
+  function tur(kod, gunduz) {
+    if (kod >= 95) return "firtina";
+    if ([71, 73, 75, 77, 85, 86].includes(kod)) return "karli";
+    if (kod >= 51) return "yagmurlu";
+    if (kod === 45 || kod === 48) return "sisli";
+    if (!gunduz) return "gece";
+    if (kod >= 3) return "bulutlu";
+    return "gunesli";
+  }
+
+  // tema seçilen değer "otomatik" değilse önizleme olarak onu uygular
+  let veriTemasi = "gunesli";
+  function temaUygula() {
+    const secim = $("temaSec").value;
+    const yeni = secim === "otomatik" ? veriTemasi : secim;
+    if (document.body.dataset.tema === yeni) return;
+    $("ortu").classList.add("aktif");
+    setTimeout(() => { document.body.dataset.tema = yeni; $("ortu").classList.remove("aktif"); }, 180);
+  }
+
+  // büyük simge: güneş, ay, bulut, yağmur, kar, sis, şimşek (tek SVG, parçalar türe göre)
+  function buyukSimge(kod, gunduz) {
+    const t = tur(kod, gunduz);
+    const gunesV = '<circle cx="46" cy="44" r="18" fill="#FFD27A"/><g stroke="#FFD27A" stroke-width="4" stroke-linecap="round" opacity=".9">' +
+      [0, 45, 90, 135, 180, 225, 270, 315].map((a) => {
+        const r = (a * Math.PI) / 180;
+        return `<line x1="${46 + Math.cos(r) * 26}" y1="${44 + Math.sin(r) * 26}" x2="${46 + Math.cos(r) * 33}" y2="${44 + Math.sin(r) * 33}"/>`;
+      }).join("") + "</g>";
+    const ayV = '<path d="M60 22a24 24 0 1 0 22 32A19 19 0 0 1 60 22z" fill="#E9E3FF"/>';
+    const bulutV = (y = 0, renk = "#FFFFFF", op = 0.95) =>
+      `<path d="M38 ${88 + y}h44a16 16 0 0 0 1-32 22 22 0 0 0-42 6 13 13 0 0 0-3 26z" fill="${renk}" opacity="${op}"/>`;
+    const damla = '<g stroke="#7DD3FC" stroke-width="4" stroke-linecap="round"><line x1="44" y1="98" x2="40" y2="110"/><line x1="60" y1="98" x2="56" y2="110"/><line x1="76" y1="98" x2="72" y2="110"/></g>';
+    const kar = '<g fill="#FFFFFF"><circle cx="44" cy="104" r="3.5"/><circle cx="60" cy="108" r="3.5"/><circle cx="76" cy="104" r="3.5"/></g>';
+    const simsek = '<path d="M62 92 50 112h10l-6 14 18-24H62l6-10z" fill="#FDE047"/>';
+    const sis = '<g stroke="#F3F4F6" stroke-width="5" stroke-linecap="round" opacity=".85"><line x1="22" y1="70" x2="98" y2="70"/><line x1="30" y1="84" x2="106" y2="84"/><line x1="18" y1="98" x2="90" y2="98"/></g>';
+    let ic = "";
+    if (t === "gunesli") ic = gunesV + (kod >= 1 ? bulutV(6, "#FFFFFF", 0.9) : "");
+    else if (t === "gece") ic = ayV + (kod >= 2 ? bulutV(8, "#CBD5E1", 0.85) : "");
+    else if (t === "bulutlu") ic = (gunduz ? gunesV : ayV) + bulutV(0, "#F1F5F9", 0.97);
+    else if (t === "yagmurlu") ic = bulutV(-6, "#E2E8F0", 0.97) + damla;
+    else if (t === "karli") ic = bulutV(-6, "#FFFFFF", 0.97) + kar;
+    else if (t === "firtina") ic = bulutV(-6, "#CBD5E1", 0.97) + simsek;
+    else ic = sis;
+    return `<svg viewBox="0 0 120 130" width="100%" height="100%">${ic}</svg>`;
+  }
+
+  function kucukSimge(kod, gunduz) {
+    const t = tur(kod, gunduz);
+    const yol = {
+      gunesli: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/>',
+      gece: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+      bulutlu: '<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.3 3.3 0 0 0 7 18z"/>',
+      yagmurlu: '<path d="M7 14h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.3 3.3 0 0 0 7 14z"/><path d="M8 17l-1 3M12 17l-1 3M16 17l-1 3"/>',
+      karli: '<path d="M7 14h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.3 3.3 0 0 0 7 14z"/><path d="M8 18h.01M12 20h.01M16 18h.01"/>',
+      sisli: '<path d="M4 9h16M3 13h18M5 17h14"/>',
+      firtina: '<path d="M7 14h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.4 1.6A3.3 3.3 0 0 0 7 14z"/><path d="m12 14-2 4h4l-2 4"/>',
+    }[t];
+    return `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${yol}</svg>`;
+  }
+
+  // ------------------------------------------------------------------ atmosfer parçacıkları (bir kez üretilir)
+  function atmosferKur() {
+    const az = window.matchMedia("(max-width: 640px)").matches;
+    const doldur = (sinif, n, f) => { document.querySelector(sinif).innerHTML = Array.from({ length: n }, f).join(""); };
+    doldur(".yagmur", az ? 40 : 90, () =>
+      `<i style="left:${Math.random() * 100}%;animation-duration:${0.5 + Math.random() * 0.5}s;animation-delay:${-Math.random() * 2}s"></i>`);
+    doldur(".kar", az ? 30 : 60, () =>
+      `<i style="left:${Math.random() * 100}%;animation-duration:${6 + Math.random() * 6}s;animation-delay:${-Math.random() * 10}s;transform:scale(${0.5 + Math.random()})"></i>`);
+    doldur(".yildiz", az ? 50 : 110, () =>
+      `<i style="left:${Math.random() * 100}%;top:${Math.random() * 70}%;animation-duration:${2 + Math.random() * 4}s;animation-delay:${-Math.random() * 4}s"></i>`);
+  }
+
+  // ------------------------------------------------------------------ yardımcılar
+  // Open-Meteo yerel saati ofsetsiz ISO metin olarak verir ("2026-11-14T15:00"); tarayıcı saat dilimine çevirmeden okunur.
+  const saat = (iso) => iso.slice(11, 16);
+  const tarih = (iso) => { const [y, a, g] = iso.slice(0, 10).split("-").map(Number); return new Date(Date.UTC(y, a - 1, g)); };
+  const dakika = (iso) => Number(iso.slice(11, 13)) * 60 + Number(iso.slice(14, 16));
+  const yonAdi = (d) => YONLER[Math.round((((d % 360) + 360) % 360) / 22.5) % 16];
+
+  function uvKategori(u) {
+    if (u < 3) return "Düşük: koruma gerekmez.";
+    if (u < 6) return "Orta: öğle saatlerinde gölge ve şapka.";
+    if (u < 8) return "Yüksek: güneş kremi ve gözlük.";
+    if (u < 11) return "Çok yüksek: öğlen güneşinden kaçının.";
+    return "Aşırı: dışarıda kalmayı kısaltın.";
+  }
+
+  // ------------------------------------------------------------------ monoton kübik eğri (Fritsch–Carlson): aşırı salınım yapmaz
+  function monotonYol(p) {
+    const n = p.length;
+    if (n < 2) return "";
+    const dx = [], dy = [], m = [];
+    for (let i = 0; i < n - 1; i++) { dx[i] = p[i + 1][0] - p[i][0]; dy[i] = p[i + 1][1] - p[i][1]; m[i] = dy[i] / dx[i]; }
+    const t = [m[0]];
+    for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+    t[n - 1] = m[n - 2];
+    for (let i = 0; i < n - 1; i++) {
+      if (m[i] === 0) { t[i] = 0; t[i + 1] = 0; continue; }
+      const a = t[i] / m[i], b = t[i + 1] / m[i], h = a * a + b * b;
+      if (h > 9) { const k = 3 / Math.sqrt(h); t[i] = k * a * m[i]; t[i + 1] = k * b * m[i]; }
+    }
+    let d = `M${p[0][0].toFixed(1)},${p[0][1].toFixed(1)}`;
+    for (let i = 0; i < n - 1; i++) {
+      const h = dx[i] / 3;
+      d += ` C${(p[i][0] + h).toFixed(1)},${(p[i][1] + t[i] * h).toFixed(1)} ${(p[i + 1][0] - h).toFixed(1)},${(p[i + 1][1] - t[i + 1] * h).toFixed(1)} ${p[i + 1][0].toFixed(1)},${p[i + 1][1].toFixed(1)}`;
+    }
+    return d;
+  }
+
+  // ------------------------------------------------------------------ saatlik grafik
+  let grafikVeri = null, grafikSecim = 0;
+  function grafikCiz() {
+    const kap = $("grafik");
+    if (!grafikVeri) return;
+    const W = Math.max(kap.clientWidth, 280), H = kap.clientHeight;
+    const s = grafikVeri, n = s.length;
+    const sol = 10, sag = 10, ust = 34, alt = 30, yagisH = 44;
+    const cizH = H - ust - alt - yagisH - 8;
+    const x = (i) => sol + (i / (n - 1)) * (W - sol - sag);
+    // eğri ham (ondalıklı) sıcaklıkla çizilir; tamsayıya yuvarlanmış değerler eğriyi basamaklı gösteriyordu
+    const tl = s.map((h) => h.tHam), lo = Math.min(...tl) - 1, hi = Math.max(...tl) + 1;
+    const y = (v) => ust + ((hi - v) / (hi - lo)) * cizH;
+    const nokta = s.map((h, i) => [x(i), y(h.tHam)]);
+    const egri = monotonYol(nokta);
+    const alan = `${egri} L${x(n - 1).toFixed(1)},${(ust + cizH).toFixed(1)} L${x(0).toFixed(1)},${(ust + cizH).toFixed(1)} Z`;
+    const bw = Math.max((W - sol - sag) / n - 3, 2), yTaban = H - alt;
+    const geceler = s.map((h, i) => (h.gece ? `<rect x="${(x(i) - (W - sol - sag) / (n - 1) / 2).toFixed(1)}" y="${ust - 20}" width="${((W - sol - sag) / (n - 1)).toFixed(1)}" height="${H - alt - ust + 20}" fill="rgba(0,0,0,.10)"/>` : "")).join("");
+    const cubuk = s.map((h, i) => {
+      const yh = (h.p / 100) * yagisH;
+      return `<rect x="${(x(i) - bw / 2).toFixed(1)}" y="${(yTaban - yh).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(yh, 1.5).toFixed(1)}" rx="2" fill="var(--yagis)" opacity="${h.p ? 0.9 : 0.35}"/>`;
+    }).join("");
+    // dar ekranda daha seyrek etiket; son saat, bir önceki etikete çok yakınsa yazılmaz (üst üste binmesin)
+    const adim = W < 420 ? 6 : W < 640 ? 4 : 3;
+    const sonYaz = (n - 1) % adim >= adim - 1 || (n - 1) % adim === 0;
+    // ilk ve son etiket kenara yaslanır, kesilmesin
+    const hiza = (i) => (i === 0 ? "start" : i === n - 1 ? "end" : "middle");
+    const etiketler = s.map((h, i) => (i % adim === 0 || (i === n - 1 && sonYaz)
+      ? `<text x="${x(i).toFixed(1)}" y="${(y(h.tHam) - 12).toFixed(1)}" text-anchor="${hiza(i)}" font-size="12" font-weight="700" fill="#fff">${h.t}°</text>
+         <text x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="${hiza(i)}" font-size="11" fill="rgba(255,255,255,.75)">${i === 0 ? "Şimdi" : h.saat}</text>` : "")).join("");
+    const sec = s[grafikSecim], sx = x(grafikSecim), sy = y(sec.tHam);
+    const kutuW = 184, kx = Math.min(Math.max(sx - kutuW / 2, 0), W - kutuW);
+    kap.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+      <defs><linearGradient id="alanRenk" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="var(--egri)" stop-opacity=".45"/><stop offset="1" stop-color="var(--egri)" stop-opacity="0"/></linearGradient></defs>
+      ${geceler}
+      <line x1="${sol}" x2="${W - sag}" y1="${yTaban}" y2="${yTaban}" stroke="rgba(255,255,255,.18)"/>
+      ${cubuk}
+      <path d="${alan}" fill="url(#alanRenk)"/>
+      <path d="${egri}" fill="none" stroke="var(--egri)" stroke-width="3" stroke-linecap="round" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,.25))"/>
+      ${etiketler}
+      <line x1="${sx}" x2="${sx}" y1="${ust - 22}" y2="${yTaban}" stroke="rgba(255,255,255,.55)" stroke-dasharray="3 4"/>
+      <circle cx="${sx}" cy="${sy}" r="6" fill="#fff" stroke="var(--egri)" stroke-width="3"/>
+      <g transform="translate(${kx},2)">
+        <rect width="${kutuW}" height="26" rx="13" fill="rgba(0,0,0,.35)"/>
+        <text x="${kutuW / 2}" y="17" text-anchor="middle" font-size="11.5" fill="#fff">${sec.saat} · ${sec.t}° · %${sec.p} yağış</text>
+      </g>
+    </svg>`;
+    kap.setAttribute("aria-valuetext", `${sec.saat}, ${sec.t} derece, yüzde ${sec.p} yağış olasılığı`);
+  }
+  function grafikOlay() {
+    const kap = $("grafik");
+    const sec = (cx) => {
+      if (!grafikVeri) return;
+      const r = kap.getBoundingClientRect(), n = grafikVeri.length;
+      const i = Math.round(((cx - r.left - 10) / (r.width - 20)) * (n - 1));
+      const yeni = Math.min(Math.max(i, 0), n - 1);
+      if (yeni !== grafikSecim) { grafikSecim = yeni; grafikCiz(); }
+    };
+    kap.addEventListener("pointermove", (e) => sec(e.clientX));
+    kap.addEventListener("pointerdown", (e) => sec(e.clientX));
+    kap.addEventListener("keydown", (e) => {
+      if (!grafikVeri) return;
+      if (e.key === "ArrowRight") { grafikSecim = Math.min(grafikSecim + 1, grafikVeri.length - 1); grafikCiz(); e.preventDefault(); }
+      if (e.key === "ArrowLeft") { grafikSecim = Math.max(grafikSecim - 1, 0); grafikCiz(); e.preventDefault(); }
+    });
+    new ResizeObserver(() => grafikCiz()).observe(kap);
+  }
+
+  // ------------------------------------------------------------------ veri
+  async function getir(yer) {
+    const q = new URLSearchParams({
+      latitude: yer.lat, longitude: yer.lon, timezone: "auto", forecast_days: 7,
+      current: "temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl,cloud_cover,visibility,uv_index,precipitation",
+      hourly: "temperature_2m,precipitation_probability,weather_code,is_day,pressure_msl",
+      daily: "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max",
+    });
+    const yanit = await fetch(`${API}?${q}`);
+    if (!yanit.ok) throw new Error(`Open-Meteo ${yanit.status}`);
+    return yanit.json();
+  }
+
+  function ciz(yer, v) {
+    const c = v.current, h = v.hourly, g = v.daily;
+    const gunduz = !!c.is_day;
+    veriTemasi = tur(c.weather_code, gunduz);
+    temaUygula();
+
+    // kahraman
+    $("yerAdi").textContent = yer.ad;
+    const t0 = tarih(c.time);
+    $("yerAlt").textContent = `${yer.bolge ? yer.bolge + " · " : ""}${GUNLER[t0.getUTCDay()]} ${c.time.slice(8, 10)}.${c.time.slice(5, 7)} · ${saat(c.time)} yerel`;
+    $("sicaklik").textContent = yuvarla(c.temperature_2m);
+    $("durum").textContent = WMO[c.weather_code] ?? "—";
+    $("hissedilen").textContent = `${yuvarla(c.apparent_temperature)}°`;
+    $("minmax").textContent = `en yüksek ${yuvarla(g.temperature_2m_max[0])}°, en düşük ${yuvarla(g.temperature_2m_min[0])}°`;
+    $("buyukIkon").innerHTML = buyukSimge(c.weather_code, gunduz);
+
+    // saatlik dilim: şu anki saatten başlayarak 24 saat
+    const simdiSaat = c.time.slice(0, 13);
+    let bas = h.time.findIndex((x) => x.slice(0, 13) === simdiSaat);
+    if (bas < 0) bas = 0;
+    grafikVeri = h.time.slice(bas, bas + 24).map((x, k) => ({
+      saat: saat(x), t: Math.round(h.temperature_2m[bas + k]), tHam: h.temperature_2m[bas + k],
+      p: h.precipitation_probability[bas + k] ?? 0,
+      gece: !h.is_day[bas + k],
+    }));
+    grafikSecim = 0;
+    grafikCiz();
+
+    // özet cümlesi (veriden)
+    const yag = grafikVeri.findIndex((x) => x.p >= 50);
+    const gece = grafikVeri.filter((x) => x.gece);
+    const parcalar = [];
+    parcalar.push(yag < 0 ? "Önümüzdeki 24 saatte belirgin yağış beklenmiyor." :
+      `${grafikVeri[yag].saat} civarında yağış olasılığı %${Math.max(...grafikVeri.map((x) => x.p))}’e çıkıyor.`);
+    if (gece.length) parcalar.push(`Gece sıcaklık ${Math.min(...gece.map((x) => x.t))}°’ye iniyor.`);
+    if (c.wind_gusts_10m >= 40) parcalar.push(`Hamleler ${Math.round(c.wind_gusts_10m)} km/s’ye ulaşıyor.`);
+    $("ozet").textContent = parcalar.join(" ");
+
+    // rüzgâr: ok rüzgârın gittiği yönü gösterir (geldiği yön + 180°)
+    $("ok").style.transform = `rotate(${(c.wind_direction_10m + 180) % 360}deg)`;
+    $("ruzgar").textContent = yuvarla(c.wind_speed_10m);
+    $("ruzgarYon").textContent = `${yonAdi(c.wind_direction_10m)} yönünden`;
+    $("hamle").textContent = `${yuvarla(c.wind_gusts_10m)} km/s`;
+    $("pusula").setAttribute("aria-label", `Rüzgâr ${yonAdi(c.wind_direction_10m)} yönünden, ${yuvarla(c.wind_speed_10m)} km/s`);
+
+    // UV
+    const uv = c.uv_index ?? 0;
+    $("uv").textContent = uv.toFixed(uv < 10 ? 1 : 0);
+    $("uvYay").setAttribute("stroke-dasharray", `${Math.min(uv / 11, 1) * 100} 100`);
+    $("uvMetin").textContent = `${uvKategori(uv)} Bugün en fazla ${yuvarla(g.uv_index_max[0])}.`;
+
+    // nem
+    $("nem").textContent = yuvarla(c.relative_humidity_2m);
+    $("nemHalka").setAttribute("stroke-dasharray", `${c.relative_humidity_2m} 100`);
+    $("ciy").textContent = `${yuvarla(c.dew_point_2m)}°`;
+    const fark = c.temperature_2m - c.dew_point_2m;
+    $("nemMetin").textContent = fark <= 2 ? "hava doymaya yakın, sis olabilir" : c.dew_point_2m >= 18 ? "bunaltıcı" : "rahat";
+
+    // basınç ve 3 saatlik eğilim
+    $("basinc").textContent = yuvarla(c.pressure_msl);
+    const p3 = bas >= 3 ? c.pressure_msl - h.pressure_msl[bas - 3] : 0;
+    $("basincEgilim").textContent = `${p3 > 0 ? "+" : p3 < 0 ? "−" : "±"}${Math.abs(p3).toFixed(1)} hPa / 3 saat`;
+    $("basincMetin").textContent = p3 <= -3 ? "· hızlı düşüş: hava bozuyor" : p3 <= -1 ? "· düşüyor" : p3 >= 1 ? "· yükseliyor" : "· durağan";
+
+    // hissedilen
+    $("hissedilen2").textContent = `${yuvarla(c.apparent_temperature)}°`;
+    const hf = c.apparent_temperature - c.temperature_2m;
+    $("hsMetin").textContent = Math.abs(hf) < 1 ? "Gerçek sıcaklıkla aynı." :
+      hf < 0 ? `Rüzgâr yüzünden ${Math.abs(Math.round(hf))}° daha soğuk hissettiriyor.` : `Nem yüzünden ${Math.round(hf)}° daha sıcak hissettiriyor.`;
+
+    // görüş
+    $("gorus").textContent = c.visibility != null ? (c.visibility / 1000).toFixed(c.visibility < 10000 ? 1 : 0) : "—";
+    $("bulut").textContent = `%${yuvarla(c.cloud_cover)}`;
+
+    // güneş yayı
+    const dg = dakika(g.sunrise[0]), bt = dakika(g.sunset[0]), sm = dakika(c.time);
+    $("dogus").textContent = saat(g.sunrise[0]);
+    $("batis").textContent = saat(g.sunset[0]);
+    const sure = bt - dg;
+    $("gunSure").textContent = `${Math.floor(sure / 60)} sa ${sure % 60} dk`;
+    const oran = Math.min(Math.max((sm - dg) / (bt - dg), 0), 1);
+    $("gunYol").setAttribute("stroke-dasharray", `${oran * 100} 100`);
+    const q = (tt) => [(1 - tt) ** 2 * 30 + 2 * (1 - tt) * tt * 150 + tt ** 2 * 270, (1 - tt) ** 2 * 92 + 2 * (1 - tt) * tt * -18 + tt ** 2 * 92];
+    const [gx, gy] = q(oran);
+    $("gunes").setAttribute("cx", gx.toFixed(1)); $("gunes").setAttribute("cy", gy.toFixed(1));
+    $("gunes").setAttribute("opacity", sm < dg || sm > bt ? 0.35 : 1);
+
+    // 7 gün
+    const lo = Math.min(...g.temperature_2m_min), hi = Math.max(...g.temperature_2m_max), ar = Math.max(hi - lo, 1);
+    $("gunler").innerHTML = g.time.map((d, i) => {
+      const mn = g.temperature_2m_min[i], mx = g.temperature_2m_max[i];
+      const ad = i === 0 ? "Bugün" : GUNLER[tarih(d).getUTCDay()];
+      const pp = g.precipitation_probability_max[i] ?? 0;
+      return `<li class="grid grid-cols-[52px_26px_40px_34px_1fr_34px] items-center gap-2 py-2.5 text-sm">
+        <span class="font-semibold">${ad}</span>
+        <span class="opacity-90">${kucukSimge(g.weather_code[i], true)}</span>
+        <span class="font-mono text-[11px] text-sky-200">${pp >= 20 ? "%" + pp : ""}</span>
+        <span class="text-right font-mono text-white/75">${Math.round(mn)}°</span>
+        <span class="relative h-1.5 rounded-full bg-white/15"><span class="absolute inset-y-0 rounded-full"
+          style="left:${((mn - lo) / ar) * 100}%;width:${Math.max(((mx - mn) / ar) * 100, 4)}%;background:linear-gradient(90deg,#7dd3fc,var(--vurgu),#fb923c)"></span></span>
+        <span class="font-mono font-bold">${Math.round(mx)}°</span></li>`;
+    }).join("");
+
+    // yağış özeti
+    const pMax = Math.max(...grafikVeri.map((x) => x.p));
+    const pIdx = grafikVeri.findIndex((x) => x.p === pMax);
+    $("yagisMetin").textContent = pMax < 20 ? "Önümüzdeki saatler kuru görünüyor." :
+      `En yüksek olasılık %${pMax}, saat ${grafikVeri[pIdx].saat} civarında.`;
+    $("yagisSimdi").textContent = c.precipitation > 0 ? `${c.precipitation} mm` : "yağış yok";
+    $("yagisGun").textContent = `%${g.precipitation_probability_max[0] ?? 0}`;
+
+    $("guncelleme").textContent = `Son güncelleme ${saat(c.time)} (yerel saat)`;
+    $("izgara").setAttribute("aria-busy", "false");
+    document.title = `${yuvarla(c.temperature_2m)}° ${yer.ad} · HavaLab`;
+  }
+
+  let aktifYer = sakla.al("havalab_yer") || VARSAYILAN;
+  async function yukle(yer) {
+    aktifYer = yer;
+    $("hata").classList.add("hidden"); $("hata").classList.remove("flex");
+    $("izgara").setAttribute("aria-busy", "true");
+    try {
+      ciz(yer, await getir(yer));
+      sakla.koy("havalab_yer", yer);
+    } catch (e) {
+      $("hataMetin").textContent = `Hava verisi alınamadı (${e.message}). İnternet bağlantısını kontrol edip yeniden deneyin.`;
+      $("hata").classList.remove("hidden"); $("hata").classList.add("flex");
+    }
+  }
+
+  // ------------------------------------------------------------------ arama (Open-Meteo geocoding)
+  let zamanlayici = null, oneriVeri = [], vurgulu = -1;
+  function onerileriGoster(liste) {
+    const ul = $("oneriler");
+    oneriVeri = liste; vurgulu = -1;
+    if (!liste.length) { ul.classList.add("hidden"); $("arama").setAttribute("aria-expanded", "false"); return; }
+    ul.innerHTML = liste.map((r, i) => `<li role="option" id="oneri${i}" data-i="${i}" aria-selected="false"
+      class="cursor-pointer rounded-xl px-3 py-2.5 text-sm hover:bg-white/15">
+      <span class="font-semibold">${kac(r.name)}</span> <span class="text-white/70">${kac([r.admin1, r.country].filter(Boolean).join(", "))}</span></li>`).join("");
+    ul.classList.remove("hidden"); $("arama").setAttribute("aria-expanded", "true");
+  }
+  function oneriSec(i) {
+    const r = oneriVeri[i]; if (!r) return;
+    onerileriGoster([]); $("arama").value = ""; $("arama").blur();
+    yukle({ ad: r.name, bolge: [r.admin1, r.country].filter(Boolean).join(", "), lat: r.latitude, lon: r.longitude });
+  }
+  $("arama").addEventListener("input", (e) => {
+    clearTimeout(zamanlayici);
+    const ad = e.target.value.trim();
+    if (ad.length < 2) { onerileriGoster([]); return; }
+    zamanlayici = setTimeout(async () => {
+      try {
+        const r = await fetch(`${GEO}?${new URLSearchParams({ name: ad, count: 6, language: "tr", format: "json" })}`);
+        onerileriGoster((await r.json()).results || []);
+      } catch { onerileriGoster([]); }
+    }, 250);
+  });
+  $("arama").addEventListener("keydown", (e) => {
+    const n = oneriVeri.length; if (!n) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      vurgulu = (vurgulu + (e.key === "ArrowDown" ? 1 : -1) + n) % n;
+      [...$("oneriler").children].forEach((li, i) => { li.classList.toggle("bg-white/15", i === vurgulu); li.setAttribute("aria-selected", i === vurgulu); });
+      $("arama").setAttribute("aria-activedescendant", `oneri${vurgulu}`);
+    }
+    if (e.key === "Escape") onerileriGoster([]);
+  });
+  $("aramaForm").addEventListener("submit", (e) => { e.preventDefault(); oneriSec(vurgulu >= 0 ? vurgulu : 0); });
+  $("oneriler").addEventListener("click", (e) => { const li = e.target.closest("li"); if (li) oneriSec(Number(li.dataset.i)); });
+  document.addEventListener("click", (e) => { if (!$("aramaForm").contains(e.target)) onerileriGoster([]); });
+
+  $("konumum").addEventListener("click", () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (p) => yukle({ ad: "Bulunduğum yer", bolge: `${p.coords.latitude.toFixed(2)}° K, ${p.coords.longitude.toFixed(2)}° D`,
+                     lat: p.coords.latitude, lon: p.coords.longitude }),
+      () => { $("hataMetin").textContent = "Konum izni verilmedi. Bir yer adı arayabilirsiniz."; $("hata").classList.remove("hidden"); $("hata").classList.add("flex"); },
+      { timeout: 10000, maximumAge: 600000 });
+  });
+  $("yeniden").addEventListener("click", () => yukle(aktifYer));
+  $("temaSec").addEventListener("change", () => { sakla.koy("havalab_tema", $("temaSec").value); temaUygula(); });
+
+  // ------------------------------------------------------------------ başlat
+  const kayitliTema = sakla.al("havalab_tema");
+  if (kayitliTema) $("temaSec").value = kayitliTema;
+  atmosferKur();
+  grafikOlay();
+  yukle(aktifYer);
+  setInterval(() => yukle(aktifYer), 15 * 60 * 1000);       // 15 dakikada bir tazele
+})();
+</script>
+</body>
+</html>
