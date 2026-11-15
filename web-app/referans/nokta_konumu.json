@@ -1,0 +1,1346 @@
+[
+ {
+  "lat": 41.6,
+  "lon": 36.2,
+  "konum": {
+   "ad": "Ondokuzmayıs yakını (15 km KD)",
+   "lat": 41.6,
+   "lon": 36.2,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.9199,
+  "lon": 32.8543,
+  "konum": {
+   "ad": "Ankara",
+   "lat": 39.9199,
+   "lon": 32.8543,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.93,
+  "lon": 32.86,
+  "konum": {
+   "ad": "Ankara",
+   "lat": 39.93,
+   "lon": 32.86,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.95,
+  "lon": 38.45,
+  "konum": {
+   "ad": "Keşap yakını (6 km KB)",
+   "lat": 40.95,
+   "lon": 38.45,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 36.0,
+  "lon": 30.0,
+  "konum": {
+   "ad": "Demre yakını (27 km G)",
+   "lat": 36.0,
+   "lon": 30.0,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 51.5,
+  "lon": -0.1,
+  "konum": {
+   "ad": "Londra",
+   "lat": 51.5,
+   "lon": -0.1,
+   "tz": "Europe/London",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -40.0,
+  "lon": -140.0,
+  "konum": {
+   "ad": "-40.00° K, -140.00° D",
+   "lat": -40.0,
+   "lon": -140.0,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 0.0,
+  "lon": 0.0,
+  "konum": {
+   "ad": "0.00° K, 0.00° D",
+   "lat": 0.0,
+   "lon": 0.0,
+   "tz": "Africa/Accra",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 64.1,
+  "lon": -21.9,
+  "konum": {
+   "ad": "Reykjavík yakını (4 km G)",
+   "lat": 64.1,
+   "lon": -21.9,
+   "tz": "Atlantic/Reykjavik",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.7,
+  "lon": 139.7,
+  "konum": {
+   "ad": "Tokyo",
+   "lat": 35.7,
+   "lon": 139.7,
+   "tz": "Asia/Tokyo",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 42.5,
+  "lon": 34.0,
+  "konum": {
+   "ad": "Abana yakını (58 km K)",
+   "lat": 42.5,
+   "lon": 34.0,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.42,
+  "lon": 27.14,
+  "konum": {
+   "ad": "İzmir",
+   "lat": 38.42,
+   "lon": 27.14,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.35065599739409,
+  "lon": 42.361336555145925,
+  "konum": {
+   "ad": "Karaçoban yakını (23 km D)",
+   "lat": 39.35065599739409,
+   "lon": 42.361336555145925,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.99021441898683,
+  "lon": 31.583971973233037,
+  "konum": {
+   "ad": "Alanya yakını (72 km GB)",
+   "lat": 35.99021441898683,
+   "lon": 31.583971973233037,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.606668845020835,
+  "lon": 29.12116944195906,
+  "konum": {
+   "ad": "Demre yakını (105 km GB)",
+   "lat": 35.606668845020835,
+   "lon": 29.12116944195906,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 36.784521874138434,
+  "lon": 35.05381988312209,
+  "konum": {
+   "ad": "Tarsus yakını (21 km GD)",
+   "lat": 36.784521874138434,
+   "lon": 35.05381988312209,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 36.48617079349333,
+  "lon": 31.034735226128248,
+  "konum": {
+   "ad": "Belek yakını (42 km G)",
+   "lat": 36.48617079349333,
+   "lon": 31.034735226128248,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 43.72315979334672,
+  "lon": 45.60519226636176,
+  "konum": {
+   "ad": "43.72° K, 45.61° D",
+   "lat": 43.72315979334672,
+   "lon": 45.60519226636176,
+   "tz": "Europe/Moscow",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.51134888151146,
+  "lon": 24.043585657782216,
+  "konum": {
+   "ad": "Atina yakını (59 km GD)",
+   "lat": 37.51134888151146,
+   "lon": 24.043585657782216,
+   "tz": "Europe/Athens",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 34.44291215816215,
+  "lon": 42.70442398543312,
+  "konum": {
+   "ad": "34.44° K, 42.70° D",
+   "lat": 34.44291215816215,
+   "lon": 42.70442398543312,
+   "tz": "Asia/Baghdad",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.38762531785216,
+  "lon": 27.417776371128976,
+  "konum": {
+   "ad": "Biga yakını (23 km KD)",
+   "lat": 40.38762531785216,
+   "lon": 27.417776371128976,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 42.68580005523939,
+  "lon": 36.08990770709653,
+  "konum": {
+   "ad": "Sinop yakını (106 km KD)",
+   "lat": 42.68580005523939,
+   "lon": 36.08990770709653,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 41.861449064201636,
+  "lon": 45.12648531745477,
+  "konum": {
+   "ad": "Tiflis yakını (31 km KD)",
+   "lat": 41.861449064201636,
+   "lon": 45.12648531745477,
+   "tz": "Asia/Tbilisi",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 34.623760280803445,
+  "lon": 35.694531601379204,
+  "konum": {
+   "ad": "Ra’s Bayrūt yakını (83 km K)",
+   "lat": 34.623760280803445,
+   "lon": 35.694531601379204,
+   "tz": "Asia/Beirut",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.292523876006975,
+  "lon": 36.683979965533595,
+  "konum": {
+   "ad": "Altınyayla yakını (6 km B)",
+   "lat": 39.292523876006975,
+   "lon": 36.683979965533595,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 42.753432660351386,
+  "lon": 24.22795714229111,
+  "konum": {
+   "ad": "Sofya yakını (74 km D)",
+   "lat": 42.753432660351386,
+   "lon": 24.22795714229111,
+   "tz": "Europe/Sofia",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.248728397206015,
+  "lon": 40.83293572875495,
+  "konum": {
+   "ad": "35.25° K, 40.83° D",
+   "lat": 35.248728397206015,
+   "lon": 40.83293572875495,
+   "tz": "Asia/Damascus",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 41.49832229377017,
+  "lon": 26.542554030103155,
+  "konum": {
+   "ad": "Edirne yakını (20 km G)",
+   "lat": 41.49832229377017,
+   "lon": 26.542554030103155,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 34.919287354374134,
+  "lon": 34.96796462194379,
+  "konum": {
+   "ad": "Lazkiye yakını (101 km GB)",
+   "lat": 34.919287354374134,
+   "lon": 34.96796462194379,
+   "tz": "Asia/Damascus",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 41.79305992719598,
+  "lon": 26.212236691106238,
+  "konum": {
+   "ad": "Edirne yakını (31 km KB)",
+   "lat": 41.79305992719598,
+   "lon": 26.212236691106238,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.292053235903296,
+  "lon": 24.957192333841,
+  "konum": {
+   "ad": "Atina yakını (113 km D)",
+   "lat": 38.292053235903296,
+   "lon": 24.957192333841,
+   "tz": "Europe/Athens",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.81471440621058,
+  "lon": 31.835179776642992,
+  "konum": {
+   "ad": "Beyşehir yakını (18 km KD)",
+   "lat": 37.81471440621058,
+   "lon": 31.835179776642992,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 43.59072510950962,
+  "lon": 39.3406387523117,
+  "konum": {
+   "ad": "43.59° K, 39.34° D",
+   "lat": 43.59072510950962,
+   "lon": 39.3406387523117,
+   "tz": "Europe/Moscow",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.86802813338425,
+  "lon": 35.177746984300384,
+  "konum": {
+   "ad": "Gümüşhacıköy yakını (3 km B)",
+   "lat": 40.86802813338425,
+   "lon": 35.177746984300384,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 42.33710101944751,
+  "lon": 29.788275635981666,
+  "konum": {
+   "ad": "Şile yakını (130 km K)",
+   "lat": 42.33710101944751,
+   "lon": 29.788275635981666,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.86551292070144,
+  "lon": 27.162822360013287,
+  "konum": {
+   "ad": "Kuşadası yakını (8 km B)",
+   "lat": 37.86551292070144,
+   "lon": 27.162822360013287,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.51922320315169,
+  "lon": 28.1572639244441,
+  "konum": {
+   "ad": "Bigadiç yakını (14 km K)",
+   "lat": 39.51922320315169,
+   "lon": 28.1572639244441,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.41156792265504,
+  "lon": 43.95420397802766,
+  "konum": {
+   "ad": "Digor yakını (46 km D)",
+   "lat": 40.41156792265504,
+   "lon": 43.95420397802766,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 43.814759221937265,
+  "lon": 29.587863599865894,
+  "konum": {
+   "ad": "43.81° K, 29.59° D",
+   "lat": 43.814759221937265,
+   "lon": 29.587863599865894,
+   "tz": "Europe/Bucharest",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.98927714795188,
+  "lon": 38.94356387155292,
+  "konum": {
+   "ad": "Akçapınar yakını (5 km K)",
+   "lat": 38.98927714795188,
+   "lon": 38.94356387155292,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.392956445327826,
+  "lon": 38.09377019734993,
+  "konum": {
+   "ad": "Akçadağ yakını (12 km KD)",
+   "lat": 38.392956445327826,
+   "lon": 38.09377019734993,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.467012568498646,
+  "lon": 28.75962529116418,
+  "konum": {
+   "ad": "Kale yakını (8 km B)",
+   "lat": 37.467012568498646,
+   "lon": 28.75962529116418,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.29113901656168,
+  "lon": 42.4952706044302,
+  "konum": {
+   "ad": "Malazgirt yakını (16 km K)",
+   "lat": 39.29113901656168,
+   "lon": 42.4952706044302,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 36.18134058962017,
+  "lon": 27.342975948267533,
+  "konum": {
+   "ad": "Datça yakını (69 km GB)",
+   "lat": 36.18134058962017,
+   "lon": 27.342975948267533,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 41.79409054413783,
+  "lon": 34.23080353297851,
+  "konum": {
+   "ad": "Çatalzeytin yakını (18 km G)",
+   "lat": 41.79409054413783,
+   "lon": 34.23080353297851,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 43.693607235766926,
+  "lon": 36.902580406810344,
+  "konum": {
+   "ad": "43.69° K, 36.90° D",
+   "lat": 43.693607235766926,
+   "lon": 36.902580406810344,
+   "tz": "Europe/Moscow",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 43.79036410977888,
+  "lon": 38.945377296164644,
+  "konum": {
+   "ad": "Krasnodar yakını (140 km G)",
+   "lat": 43.79036410977888,
+   "lon": 38.945377296164644,
+   "tz": "Europe/Moscow",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 41.42350572531824,
+  "lon": 28.729370531344877,
+  "konum": {
+   "ad": "Boyalık yakını (20 km KD)",
+   "lat": 41.42350572531824,
+   "lon": 28.729370531344877,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.94586515488888,
+  "lon": 28.03729281712186,
+  "konum": {
+   "ad": "Susurluk yakını (11 km B)",
+   "lat": 39.94586515488888,
+   "lon": 28.03729281712186,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 41.72085504306317,
+  "lon": 33.99384807009765,
+  "konum": {
+   "ad": "Devrekani yakını (18 km KD)",
+   "lat": 41.72085504306317,
+   "lon": 33.99384807009765,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 34.20206442262687,
+  "lon": 31.308768466458115,
+  "konum": {
+   "ad": "34.20° K, 31.31° D",
+   "lat": 34.20206442262687,
+   "lon": 31.308768466458115,
+   "tz": "Asia/Nicosia",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.21369427757951,
+  "lon": 24.22914649957566,
+  "konum": {
+   "ad": "Gökçeada yakını (143 km B)",
+   "lat": 40.21369427757951,
+   "lon": 24.22914649957566,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 43.16118163268252,
+  "lon": 36.25153860395193,
+  "konum": {
+   "ad": "43.16° K, 36.25° D",
+   "lat": 43.16118163268252,
+   "lon": 36.25153860395193,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 36.48560181178002,
+  "lon": 33.97479646950695,
+  "konum": {
+   "ad": "Silifke yakını (13 km K)",
+   "lat": 36.48560181178002,
+   "lon": 33.97479646950695,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.45129839352387,
+  "lon": 40.66416531627114,
+  "konum": {
+   "ad": "35.45° K, 40.66° D",
+   "lat": 35.45129839352387,
+   "lon": 40.66416531627114,
+   "tz": "Asia/Damascus",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.19336732966398,
+  "lon": 38.24455189003796,
+  "konum": {
+   "ad": "Suruç yakını (29 km KB)",
+   "lat": 37.19336732966398,
+   "lon": 38.24455189003796,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 34.68704857651081,
+  "lon": 34.88280587327814,
+  "konum": {
+   "ad": "Ra’s Bayrūt yakını (103 km KB)",
+   "lat": 34.68704857651081,
+   "lon": 34.88280587327814,
+   "tz": "Asia/Beirut",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.273038971435064,
+  "lon": 29.64850005223243,
+  "konum": {
+   "ad": "Çivril yakını (8 km B)",
+   "lat": 38.273038971435064,
+   "lon": 29.64850005223243,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.739325728531405,
+  "lon": 28.64410319566435,
+  "konum": {
+   "ad": "Selendi yakını (19 km B)",
+   "lat": 38.739325728531405,
+   "lon": 28.64410319566435,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 36.74836292737752,
+  "lon": 43.415931681728175,
+  "konum": {
+   "ad": "Musul yakını (53 km KD)",
+   "lat": 36.74836292737752,
+   "lon": 43.415931681728175,
+   "tz": "Asia/Baghdad",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.77841560255252,
+  "lon": 26.388422570107267,
+  "konum": {
+   "ad": "Seferihisar yakını (61 km GB)",
+   "lat": 37.77841560255252,
+   "lon": 26.388422570107267,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.746194896235714,
+  "lon": 25.226884956958166,
+  "konum": {
+   "ad": "35.75° K, 25.23° D",
+   "lat": 35.746194896235714,
+   "lon": 25.226884956958166,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 39.31815135930825,
+  "lon": 35.04717722291186,
+  "konum": {
+   "ad": "Yenifakılı yakını (13 km K)",
+   "lat": 39.31815135930825,
+   "lon": 35.04717722291186,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 35.251994881118044,
+  "lon": 43.561233989999366,
+  "konum": {
+   "ad": "Kerkük yakını (79 km B)",
+   "lat": 35.251994881118044,
+   "lon": 43.561233989999366,
+   "tz": "Asia/Baghdad",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.93448991417909,
+  "lon": 32.956620091290404,
+  "konum": {
+   "ad": "Karatay yakını (38 km D)",
+   "lat": 37.93448991417909,
+   "lon": 32.956620091290404,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.48073162010664,
+  "lon": 27.92359629798058,
+  "konum": {
+   "ad": "Erdek yakını (14 km KD)",
+   "lat": 40.48073162010664,
+   "lon": 27.92359629798058,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.97473298084368,
+  "lon": 39.43105897384852,
+  "konum": {
+   "ad": "Pertek yakını (15 km KD)",
+   "lat": 38.97473298084368,
+   "lon": 39.43105897384852,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.443287914026726,
+  "lon": 32.33577434575608,
+  "konum": {
+   "ad": "Akören yakını (3 km B)",
+   "lat": 37.443287914026726,
+   "lon": 32.33577434575608,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.71426480707331,
+  "lon": 24.88790539114695,
+  "konum": {
+   "ad": "Atina yakını (130 km KD)",
+   "lat": 38.71426480707331,
+   "lon": 24.88790539114695,
+   "tz": "Europe/Athens",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 40.09208117827501,
+  "lon": 41.321200814381776,
+  "konum": {
+   "ad": "Dadaşköy yakını (17 km K)",
+   "lat": 40.09208117827501,
+   "lon": 41.321200814381776,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 38.48752201185849,
+  "lon": 45.253643435004605,
+  "konum": {
+   "ad": "Saray yakını (97 km D)",
+   "lat": 38.48752201185849,
+   "lon": 45.253643435004605,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 37.14502115594295,
+  "lon": 44.386208924087114,
+  "konum": {
+   "ad": "Şemdinli yakını (24 km GB)",
+   "lat": 37.14502115594295,
+   "lon": 44.386208924087114,
+   "tz": "Europe/Istanbul",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 16.84390038148767,
+  "lon": 169.35813813050785,
+  "konum": {
+   "ad": "16.84° K, 169.36° D",
+   "lat": 16.84390038148767,
+   "lon": 169.35813813050785,
+   "tz": "Pacific/Majuro",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 49.96558109361705,
+  "lon": -97.71266674562571,
+  "konum": {
+   "ad": "Winnipeg yakını (41 km B)",
+   "lat": 49.96558109361705,
+   "lon": -97.71266674562571,
+   "tz": "America/Winnipeg",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 49.51835528516727,
+  "lon": -88.55387552075788,
+  "konum": {
+   "ad": "49.52° K, -88.55° D",
+   "lat": 49.51835528516727,
+   "lon": -88.55387552075788,
+   "tz": "America/Winnipeg",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -31.647494102866936,
+  "lon": 126.19612726592332,
+  "konum": {
+   "ad": "-31.65° K, 126.20° D",
+   "lat": -31.647494102866936,
+   "lon": 126.19612726592332,
+   "tz": "Australia/Perth",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -36.188715555913504,
+  "lon": 52.12803068235467,
+  "konum": {
+   "ad": "-36.19° K, 52.13° D",
+   "lat": -36.188715555913504,
+   "lon": 52.12803068235467,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -46.243006335515574,
+  "lon": 97.24080272217333,
+  "konum": {
+   "ad": "-46.24° K, 97.24° D",
+   "lat": -46.243006335515574,
+   "lon": 97.24080272217333,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -26.05234572394828,
+  "lon": 59.54052916581861,
+  "konum": {
+   "ad": "-26.05° K, 59.54° D",
+   "lat": -26.05234572394828,
+   "lon": 59.54052916581861,
+   "tz": "Indian/Mauritius",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 10.672933659307974,
+  "lon": -24.498233963471257,
+  "konum": {
+   "ad": "10.67° K, -24.50° D",
+   "lat": 10.672933659307974,
+   "lon": -24.498233963471257,
+   "tz": "Atlantic/Cape_Verde",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -15.320964291759237,
+  "lon": 112.20415849020623,
+  "konum": {
+   "ad": "-15.32° K, 112.20° D",
+   "lat": -15.320964291759237,
+   "lon": 112.20415849020623,
+   "tz": "Asia/Makassar",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 71.33005830227368,
+  "lon": -48.841411742218064,
+  "konum": {
+   "ad": "71.33° K, -48.84° D",
+   "lat": 71.33005830227368,
+   "lon": -48.841411742218064,
+   "tz": "America/Nuuk",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 65.07535845771253,
+  "lon": -35.84427610195499,
+  "konum": {
+   "ad": "65.08° K, -35.84° D",
+   "lat": 65.07535845771253,
+   "lon": -35.84427610195499,
+   "tz": "Atlantic/Reykjavik",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 7.880042080207375,
+  "lon": 153.9183302500199,
+  "konum": {
+   "ad": "7.88° K, 153.92° D",
+   "lat": 7.880042080207375,
+   "lon": 153.9183302500199,
+   "tz": "Pacific/Pohnpei",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -56.623821491498326,
+  "lon": 152.67102566437396,
+  "konum": {
+   "ad": "-56.62° K, 152.67° D",
+   "lat": -56.623821491498326,
+   "lon": 152.67102566437396,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 17.668691755248517,
+  "lon": -147.8839269573239,
+  "konum": {
+   "ad": "17.67° K, -147.88° D",
+   "lat": 17.668691755248517,
+   "lon": -147.8839269573239,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 3.3001325994511435,
+  "lon": 14.738505823910547,
+  "konum": {
+   "ad": "3.30° K, 14.74° D",
+   "lat": 3.3001325994511435,
+   "lon": 14.738505823910547,
+   "tz": "Africa/Douala",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 32.89281148133186,
+  "lon": 96.49211813378915,
+  "konum": {
+   "ad": "32.89° K, 96.49° D",
+   "lat": 32.89281148133186,
+   "lon": 96.49211813378915,
+   "tz": "Asia/Shanghai",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 13.170504112540044,
+  "lon": 36.124904626706666,
+  "konum": {
+   "ad": "13.17° K, 36.12° D",
+   "lat": 13.170504112540044,
+   "lon": 36.124904626706666,
+   "tz": "Africa/Asmara",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 72.09178177443032,
+  "lon": -56.363901429253744,
+  "konum": {
+   "ad": "72.09° K, -56.36° D",
+   "lat": 72.09178177443032,
+   "lon": -56.363901429253744,
+   "tz": "America/Nuuk",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -0.8793112983467954,
+  "lon": -44.385943312783894,
+  "konum": {
+   "ad": "-0.88° K, -44.39° D",
+   "lat": -0.8793112983467954,
+   "lon": -44.385943312783894,
+   "tz": "America/Fortaleza",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -60.02509996082532,
+  "lon": 101.85998493415131,
+  "konum": {
+   "ad": "-60.03° K, 101.86° D",
+   "lat": -60.02509996082532,
+   "lon": 101.85998493415131,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -23.321672251070574,
+  "lon": 155.3672032801276,
+  "konum": {
+   "ad": "-23.32° K, 155.37° D",
+   "lat": -23.321672251070574,
+   "lon": 155.3672032801276,
+   "tz": "Australia/Brisbane",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 3.468332028099283,
+  "lon": 133.41097195408898,
+  "konum": {
+   "ad": "3.47° K, 133.41° D",
+   "lat": 3.468332028099283,
+   "lon": 133.41097195408898,
+   "tz": "Pacific/Palau",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -49.83566694617719,
+  "lon": -37.485069752557656,
+  "konum": {
+   "ad": "-49.84° K, -37.49° D",
+   "lat": -49.83566694617719,
+   "lon": -37.485069752557656,
+   "tz": "Atlantic/South_Georgia",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 47.7077365384473,
+  "lon": -156.16687663397613,
+  "konum": {
+   "ad": "47.71° K, -156.17° D",
+   "lat": 47.7077365384473,
+   "lon": -156.16687663397613,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -54.02575451848011,
+  "lon": -77.46997163221948,
+  "konum": {
+   "ad": "-54.03° K, -77.47° D",
+   "lat": -54.02575451848011,
+   "lon": -77.46997163221948,
+   "tz": "Atlantic/Stanley",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 46.059240365465904,
+  "lon": -159.94297585419304,
+  "konum": {
+   "ad": "46.06° K, -159.94° D",
+   "lat": 46.059240365465904,
+   "lon": -159.94297585419304,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 25.813914509438764,
+  "lon": -107.79746335713499,
+  "konum": {
+   "ad": "Culiacán yakını (120 km K)",
+   "lat": 25.813914509438764,
+   "lon": -107.79746335713499,
+   "tz": "America/Mazatlan",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 22.412069977165935,
+  "lon": -174.7802404582448,
+  "konum": {
+   "ad": "22.41° K, -174.78° D",
+   "lat": 22.412069977165935,
+   "lon": -174.7802404582448,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -48.85412801014841,
+  "lon": 168.11113417448746,
+  "konum": {
+   "ad": "-48.85° K, 168.11° D",
+   "lat": -48.85412801014841,
+   "lon": 168.11113417448746,
+   "tz": "Pacific/Auckland",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 18.651137668347463,
+  "lon": -58.06052983161825,
+  "konum": {
+   "ad": "18.65° K, -58.06° D",
+   "lat": 18.651137668347463,
+   "lon": -58.06052983161825,
+   "tz": "America/Antigua",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -30.526774198147223,
+  "lon": -130.54105004912404,
+  "konum": {
+   "ad": "-30.53° K, -130.54° D",
+   "lat": -30.526774198147223,
+   "lon": -130.54105004912404,
+   "tz": "Pacific/Pitcairn",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -67.4797424519198,
+  "lon": 121.89300102079719,
+  "konum": {
+   "ad": "-67.48° K, 121.89° D",
+   "lat": -67.4797424519198,
+   "lon": 121.89300102079719,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -32.42300796568541,
+  "lon": 51.28580129560096,
+  "konum": {
+   "ad": "-32.42° K, 51.29° D",
+   "lat": -32.42300796568541,
+   "lon": 51.28580129560096,
+   "tz": "Indian/Reunion",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 28.978557215585916,
+  "lon": -2.5793646290738437,
+  "konum": {
+   "ad": "28.98° K, -2.58° D",
+   "lat": 28.978557215585916,
+   "lon": -2.5793646290738437,
+   "tz": "Africa/Casablanca",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -57.82470001755111,
+  "lon": 19.74361624978956,
+  "konum": {
+   "ad": "-57.82° K, 19.74° D",
+   "lat": -57.82470001755111,
+   "lon": 19.74361624978956,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 31.491786431379442,
+  "lon": 82.59341709603827,
+  "konum": {
+   "ad": "31.49° K, 82.59° D",
+   "lat": 31.491786431379442,
+   "lon": 82.59341709603827,
+   "tz": "Asia/Kathmandu",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 7.648939154440361,
+  "lon": 153.1493780582532,
+  "konum": {
+   "ad": "7.65° K, 153.15° D",
+   "lat": 7.648939154440361,
+   "lon": 153.1493780582532,
+   "tz": "Pacific/Pohnpei",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -35.13456678449475,
+  "lon": -173.41475757195366,
+  "konum": {
+   "ad": "-35.13° K, -173.41° D",
+   "lat": -35.13456678449475,
+   "lon": -173.41475757195366,
+   "tz": "Pacific/Auckland",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": 13.368698105098998,
+  "lon": -86.49912202302437,
+  "konum": {
+   "ad": "Tegucigalpa yakını (110 km GD)",
+   "lat": 13.368698105098998,
+   "lon": -86.49912202302437,
+   "tz": "America/Tegucigalpa",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ },
+ {
+  "lat": -47.225208745980034,
+  "lon": -104.31932538139279,
+  "konum": {
+   "ad": "-47.23° K, -104.32° D",
+   "lat": -47.225208745980034,
+   "lon": -104.31932538139279,
+   "tz": "auto",
+   "rakim": null,
+   "bolge": "Haritadan seçilen nokta"
+  }
+ }
+]

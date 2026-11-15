@@ -1,0 +1,42 @@
+{
+ "FC": "https://api.open-meteo.com/v1/forecast",
+ "ENS": "https://ensemble-api.open-meteo.com/v1/ensemble",
+ "GEO": "https://geocoding-api.open-meteo.com/v1/search",
+ "DENIZ": "https://marine-api.open-meteo.com/v1/marine",
+ "TZ": "Europe/Istanbul",
+ "SEVIYELER": [
+  1000,
+  925,
+  850,
+  700,
+  600,
+  500,
+  400,
+  300,
+  250,
+  200
+ ],
+ "GUN_EN_COK": 10,
+ "SAATLIK": "temperature_2m,dew_point_2m,apparent_temperature,precipitation,precipitation_probability,weather_code,is_day,wind_speed_10m,wind_gusts_10m,wind_direction_10m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,pressure_msl,relative_humidity_2m,snowfall,freezing_level_height,visibility,uv_index,cape",
+ "GUNLUK": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,snowfall_sum,wind_gusts_10m_max,wind_direction_10m_dominant,sunrise,sunset,uv_index_max",
+ "ANLIK": "temperature_2m,apparent_temperature,relative_humidity_2m,dew_point_2m,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl,cloud_cover,precipitation,visibility,uv_index",
+ "GUNLER": [
+  "Pzt",
+  "Sal",
+  "Çar",
+  "Per",
+  "Cum",
+  "Cmt",
+  "Paz"
+ ],
+ "YONLER": [
+  "K",
+  "KD",
+  "D",
+  "GD",
+  "G",
+  "GB",
+  "B",
+  "KB"
+ ]
+}

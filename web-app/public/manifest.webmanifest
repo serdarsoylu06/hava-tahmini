@@ -1,0 +1,15 @@
+{
+  "name": "HavaLab",
+  "short_name": "HavaLab",
+  "description": "Hava tahminini okumayı kolaylaştıran, sade ve uzman modlu hava durumu uygulaması.",
+  "lang": "tr",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#1C2829",
+  "theme_color": "#1C2829",
+  "icons": [
+    { "src": "simge-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "simge-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,1347 @@
+{
+ "toplam": 2337,
+ "kayitlar": [
+  {
+   "etiket": "İstanbul",
+   "konum": {
+    "ad": "İstanbul",
+    "lat": 41.0138,
+    "lon": 28.9497,
+    "tz": "Europe/Istanbul",
+    "rakim": 39,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Ankara",
+   "konum": {
+    "ad": "Ankara",
+    "lat": 39.9199,
+    "lon": 32.8543,
+    "tz": "Europe/Istanbul",
+    "rakim": 850,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Bursa",
+   "konum": {
+    "ad": "Bursa",
+    "lat": 40.1956,
+    "lon": 29.0601,
+    "tz": "Europe/Istanbul",
+    "rakim": 155,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "İzmir",
+   "konum": {
+    "ad": "İzmir",
+    "lat": 38.4127,
+    "lon": 27.1384,
+    "tz": "Europe/Istanbul",
+    "rakim": 122,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Gaziantep",
+   "konum": {
+    "ad": "Gaziantep",
+    "lat": 37.0594,
+    "lon": 37.3825,
+    "tz": "Europe/Istanbul",
+    "rakim": 842,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Diyarbakır",
+   "konum": {
+    "ad": "Diyarbakır",
+    "lat": 37.9136,
+    "lon": 40.2172,
+    "tz": "Europe/Istanbul",
+    "rakim": 674,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Adana",
+   "konum": {
+    "ad": "Adana",
+    "lat": 36.9862,
+    "lon": 35.3253,
+    "tz": "Europe/Istanbul",
+    "rakim": 30,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Kayseri",
+   "konum": {
+    "ad": "Kayseri",
+    "lat": 38.7322,
+    "lon": 35.4853,
+    "tz": "Europe/Istanbul",
+    "rakim": 1054,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Konya",
+   "konum": {
+    "ad": "Konya",
+    "lat": 37.8713,
+    "lon": 32.4846,
+    "tz": "Europe/Istanbul",
+    "rakim": 1030,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Antalya",
+   "konum": {
+    "ad": "Antalya",
+    "lat": 36.9081,
+    "lon": 30.6956,
+    "tz": "Europe/Istanbul",
+    "rakim": 61,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Esenyurt, İstanbul",
+   "konum": {
+    "ad": "Esenyurt",
+    "lat": 41.027,
+    "lon": 28.6773,
+    "tz": "Europe/Istanbul",
+    "rakim": 97,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Eskişehir",
+   "konum": {
+    "ad": "Eskişehir",
+    "lat": 39.7767,
+    "lon": 30.5206,
+    "tz": "Europe/Istanbul",
+    "rakim": 794,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Çankaya, Ankara",
+   "konum": {
+    "ad": "Çankaya",
+    "lat": 39.9179,
+    "lon": 32.8627,
+    "tz": "Europe/Istanbul",
+    "rakim": 850,
+    "bolge": "Ankara, Türkiye"
+   }
+  },
+  {
+   "etiket": "Küçükçekmece, İstanbul",
+   "konum": {
+    "ad": "Küçükçekmece",
+    "lat": 40.991,
+    "lon": 28.7712,
+    "tz": "Europe/Istanbul",
+    "rakim": 63,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Erzurum",
+   "konum": {
+    "ad": "Erzurum",
+    "lat": 39.9086,
+    "lon": 41.2769,
+    "tz": "Europe/Istanbul",
+    "rakim": 1914,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Malatya",
+   "konum": {
+    "ad": "Malatya",
+    "lat": 38.3502,
+    "lon": 38.3167,
+    "tz": "Europe/Istanbul",
+    "rakim": 963,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Bağcılar, İstanbul",
+   "konum": {
+    "ad": "Bağcılar",
+    "lat": 41.039,
+    "lon": 28.8567,
+    "tz": "Europe/Istanbul",
+    "rakim": 105,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Bahçelievler, İstanbul",
+   "konum": {
+    "ad": "Bahçelievler",
+    "lat": 41.0023,
+    "lon": 28.8598,
+    "tz": "Europe/Istanbul",
+    "rakim": 73,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Ümraniye, İstanbul",
+   "konum": {
+    "ad": "Ümraniye",
+    "lat": 41.0164,
+    "lon": 29.1248,
+    "tz": "Europe/Istanbul",
+    "rakim": 136,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Mersin",
+   "konum": {
+    "ad": "Mersin",
+    "lat": 36.812,
+    "lon": 34.6389,
+    "tz": "Europe/Istanbul",
+    "rakim": 10,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Nilüfer, Bursa",
+   "konum": {
+    "ad": "Nilüfer",
+    "lat": 40.214,
+    "lon": 28.9157,
+    "tz": "Europe/Istanbul",
+    "rakim": 69,
+    "bolge": "Bursa, Türkiye"
+   }
+  },
+  {
+   "etiket": "Van",
+   "konum": {
+    "ad": "Van",
+    "lat": 38.4946,
+    "lon": 43.3832,
+    "tz": "Europe/Istanbul",
+    "rakim": 1708,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Üsküdar, İstanbul",
+   "konum": {
+    "ad": "Üsküdar",
+    "lat": 41.0227,
+    "lon": 29.0137,
+    "tz": "Europe/Istanbul",
+    "rakim": 41,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Esenler, İstanbul",
+   "konum": {
+    "ad": "Esenler",
+    "lat": 41.0435,
+    "lon": 28.8762,
+    "tz": "Europe/Istanbul",
+    "rakim": 72,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Sancaktepe, İstanbul",
+   "konum": {
+    "ad": "Sancaktepe",
+    "lat": 41.0024,
+    "lon": 29.2319,
+    "tz": "Europe/Istanbul",
+    "rakim": 114,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Karabağlar, İzmir",
+   "konum": {
+    "ad": "Karabağlar",
+    "lat": 38.382,
+    "lon": 27.132,
+    "tz": "Europe/Istanbul",
+    "rakim": 78,
+    "bolge": "İzmir, Türkiye"
+   }
+  },
+  {
+   "etiket": "Bornova, İzmir",
+   "konum": {
+    "ad": "Bornova",
+    "lat": 38.4792,
+    "lon": 27.2399,
+    "tz": "Europe/Istanbul",
+    "rakim": 125,
+    "bolge": "İzmir, Türkiye"
+   }
+  },
+  {
+   "etiket": "Batman",
+   "konum": {
+    "ad": "Batman",
+    "lat": 37.8874,
+    "lon": 41.1322,
+    "tz": "Europe/Istanbul",
+    "rakim": 540,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Muratpaşa, Antalya",
+   "konum": {
+    "ad": "Muratpaşa",
+    "lat": 36.8916,
+    "lon": 30.765,
+    "tz": "Europe/Istanbul",
+    "rakim": 53,
+    "bolge": "Antalya, Türkiye"
+   }
+  },
+  {
+   "etiket": "Şanlıurfa",
+   "konum": {
+    "ad": "Şanlıurfa",
+    "lat": 37.1671,
+    "lon": 38.7939,
+    "tz": "Europe/Istanbul",
+    "rakim": 528,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Elazığ",
+   "konum": {
+    "ad": "Elazığ",
+    "lat": 38.6743,
+    "lon": 39.2232,
+    "tz": "Europe/Istanbul",
+    "rakim": 1062,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Sultangazi, İstanbul",
+   "konum": {
+    "ad": "Sultangazi",
+    "lat": 41.1065,
+    "lon": 28.8685,
+    "tz": "Europe/Istanbul",
+    "rakim": 144,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Maltepe, İstanbul",
+   "konum": {
+    "ad": "Maltepe",
+    "lat": 40.9357,
+    "lon": 29.1551,
+    "tz": "Europe/Istanbul",
+    "rakim": 150,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Beylikdüzü, İstanbul",
+   "konum": {
+    "ad": "Beylikdüzü",
+    "lat": 40.982,
+    "lon": 28.6399,
+    "tz": "Europe/Istanbul",
+    "rakim": 102,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Antakya, Hatay",
+   "konum": {
+    "ad": "Antakya",
+    "lat": 36.2066,
+    "lon": 36.1572,
+    "tz": "Europe/Istanbul",
+    "rakim": 104,
+    "bolge": "Hatay, Türkiye"
+   }
+  },
+  {
+   "etiket": "Samsun",
+   "konum": {
+    "ad": "Samsun",
+    "lat": 41.2798,
+    "lon": 36.3361,
+    "tz": "Europe/Istanbul",
+    "rakim": 64,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Kahramanmaraş",
+   "konum": {
+    "ad": "Kahramanmaraş",
+    "lat": 37.5847,
+    "lon": 36.9264,
+    "tz": "Europe/Istanbul",
+    "rakim": 564,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Uşak",
+   "konum": {
+    "ad": "Uşak",
+    "lat": 38.6735,
+    "lon": 29.4058,
+    "tz": "Europe/Istanbul",
+    "rakim": 910,
+    "bolge": "Türkiye"
+   }
+  },
+  {
+   "etiket": "Alanya, Antalya",
+   "konum": {
+    "ad": "Alanya",
+    "lat": 36.5438,
+    "lon": 31.9998,
+    "tz": "Europe/Istanbul",
+    "rakim": 11,
+    "bolge": "Antalya, Türkiye"
+   }
+  },
+  {
+   "etiket": "Ataşehir, İstanbul",
+   "konum": {
+    "ad": "Ataşehir",
+    "lat": 40.9833,
+    "lon": 29.1167,
+    "tz": "Europe/Istanbul",
+    "rakim": 83,
+    "bolge": "İstanbul, Türkiye"
+   }
+  },
+  {
+   "etiket": "Quezon City, Filipinler",
+   "konum": {
+    "ad": "Quezon City",
+    "lat": 14.6488,
+    "lon": 121.0509,
+    "tz": "Asia/Manila",
+    "rakim": 49,
+    "bolge": "Filipinler"
+   }
+  },
+  {
+   "etiket": "Jaipur, Hindistan",
+   "konum": {
+    "ad": "Jaipur",
+    "lat": 26.9196,
+    "lon": 75.7878,
+    "tz": "Asia/Kolkata",
+    "rakim": 435,
+    "bolge": "Hindistan"
+   }
+  },
+  {
+   "etiket": "Huainan, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Huainan",
+    "lat": 32.6264,
+    "lon": 116.9969,
+    "tz": "Asia/Shanghai",
+    "rakim": 47,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Surabaya, Endonezya",
+   "konum": {
+    "ad": "Surabaya",
+    "lat": -7.2492,
+    "lon": 112.7508,
+    "tz": "Asia/Jakarta",
+    "rakim": 8,
+    "bolge": "Endonezya"
+   }
+  },
+  {
+   "etiket": "İncheon (Incheon), Güney Kore",
+   "konum": {
+    "ad": "İncheon",
+    "lat": 37.4565,
+    "lon": 126.7052,
+    "tz": "Asia/Seoul",
+    "rakim": 43,
+    "bolge": "Güney Kore"
+   }
+  },
+  {
+   "etiket": "Haikou, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Haikou",
+    "lat": 20.0342,
+    "lon": 110.3465,
+    "tz": "Asia/Shanghai",
+    "rakim": 9,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Caracas, Venezuela",
+   "konum": {
+    "ad": "Caracas",
+    "lat": 10.488,
+    "lon": -66.8792,
+    "tz": "America/Caracas",
+    "rakim": 887,
+    "bolge": "Venezuela"
+   }
+  },
+  {
+   "etiket": "Kiev (Kyiv), Ukrayna",
+   "konum": {
+    "ad": "Kiev",
+    "lat": 50.4547,
+    "lon": 30.5238,
+    "tz": "Europe/Kyiv",
+    "rakim": 187,
+    "bolge": "Ukrayna"
+   }
+  },
+  {
+   "etiket": "Huizhou, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Huizhou",
+    "lat": 23.1115,
+    "lon": 114.4152,
+    "tz": "Asia/Shanghai",
+    "rakim": 25,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Buenos Aires, Arjantin",
+   "konum": {
+    "ad": "Buenos Aires",
+    "lat": -34.6131,
+    "lon": -58.3772,
+    "tz": "America/Argentina/Buenos_Aires",
+    "rakim": 31,
+    "bolge": "Arjantin"
+   }
+  },
+  {
+   "etiket": "Yinchuan, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Yinchuan",
+    "lat": 38.4681,
+    "lon": 106.2731,
+    "tz": "Asia/Shanghai",
+    "rakim": 1117,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Taichung, Çin Cumhuriyeti",
+   "konum": {
+    "ad": "Taichung",
+    "lat": 24.1469,
+    "lon": 120.6839,
+    "tz": "Asia/Taipei",
+    "rakim": 91,
+    "bolge": "Çin Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Kanpur, Hindistan",
+   "konum": {
+    "ad": "Kanpur",
+    "lat": 26.4652,
+    "lon": 80.3498,
+    "tz": "Asia/Kolkata",
+    "rakim": 137,
+    "bolge": "Hindistan"
+   }
+  },
+  {
+   "etiket": "Toronto, Kanada",
+   "konum": {
+    "ad": "Toronto",
+    "lat": 43.6533,
+    "lon": -79.3839,
+    "tz": "America/Toronto",
+    "rakim": 92,
+    "bolge": "Kanada"
+   }
+  },
+  {
+   "etiket": "Quito, Ekvador",
+   "konum": {
+    "ad": "Quito",
+    "lat": -0.2298,
+    "lon": -78.525,
+    "tz": "America/Guayaquil",
+    "rakim": 2854,
+    "bolge": "Ekvador"
+   }
+  },
+  {
+   "etiket": "Brisbane, Avustralya",
+   "konum": {
+    "ad": "Brisbane",
+    "lat": -27.4679,
+    "lon": 153.0281,
+    "tz": "Australia/Brisbane",
+    "rakim": 27,
+    "bolge": "Avustralya"
+   }
+  },
+  {
+   "etiket": "Luanda, Angola",
+   "konum": {
+    "ad": "Luanda",
+    "lat": -8.8368,
+    "lon": 13.2343,
+    "tz": "Africa/Luanda",
+    "rakim": 73,
+    "bolge": "Angola"
+   }
+  },
+  {
+   "etiket": "Baotou, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Baotou",
+    "lat": 40.6516,
+    "lon": 109.8439,
+    "tz": "Asia/Shanghai",
+    "rakim": 1064,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Osaka, Japonya",
+   "konum": {
+    "ad": "Osaka",
+    "lat": 34.6938,
+    "lon": 135.5011,
+    "tz": "Asia/Tokyo",
+    "rakim": 4,
+    "bolge": "Japonya"
+   }
+  },
+  {
+   "etiket": "Linyi, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Linyi",
+    "lat": 35.0631,
+    "lon": 118.3428,
+    "tz": "Asia/Shanghai",
+    "rakim": 69,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Baoding, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Baoding",
+    "lat": 38.8729,
+    "lon": 115.4625,
+    "tz": "Asia/Shanghai",
+    "rakim": 15,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Kaohsiung, Çin Cumhuriyeti",
+   "konum": {
+    "ad": "Kaohsiung",
+    "lat": 22.6163,
+    "lon": 120.3133,
+    "tz": "Asia/Taipei",
+    "rakim": 9,
+    "bolge": "Çin Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Brooklyn, Amerika Birleşik Devletleri",
+   "konum": {
+    "ad": "Brooklyn",
+    "lat": 40.6501,
+    "lon": -73.9496,
+    "tz": "America/New_York",
+    "rakim": 15,
+    "bolge": "Amerika Birleşik Devletleri"
+   }
+  },
+  {
+   "etiket": "Guayaquil, Ekvador",
+   "konum": {
+    "ad": "Guayaquil",
+    "lat": -2.1962,
+    "lon": -79.8862,
+    "tz": "America/Guayaquil",
+    "rakim": 14,
+    "bolge": "Ekvador"
+   }
+  },
+  {
+   "etiket": "Belo Horizonte, Brezilya",
+   "konum": {
+    "ad": "Belo Horizonte",
+    "lat": -19.9208,
+    "lon": -43.9378,
+    "tz": "America/Sao_Paulo",
+    "rakim": 888,
+    "bolge": "Brezilya"
+   }
+  },
+  {
+   "etiket": "Minhang, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Minhang",
+    "lat": 31.1088,
+    "lon": 121.3747,
+    "tz": "Asia/Shanghai",
+    "rakim": 12,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Bazhong, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Bazhong",
+    "lat": 31.8694,
+    "lon": 106.7443,
+    "tz": "Asia/Shanghai",
+    "rakim": 393,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Salvador, Brezilya",
+   "konum": {
+    "ad": "Salvador",
+    "lat": -12.9756,
+    "lon": -38.491,
+    "tz": "America/Bahia",
+    "rakim": 4,
+    "bolge": "Brezilya"
+   }
+  },
+  {
+   "etiket": "Abuja, Nijerya",
+   "konum": {
+    "ad": "Abuja",
+    "lat": 9.0579,
+    "lon": 7.4951,
+    "tz": "Africa/Lagos",
+    "rakim": 476,
+    "bolge": "Nijerya"
+   }
+  },
+  {
+   "etiket": "Gazipur, Bangladeş",
+   "konum": {
+    "ad": "Gazipur",
+    "lat": 23.9984,
+    "lon": 90.4223,
+    "tz": "Asia/Dhaka",
+    "rakim": 12,
+    "bolge": "Bangladeş"
+   }
+  },
+  {
+   "etiket": "Şikago (Chicago), Amerika Birleşik Devletleri",
+   "konum": {
+    "ad": "Şikago",
+    "lat": 41.85,
+    "lon": -87.65,
+    "tz": "America/Chicago",
+    "rakim": 179,
+    "bolge": "Amerika Birleşik Devletleri"
+   }
+  },
+  {
+   "etiket": "Wenzhou, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Wenzhou",
+    "lat": 27.9994,
+    "lon": 120.6668,
+    "tz": "Asia/Shanghai",
+    "rakim": 10,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Bekasi, Endonezya",
+   "konum": {
+    "ad": "Bekasi",
+    "lat": -6.2349,
+    "lon": 106.9896,
+    "tz": "Asia/Jakarta",
+    "rakim": 18,
+    "bolge": "Endonezya"
+   }
+  },
+  {
+   "etiket": "Dakar, Senegal",
+   "konum": {
+    "ad": "Dakar",
+    "lat": 14.6937,
+    "lon": -17.4441,
+    "tz": "Africa/Dakar",
+    "rakim": 12,
+    "bolge": "Senegal"
+   }
+  },
+  {
+   "etiket": "Hải Phòng (Haiphong), Vietnam",
+   "konum": {
+    "ad": "Hải Phòng",
+    "lat": 20.8648,
+    "lon": 106.6834,
+    "tz": "Asia/Bangkok",
+    "rakim": 12,
+    "bolge": "Vietnam"
+   }
+  },
+  {
+   "etiket": "Yunfu, Çin Halk Cumhuriyeti",
+   "konum": {
+    "ad": "Yunfu",
+    "lat": 22.9279,
+    "lon": 112.0381,
+    "tz": "Asia/Shanghai",
+    "rakim": 67,
+    "bolge": "Çin Halk Cumhuriyeti"
+   }
+  },
+  {
+   "etiket": "Navi Mumbai, Hindistan",
+   "konum": {
+    "ad": "Navi Mumbai",
+    "lat": 19.0368,
+    "lon": 73.0158,
+    "tz": "Asia/Kolkata",
+    "rakim": 14,
+    "bolge": "Hindistan"
+   }
+  },
+  {
+   "etiket": "Mogadişu (Mogadishu), Somali",
+   "konum": {
+    "ad": "Mogadişu",
+    "lat": 2.0371,
+    "lon": 45.3438,
+    "tz": "Africa/Mogadishu",
+    "rakim": 12,
+    "bolge": "Somali"
+   }
+  },
+  {
+   "etiket": "Kumasi, Gana",
+   "konum": {
+    "ad": "Kumasi",
+    "lat": 6.6885,
+    "lon": -1.6244,
+    "tz": "Africa/Accra",
+    "rakim": 270,
+    "bolge": "Gana"
+   }
+  },
+  {
+   "etiket": "Bandung, Endonezya",
+   "konum": {
+    "ad": "Bandung",
+    "lat": -6.9222,
+    "lon": 107.6069,
+    "tz": "Asia/Jakarta",
+    "rakim": 714,
+    "bolge": "Endonezya"
+   }
+  },
+  {
+   "etiket": "Nuuk, Grönland",
+   "konum": {
+    "ad": "Nuuk",
+    "lat": 64.1835,
+    "lon": -51.7216,
+    "tz": "America/Nuuk",
+    "rakim": 5,
+    "bolge": "Grönland"
+   }
+  },
+  {
+   "etiket": "Belmopán (Belmopan), Belize",
+   "konum": {
+    "ad": "Belmopán",
+    "lat": 17.2538,
+    "lon": -88.764,
+    "tz": "America/Belize",
+    "rakim": 56,
+    "bolge": "Belize"
+   }
+  },
+  {
+   "etiket": "Avarua, CK",
+   "konum": {
+    "ad": "Avarua",
+    "lat": -21.2075,
+    "lon": -159.7755,
+    "tz": "Pacific/Rarotonga",
+    "rakim": 7,
+    "bolge": "CK"
+   }
+  },
+  {
+   "etiket": "Tórshavn, FO",
+   "konum": {
+    "ad": "Tórshavn",
+    "lat": 62.0097,
+    "lon": -6.7716,
+    "tz": "Atlantic/Faroe",
+    "rakim": 1,
+    "bolge": "FO"
+   }
+  },
+  {
+   "etiket": "Basseterre, KN",
+   "konum": {
+    "ad": "Basseterre",
+    "lat": 17.2955,
+    "lon": -62.725,
+    "tz": "America/St_Kitts",
+    "rakim": -22,
+    "bolge": "KN"
+   }
+  },
+  {
+   "etiket": "Pago Pago, AS",
+   "konum": {
+    "ad": "Pago Pago",
+    "lat": -14.2781,
+    "lon": -170.7025,
+    "tz": "Pacific/Pago_Pago",
+    "rakim": 2,
+    "bolge": "AS"
+   }
+  },
+  {
+   "etiket": "Basse-Terre, GP",
+   "konum": {
+    "ad": "Basse-Terre",
+    "lat": 15.9971,
+    "lon": -61.7321,
+    "tz": "America/Guadeloupe",
+    "rakim": 11,
+    "bolge": "GP"
+   }
+  },
+  {
+   "etiket": "Mariehamn, AX",
+   "konum": {
+    "ad": "Mariehamn",
+    "lat": 60.0973,
+    "lon": 19.9348,
+    "tz": "Europe/Mariehamn",
+    "rakim": 11,
+    "bolge": "AX"
+   }
+  },
+  {
+   "etiket": "Kralendijk, BQ",
+   "konum": {
+    "ad": "Kralendijk",
+    "lat": 12.15,
+    "lon": -68.2667,
+    "tz": "America/Kralendijk",
+    "rakim": 4,
+    "bolge": "BQ"
+   }
+  },
+  {
+   "etiket": "Road Town, VG",
+   "konum": {
+    "ad": "Road Town",
+    "lat": 18.4269,
+    "lon": -64.6208,
+    "tz": "America/Tortola",
+    "rakim": 9,
+    "bolge": "VG"
+   }
+  },
+  {
+   "etiket": "Saint George's, GD",
+   "konum": {
+    "ad": "Saint George's",
+    "lat": 12.0529,
+    "lon": -61.7523,
+    "tz": "America/Grenada",
+    "rakim": 6,
+    "bolge": "GD"
+   }
+  },
+  {
+   "etiket": "Palikir, FM",
+   "konum": {
+    "ad": "Palikir",
+    "lat": 6.9248,
+    "lon": 158.1611,
+    "tz": "Pacific/Pohnpei",
+    "rakim": 90,
+    "bolge": "FM"
+   }
+  },
+  {
+   "etiket": "Valletta, MT",
+   "konum": {
+    "ad": "Valletta",
+    "lat": 35.8997,
+    "lon": 14.5148,
+    "tz": "Europe/Malta",
+    "rakim": 44,
+    "bolge": "MT"
+   }
+  },
+  {
+   "etiket": "Funafuti, TV",
+   "konum": {
+    "ad": "Funafuti",
+    "lat": -8.5243,
+    "lon": 179.1942,
+    "tz": "Pacific/Funafuti",
+    "rakim": 7,
+    "bolge": "TV"
+   }
+  },
+  {
+   "etiket": "Saint-Pierre, PM",
+   "konum": {
+    "ad": "Saint-Pierre",
+    "lat": 46.7791,
+    "lon": -56.1773,
+    "tz": "America/Miquelon",
+    "rakim": 30,
+    "bolge": "PM"
+   }
+  },
+  {
+   "etiket": "Gustavia, BL",
+   "konum": {
+    "ad": "Gustavia",
+    "lat": 17.8962,
+    "lon": -62.8498,
+    "tz": "America/St_Barthelemy",
+    "rakim": 6,
+    "bolge": "BL"
+   }
+  },
+  {
+   "etiket": "Marigot, MF",
+   "konum": {
+    "ad": "Marigot",
+    "lat": 18.0682,
+    "lon": -63.083,
+    "tz": "America/Marigot",
+    "rakim": 9,
+    "bolge": "MF"
+   }
+  },
+  {
+   "etiket": "Vaduz, LI",
+   "konum": {
+    "ad": "Vaduz",
+    "lat": 47.1415,
+    "lon": 9.5215,
+    "tz": "Europe/Vaduz",
+    "rakim": 465,
+    "bolge": "LI"
+   }
+  },
+  {
+   "etiket": "San Marino, SM",
+   "konum": {
+    "ad": "San Marino",
+    "lat": 43.9367,
+    "lon": 12.4464,
+    "tz": "Europe/San_Marino",
+    "rakim": 683,
+    "bolge": "SM"
+   }
+  },
+  {
+   "etiket": "Cockburn Town, TC",
+   "konum": {
+    "ad": "Cockburn Town",
+    "lat": 21.4612,
+    "lon": -71.1419,
+    "tz": "America/Grand_Turk",
+    "rakim": 7,
+    "bolge": "TC"
+   }
+  },
+  {
+   "etiket": "Longyearbyen, SJ",
+   "konum": {
+    "ad": "Longyearbyen",
+    "lat": 78.2233,
+    "lon": 15.6469,
+    "tz": "Arctic/Longyearbyen",
+    "rakim": 1,
+    "bolge": "SJ"
+   }
+  },
+  {
+   "etiket": "Stanley, Falkland Adaları",
+   "konum": {
+    "ad": "Stanley",
+    "lat": -51.6938,
+    "lon": -57.857,
+    "tz": "Atlantic/Stanley",
+    "rakim": 28,
+    "bolge": "Falkland Adaları"
+   }
+  },
+  {
+   "etiket": "The Valley, AI",
+   "konum": {
+    "ad": "The Valley",
+    "lat": 18.217,
+    "lon": -63.0578,
+    "tz": "America/Anguilla",
+    "rakim": 7,
+    "bolge": "AI"
+   }
+  },
+  {
+   "etiket": "Ciudad de la Paz, Ekvator Ginesi",
+   "konum": {
+    "ad": "Ciudad de la Paz",
+    "lat": 1.5925,
+    "lon": 10.8236,
+    "tz": "Africa/Malabo",
+    "rakim": 454,
+    "bolge": "Ekvator Ginesi"
+   }
+  },
+  {
+   "etiket": "Philipsburg, SX",
+   "konum": {
+    "ad": "Philipsburg",
+    "lat": 18.026,
+    "lon": -63.0458,
+    "tz": "America/Lower_Princes",
+    "rakim": 0,
+    "bolge": "SX"
+   }
+  },
+  {
+   "etiket": "Flying Fish Cove, CX",
+   "konum": {
+    "ad": "Flying Fish Cove",
+    "lat": -10.4217,
+    "lon": 105.6791,
+    "tz": "Indian/Christmas",
+    "rakim": 135,
+    "bolge": "CX"
+   }
+  },
+  {
+   "etiket": "Mata-Utu, WF",
+   "konum": {
+    "ad": "Mata-Utu",
+    "lat": -13.2816,
+    "lon": -176.1745,
+    "tz": "Pacific/Wallis",
+    "rakim": 15,
+    "bolge": "WF"
+   }
+  },
+  {
+   "etiket": "Yaren, NR",
+   "konum": {
+    "ad": "Yaren",
+    "lat": -0.5508,
+    "lon": 166.9252,
+    "tz": "Pacific/Nauru",
+    "rakim": 5,
+    "bolge": "NR"
+   }
+  },
+  {
+   "etiket": "Hagåtña, GU",
+   "konum": {
+    "ad": "Hagåtña",
+    "lat": 13.4757,
+    "lon": 144.7489,
+    "tz": "Pacific/Guam",
+    "rakim": 3,
+    "bolge": "GU"
+   }
+  },
+  {
+   "etiket": "Hamilton, BM",
+   "konum": {
+    "ad": "Hamilton",
+    "lat": 32.2949,
+    "lon": -64.783,
+    "tz": "Atlantic/Bermuda",
+    "rakim": 22,
+    "bolge": "BM"
+   }
+  },
+  {
+   "etiket": "Kingston, NF",
+   "konum": {
+    "ad": "Kingston",
+    "lat": -29.0546,
+    "lon": 167.9663,
+    "tz": "Pacific/Norfolk",
+    "rakim": 71,
+    "bolge": "NF"
+   }
+  },
+  {
+   "etiket": "Vatikan (Vatican City), VA",
+   "konum": {
+    "ad": "Vatikan",
+    "lat": 41.9027,
+    "lon": 12.4541,
+    "tz": "Europe/Vatican",
+    "rakim": 55,
+    "bolge": "VA"
+   }
+  },
+  {
+   "etiket": "Jamestown, SH",
+   "konum": {
+    "ad": "Jamestown",
+    "lat": -15.9249,
+    "lon": -5.7182,
+    "tz": "Atlantic/St_Helena",
+    "rakim": 10,
+    "bolge": "SH"
+   }
+  },
+  {
+   "etiket": "Alofi, NU",
+   "konum": {
+    "ad": "Alofi",
+    "lat": -19.0529,
+    "lon": -169.9196,
+    "tz": "Pacific/Niue",
+    "rakim": 51,
+    "bolge": "NU"
+   }
+  },
+  {
+   "etiket": "West Island, CC",
+   "konum": {
+    "ad": "West Island",
+    "lat": -12.1568,
+    "lon": 96.8225,
+    "tz": "Indian/Cocos",
+    "rakim": 12,
+    "bolge": "CC"
+   }
+  },
+  {
+   "etiket": "Adamstown, PN",
+   "konum": {
+    "ad": "Adamstown",
+    "lat": -25.066,
+    "lon": -130.1015,
+    "tz": "Pacific/Pitcairn",
+    "rakim": 67,
+    "bolge": "PN"
+   }
+  },
+  {
+   "etiket": "Port-aux-Français, Fransız Güney ve Antarktika Toprakları",
+   "konum": {
+    "ad": "Port-aux-Français",
+    "lat": -49.3492,
+    "lon": 70.2194,
+    "tz": "Indian/Kerguelen",
+    "rakim": 11,
+    "bolge": "Fransız Güney ve Antarktika Toprakları"
+   }
+  },
+  {
+   "etiket": "Grytviken, GS",
+   "konum": {
+    "ad": "Grytviken",
+    "lat": -54.2811,
+    "lon": -36.5092,
+    "tz": "Atlantic/South_Georgia",
+    "rakim": 4,
+    "bolge": "GS"
+   }
+  },
+  {
+   "etiket": "Plymouth, MS",
+   "konum": {
+    "ad": "Plymouth",
+    "lat": 16.7055,
+    "lon": -62.2129,
+    "tz": "America/Montserrat",
+    "rakim": 77,
+    "bolge": "MS"
+   }
+  },
+  {
+   "etiket": "Ngerulmud, PW",
+   "konum": {
+    "ad": "Ngerulmud",
+    "lat": 7.5008,
+    "lon": 134.6238,
+    "tz": "Pacific/Palau",
+    "rakim": 72,
+    "bolge": "PW"
+   }
+  },
+  {
+   "etiket": "Tirebolu, Giresun",
+   "konum": {
+    "ad": "Tirebolu",
+    "lat": 41.0069,
+    "lon": 38.8139,
+    "tz": "Europe/Istanbul",
+    "rakim": 29,
+    "bolge": "Giresun, Türkiye"
+   }
+  },
+  {
+   "etiket": "Londra (London), Birleşik Krallık",
+   "konum": {
+    "ad": "Londra",
+    "lat": 51.5085,
+    "lon": -0.1257,
+    "tz": "Europe/London",
+    "rakim": 25,
+    "bolge": "Birleşik Krallık"
+   }
+  }
+ ]
+}

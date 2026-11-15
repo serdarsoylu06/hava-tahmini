@@ -1,0 +1,4 @@
+node_modules/
+dist/
+# ../hava/yerlesimler.json'un kopyası: "npm run veri" üretir (dev ve build öncesi kendiliğinden çalışır)
+public/yerlesimler.json

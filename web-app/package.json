@@ -1,0 +1,33 @@
+{
+  "name": "hava-lab-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "GPL-2.0-only",
+  "description": "Hava Tahmini Laboratuvarı'nın sunucusuz web sürümü (React + TypeScript + Vite). Streamlit uygulamasından bağımsızdır.",
+  "scripts": {
+    "veri": "node araclar/yerlesim_kopyala.mjs",
+    "predev": "npm run veri",
+    "prebuild": "npm run veri",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "tip": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openmeteo/weather-map-layer": "^0.3.2",
+    "maplibre-gl": "^6.18.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

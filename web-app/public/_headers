@@ -1,0 +1,14 @@
+# Cloudflare Pages yanıt başlıkları.
+# Adında içerik özeti olan dosyalar (assets/) hiç değişmez: tarayıcı bir yıl saklar.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Yer listesi her yayında yeniden üretilir; bir gün saklanması yeter.
+/yerlesimler.json
+  Cache-Control: public, max-age=86400
+
+# Not: Cross-Origin-Opener-Policy / Cross-Origin-Embedder-Policy EKLENMEZ; harita paketinin çizim işçileri
+# bu başlıklarla hata veriyor (bkz. README, "Harita verisi").
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

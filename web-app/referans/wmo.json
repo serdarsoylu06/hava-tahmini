@@ -1,0 +1,188 @@
+[
+ {
+  "kod": 0,
+  "gunduz": "☀️",
+  "gece": "🌙",
+  "durum": "Açık"
+ },
+ {
+  "kod": 1,
+  "gunduz": "🌤️",
+  "gece": "🌙",
+  "durum": "Az bulutlu"
+ },
+ {
+  "kod": 2,
+  "gunduz": "⛅",
+  "gece": "☁️",
+  "durum": "Parçalı bulutlu"
+ },
+ {
+  "kod": 3,
+  "gunduz": "☁️",
+  "gece": "☁️",
+  "durum": "Kapalı"
+ },
+ {
+  "kod": 45,
+  "gunduz": "🌫️",
+  "gece": "🌫️",
+  "durum": "Sis"
+ },
+ {
+  "kod": 48,
+  "gunduz": "🌫️",
+  "gece": "🌫️",
+  "durum": "Kırağılı sis"
+ },
+ {
+  "kod": 51,
+  "gunduz": "🌦️",
+  "gece": "🌧️",
+  "durum": "Hafif çisenti"
+ },
+ {
+  "kod": 53,
+  "gunduz": "🌦️",
+  "gece": "🌧️",
+  "durum": "Çisenti"
+ },
+ {
+  "kod": 55,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Yoğun çisenti"
+ },
+ {
+  "kod": 56,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Donan çisenti"
+ },
+ {
+  "kod": 57,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Yoğun donan çisenti"
+ },
+ {
+  "kod": 61,
+  "gunduz": "🌦️",
+  "gece": "🌧️",
+  "durum": "Hafif yağmur"
+ },
+ {
+  "kod": 63,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Yağmur"
+ },
+ {
+  "kod": 65,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Kuvvetli yağmur"
+ },
+ {
+  "kod": 66,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Donan yağmur"
+ },
+ {
+  "kod": 67,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Kuvvetli donan yağmur"
+ },
+ {
+  "kod": 71,
+  "gunduz": "🌨️",
+  "gece": "🌨️",
+  "durum": "Hafif kar"
+ },
+ {
+  "kod": 73,
+  "gunduz": "🌨️",
+  "gece": "🌨️",
+  "durum": "Kar"
+ },
+ {
+  "kod": 75,
+  "gunduz": "❄️",
+  "gece": "❄️",
+  "durum": "Yoğun kar"
+ },
+ {
+  "kod": 77,
+  "gunduz": "🌨️",
+  "gece": "🌨️",
+  "durum": "Kar taneleri"
+ },
+ {
+  "kod": 80,
+  "gunduz": "🌦️",
+  "gece": "🌧️",
+  "durum": "Hafif sağanak"
+ },
+ {
+  "kod": 81,
+  "gunduz": "🌧️",
+  "gece": "🌧️",
+  "durum": "Sağanak"
+ },
+ {
+  "kod": 82,
+  "gunduz": "⛈️",
+  "gece": "⛈️",
+  "durum": "Şiddetli sağanak"
+ },
+ {
+  "kod": 85,
+  "gunduz": "🌨️",
+  "gece": "🌨️",
+  "durum": "Kar sağanağı"
+ },
+ {
+  "kod": 86,
+  "gunduz": "❄️",
+  "gece": "❄️",
+  "durum": "Yoğun kar sağanağı"
+ },
+ {
+  "kod": 95,
+  "gunduz": "⛈️",
+  "gece": "⛈️",
+  "durum": "Gök gürültülü sağanak"
+ },
+ {
+  "kod": 96,
+  "gunduz": "⛈️",
+  "gece": "⛈️",
+  "durum": "Dolu ile fırtına"
+ },
+ {
+  "kod": 99,
+  "gunduz": "⛈️",
+  "gece": "⛈️",
+  "durum": "Şiddetli dolu ile fırtına"
+ },
+ {
+  "kod": 4,
+  "gunduz": "❔",
+  "gece": "❔",
+  "durum": "Bilinmiyor"
+ },
+ {
+  "kod": 100,
+  "gunduz": "❔",
+  "gece": "❔",
+  "durum": "Bilinmiyor"
+ },
+ {
+  "kod": -1,
+  "gunduz": "❔",
+  "gece": "❔",
+  "durum": "Bilinmiyor"
+ }
+]

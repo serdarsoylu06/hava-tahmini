@@ -1,0 +1,95 @@
+[
+ {
+  "kod": "sicaklik",
+  "ad": "Sıcaklık + basınç",
+  "degisken": "temperature_2m",
+  "birim": "°C",
+  "izo": "pressure_msl",
+  "aralik": 4,
+  "izo_ad": "Basınç (hPa)",
+  "ruzgar": false,
+  "bak": [
+   "**Renkler** yerden 2 m yükseklikteki sıcaklıktır. Kara ile deniz, gündüz ile gece arasındaki farkı zamanı oynatarak izle.",
+   "**İnce çizgiler (izobarlar)** eşit basınçlı noktaları birleştirir. Rüzgâr bu çizgilere neredeyse paralel eser: Kuzey Yarımküre'de alçak basınç (A) saat yönünün tersine, yüksek basınç (Y) saat yönünde dolanılır.",
+   "**Çizgilerin sıklaştığı yerler** kuvvetli rüzgâr bölgeleridir.",
+   "**A merkezleri** bulut ve yağış, **Y merkezleri** açık ve durgun hava getirir."
+  ]
+ },
+ {
+  "kod": "yagis",
+  "ad": "Yağış + basınç",
+  "degisken": "precipitation",
+  "birim": "mm/saat",
+  "izo": "pressure_msl",
+  "aralik": 4,
+  "izo_ad": "Basınç (hPa)",
+  "ruzgar": false,
+  "bak": [
+   "**Yağış alanları** genellikle A merkezlerinin doğusunda ve cephe boyunca uzanan bantlar hâlinde görülür.",
+   "**Zamanı oynat**: yağış bandının batıdan doğuya ilerleyişi, cephenin hızını gösterir.",
+   "**Küçük, dağınık ve yoğun lekeler** konvektif (sağanak/gök gürültülü) yağışı, **geniş ve düzgün bantlar** cephesel yağışı anlatır."
+  ]
+ },
+ {
+  "kod": "hamle",
+  "ad": "Rüzgâr hamleleri",
+  "degisken": "wind_gusts_10m",
+  "birim": "km/s",
+  "izo": "pressure_msl",
+  "aralik": 4,
+  "izo_ad": "Basınç (hPa)",
+  "ruzgar": true,
+  "bak": [
+   "**Renkler** hamle hızıdır; 50 km/s üstü ağaç dalı, 75 km/s üstü çatı hasarı riski taşır.",
+   "**Oklar** ortalama rüzgârın yönünü ve göreli kuvvetini gösterir; izobarlara neredeyse paralel olduklarına dikkat et.",
+   "Boğazlar, vadiler ve dağ geçitleri rüzgârı kanalize eder (ör. Çanakkale, İzmit Körfezi); model çözünürlüğü bunları tam yakalayamaz."
+  ]
+ },
+ {
+  "kod": "bulut",
+  "ad": "Bulutluluk",
+  "degisken": "cloud_cover",
+  "birim": "%",
+  "izo": "pressure_msl",
+  "aralik": 4,
+  "izo_ad": "Basınç (hPa)",
+  "ruzgar": false,
+  "bak": [
+   "Bir tür **sentetik uydu görüntüsü**: modelin toplam bulut örtüsü.",
+   "**Spiral biçimli bulut alanları** gelişmiş alçak basınç sistemlerinin işaretidir.",
+   "Y merkezleri altında bulutsuz alanlar, gece **don ve sis**, gündüz güneşli hava demektir."
+  ]
+ },
+ {
+  "kod": "t850",
+  "ad": "850 hPa sıcaklık (~1,5 km)",
+  "degisken": "temperature_850hPa",
+  "birim": "°C",
+  "izo": "geopotential_height_850hPa",
+  "aralik": 30,
+  "izo_ad": "850 hPa yüksekliği (m)",
+  "ruzgar": false,
+  "bak": [
+   "Bu seviye yer yüzeyinin gündüz ısınmasından etkilenmez; **hava kütlesini** doğrudan gösterir.",
+   "**Renk kuşaklarının sıklaştığı yerler cephelerdir**: soğuk havanın sıcak havayı ittiği hat.",
+   "Kar için pratik kural: **850 hPa sıcaklığı −2/−4 °C'nin altındaysa** yağış alçak kotlarda bile kar olabilir.",
+   "Mavi tonların güneye doğru uzanması **soğuk hava girişi** (soğuk adveksiyon) demektir."
+  ]
+ },
+ {
+  "kod": "z500",
+  "ad": "500 hPa yükseklik (~5,5 km)",
+  "degisken": "temperature_500hPa",
+  "birim": "°C",
+  "izo": "geopotential_height_500hPa",
+  "aralik": 60,
+  "izo_ad": "500 hPa yüksekliği (m)",
+  "ruzgar": false,
+  "bak": [
+   "Çizgiler 500 hPa basıncının kaç metrede olduğunu gösterir; bu akış **yerdeki sistemleri yönlendirir**.",
+   "Çizgilerin güneye **çukurlaştığı** yerler **oluk**tur: soğuk, kararsız hava ve sağanak.",
+   "Kuzeye **kabardığı** yerler **sırt**tır: sıcak ve sakin hava.",
+   "Akıştan kopmuş kapalı alçak merkezler (**cut-off low**) günlerce aynı bölgede kalıp kalıcı yağış ve sel üretebilir."
+  ]
+ }
+]
