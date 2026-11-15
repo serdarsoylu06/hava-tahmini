@@ -116,18 +116,25 @@ a { color: var(--vurgu); }
 .ol-kart p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.35; opacity: .92; }
 
 /* Uzman sayfaları: gezinme, başlık, ölçüt kartları, okuma rehberi */
-.sayfa-seridi { position: relative; margin: 0 0 14px; }
-.sayfalar { display: flex; gap: 6px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
-.sayfalar::-webkit-scrollbar { display: none; }
-/* kaydırılacak yer varsa o kenar solar ve bir ok çıkar */
-.sayfa-seridi[data-sag] .sayfalar { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); }
-.sayfa-seridi[data-sol] .sayfalar { -webkit-mask-image: linear-gradient(270deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); mask-image: linear-gradient(270deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); }
-.sayfa-seridi[data-sol][data-sag] .sayfalar { -webkit-mask-image: linear-gradient(90deg, transparent 14px, #000 64px, #000 calc(100% - 64px), transparent calc(100% - 14px)); mask-image: linear-gradient(90deg, transparent 14px, #000 64px, #000 calc(100% - 64px), transparent calc(100% - 14px)); }
+/* yana kaydırılan düğme şeridi (kabuk/Serit.tsx): kaydırılacak yer varsa o kenar solar ve bir ok çıkar */
+.serit { position: relative; margin: 0 0 12px; }
+.serit-ic { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
+.serit-ic::-webkit-scrollbar { display: none; }
+.serit-ic .cip { flex: none; }
+.serit[data-sag] .serit-ic { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); }
+.serit[data-sol] .serit-ic { -webkit-mask-image: linear-gradient(270deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); mask-image: linear-gradient(270deg, #000 calc(100% - 64px), transparent calc(100% - 14px)); }
+.serit[data-sol][data-sag] .serit-ic { -webkit-mask-image: linear-gradient(90deg, transparent 14px, #000 64px, #000 calc(100% - 64px), transparent calc(100% - 14px)); mask-image: linear-gradient(90deg, transparent 14px, #000 64px, #000 calc(100% - 64px), transparent calc(100% - 14px)); }
+.serit-grup { display: flex; gap: 6px; flex: none; }
+.serit-ayrac { flex: none; width: 1px; height: 22px; background: var(--cizgi); margin: 0 4px; }
 .serit-ok { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--cizgi); background: var(--yuzey);
             color: var(--metin); font-size: 20px; line-height: 1; padding: 0 0 3px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
 .serit-ok.sag { right: 0; } .serit-ok.sol { left: 0; }
-.sayfalar .cip { flex: none; }
 .sayfalar .cip[aria-current="page"] { background: var(--vurgu); border-color: var(--vurgu); color: var(--vurgu-metin); }
+/* kayıtlı yerler: sayfa şeridinin altında, daha küçük düğmelerle tek satır */
+.kayitli-yerler { margin-bottom: 10px; }
+.kayitli-yerler .cip { padding: 4px 12px; min-height: 32px; font-size: 13px; }
+.sy-serit { margin: 10px 0; }
+.sy-serit .cip { padding: 5px 11px; min-height: 34px; font-size: 13px; }
 .sy-bas h2 { font-size: 24px; font-weight: 600; margin: 4px 0 4px; }
 .sy-bas p { margin: 0 0 16px; color: var(--ikinci); max-width: 78ch; }
 .olcutler { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }

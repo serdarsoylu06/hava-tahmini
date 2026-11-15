@@ -12,6 +12,7 @@ import { gunYaz, zamanYaz } from "../ortak/zaman";
 import { apiHatasiMi, nesneMi, tabloDogrula } from "../veri/dogrula";
 import { simdikiSaat } from "../veri/openMeteo";
 import type { Deger, Tablo } from "../veri/tipler";
+import { Serit } from "../kabuk/Serit";
 import { Bolum, Durum, isaretli, kalin, Not, Olcut, Rehber, type SayfaOzellik, SayfaBasligi, sayi, useVeri } from "./ortak";
 
 const MUREKKEP = "#1C2829", GRI = "#6F7F76";
@@ -59,15 +60,17 @@ export function Dogrulama({ istemci, konum, tahmin }: SayfaOzellik) {
       <SayfaBasligi baslik="Tahmin ne kadar tuttu?">
         Son bir haftada gerçekleşen değerleri, aynı saatler için 1–7 gün önce yapılmış tahminlerle karşılaştırır. Tahminin ne kadar ileriye güvenilebileceğini en iyi bu öğretir.
       </SayfaBasligi>
-      <div className="sy-secimler">
-        <div className="an-cipler" role="group" aria-label="Değişken">
+      {/* iki seçim grubu tek satırda, yana kaydırılır: telefonda iki satır yer kaplamasın */}
+      <Serit etiket="Değişken ve karşılaştırma kaynağı" className="sy-serit">
+        <div className="serit-grup" role="group" aria-label="Değişken">
           {Object.keys(DEGISKENLER).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
         </div>
-        <div className="an-cipler" role="group" aria-label="Neyle karşılaştırılsın?">
+        <span className="serit-ayrac" aria-hidden="true" />
+        <div className="serit-grup" role="group" aria-label="Neyle karşılaştırılsın?">
           <button type="button" className="cip" aria-pressed={kaynak === "istasyon"} onClick={() => setKaynak("istasyon")}>İstasyon ölçümü</button>
           <button type="button" className="cip" aria-pressed={kaynak === "analiz"} onClick={() => setKaynak("analiz")}>Model analizi</button>
         </div>
-      </div>
+      </Serit>
       {kaynak === "istasyon" && yagis && <Not>Havalimanı raporları (METAR) yağış miktarı içermez; yağış için model analiziyle karşılaştırılıyor.</Not>}
       {kaynak === "istasyon" && !yagis && istasyonHazir && !kullanilan && <Not tur="dikkat">120 km içinde ölçümüne ulaşılabilen bir havalimanı istasyonu yok; model analiziyle karşılaştırılıyor.</Not>}
       {kullanilan && (
@@ -123,10 +126,10 @@ function Karsilastirma({ t, ad, degisken, birim, tolerans, istasyon, yer }: { t:
       <div className="sy-iki">
         <div>
           <Bolum baslik="Gerçekleşen ve önceden yapılan tahminler" />
-          <div className="an-cipler" role="group" aria-label="Gösterilecek tahminler">
+          <Serit etiket="Gösterilecek tahminler" className="sy-serit">
             {GUN_ONCE.map((g) => <button key={g} type="button" className="cip" aria-pressed={secili.includes(g)}
                                          onClick={() => setSecili((s) => (s.includes(g) ? s.filter((x) => x !== g) : [...s, g].sort((a, b) => a - b)))}>{g} gün önce</button>)}
-          </div>
+          </Serit>
           <section className="ak" aria-label="Gerçekleşen ve tahmin edilen değerler">
             <TahminGrafigi t={t} degisken={degisken} baslik={`${ad} (${birim})`} birim={birim} secili={secili} istasyon={istasyon} gunluk={gunluk} />
           </section>
@@ -216,14 +219,15 @@ function ModelSiralamasi({ istemci, istasyon, yer }: { istemci: SayfaOzellik["is
 
   return (
     <>
-      <div className="sy-secimler">
-        <div className="an-cipler" role="group" aria-label="Tahmin ufku">
+      <Serit etiket="Tahmin ufku ve dönem" className="sy-serit">
+        <div className="serit-grup" role="group" aria-label="Tahmin ufku">
           {UFUKLAR.map(([etiket, g]) => <button key={g} type="button" className="cip" aria-pressed={g === ufukGun} onClick={() => setUfukGun(g)}>{etiket}</button>)}
         </div>
-        <div className="an-cipler" role="group" aria-label="Dönem">
+        <span className="serit-ayrac" aria-hidden="true" />
+        <div className="serit-grup" role="group" aria-label="Dönem">
           {[30, 90].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === donem} onClick={() => setDonem(g)}>Son {g} gün</button>)}
         </div>
-      </div>
+      </Serit>
       <p className="an-not">Tahmin, geçerlilik zamanından 1, 2 ya da 3 gün önce yayımlanmış koşudan alınır. Ufuklar ayrı ayrı sıralanır; bir modelin kısa vadede iyi olması uzun vadede de iyi olduğu anlamına gelmez.</p>
       <Durum d={arsiv} bekleme="90 günlük ölçüm ve tahmin arşivi indiriliyor…">
         {() => {

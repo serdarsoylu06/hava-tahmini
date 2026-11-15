@@ -3,6 +3,7 @@
 import { type FormEvent, type KeyboardEvent, lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Basit } from "./basit/Basit";
 import * as kayit from "./kabuk/kayit";
+import { Serit } from "./kabuk/Serit";
 import { noktaOku, noktaYaz, type Secim, sonSecimCoz, VARSAYILAN_YER, yerOku, yerYaz } from "./ortak/url";
 import { aramaEtiketi, aramaKonumu, konumKaydi, noktaKonumu, oner, type YerlesimDosyasi, type Yerlesimler, yerlesimleriKur } from "./ortak/yerler";
 import { depoOlustur } from "./veri/depo";
@@ -227,14 +228,18 @@ export function App() {
         )}
       </div>
 
-      {mod === "uzman" && <SayfaSeridi sayfa={sayfa} sec={sayfaSec} />}
+      {mod === "uzman" && (
+        <Serit tur="nav" etiket="Uzman sayfaları" className="sayfalar" secili={sayfa}>
+          {SAYFALAR.map(([k, ad]) => <button key={k} type="button" className="cip" aria-current={sayfa === k ? "page" : undefined} onClick={() => sayfaSec(k)}>{ad}</button>)}
+        </Serit>
+      )}
       {konumDurumu && <p className="cipler" role="status">{konumDurumu}</p>}
       {noktalar.length > 0 && (
-        <div className="cipler" role="group" aria-label="Kayıtlı yerler">
+        <Serit etiket="Kayıtlı yerler" className="kayitli-yerler" secili={kayitli?.ad ?? ""}>
           {noktalar.map((n) => (
             <button key={n.ad} type="button" className="cip" aria-pressed={kayitli?.ad === n.ad} onClick={() => sec({ tur: "nokta", lat: n.lat, lon: n.lon })}>{n.ad}</button>
           ))}
-        </div>
+        </Serit>
       )}
       {secenekler.length > 1 && (
         <div className="cipler" role="group" aria-label="Arama sonuçları">
@@ -291,42 +296,6 @@ export function App() {
         <br />Özgür yazılım (GPL-2.0), hiçbir garanti verilmez ·{" "}
         <a href="https://github.com/serdarsoylu06/hava-tahmini" target="_blank" rel="noreferrer">kaynak kodu</a>
       </footer>
-    </div>
-  );
-}
-
-/** Uzman sayfalarının şeridi. Dar ekranda sığmayan sayfalar yana kaydırılır; kaydırılacak yer olduğunu kenardaki
- * solma ve ok düğmesi gösterir (ok, şeridi o yöne kaydırır). Seçili sayfa görünür alana getirilir. */
-function SayfaSeridi({ sayfa, sec }: { sayfa: Sayfa; sec: (s: Sayfa) => void }) {
-  const serit = useRef<HTMLElement>(null);
-  const [tasma, setTasma] = useState({ sol: false, sag: false });
-  useEffect(() => {
-    const el = serit.current;
-    if (!el) return;
-    const olc = () => setTasma({ sol: el.scrollLeft > 4, sag: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
-    olc();
-    el.addEventListener("scroll", olc, { passive: true });
-    const gozcu = new ResizeObserver(olc);
-    gozcu.observe(el);
-    return () => { el.removeEventListener("scroll", olc); gozcu.disconnect(); };
-  }, []);
-  useEffect(() => {
-    const el = serit.current, secili = el?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (!el || !secili) return;
-    // seçili sayfa şeridin içinde tam görünür olsun (sayfanın kendisi kaymasın diye scrollIntoView kullanılmaz)
-    const sol = secili.offsetLeft - 72, sag = secili.offsetLeft + secili.offsetWidth + 72;        // 72: solan kenarın genişliği
-    if (sol < el.scrollLeft) el.scrollTo({ left: Math.max(sol, 0) });
-    else if (sag > el.scrollLeft + el.clientWidth) el.scrollTo({ left: sag - el.clientWidth });
-  }, [sayfa]);
-  const kaydir = (yon: 1 | -1) => serit.current?.scrollBy({ left: yon * serit.current.clientWidth * 0.7, behavior: "smooth" });
-  return (
-    <div className="sayfa-seridi" data-sol={tasma.sol || undefined} data-sag={tasma.sag || undefined}>
-      <nav ref={serit} className="sayfalar" aria-label="Uzman sayfaları">
-        {SAYFALAR.map(([k, ad]) => <button key={k} type="button" className="cip" aria-current={sayfa === k ? "page" : undefined} onClick={() => sec(k)}>{ad}</button>)}
-      </nav>
-      {/* oklar yalnızca görsel ipucudur ve fareyle kolaylık sağlar; klavye ve ekran okuyucu düğmelere doğrudan ulaşır */}
-      {tasma.sol && <button type="button" className="serit-ok sol" tabIndex={-1} aria-hidden="true" onClick={() => kaydir(-1)}>‹</button>}
-      {tasma.sag && <button type="button" className="serit-ok sag" tabIndex={-1} aria-hidden="true" onClick={() => kaydir(1)}>›</button>}
     </div>
   );
 }
