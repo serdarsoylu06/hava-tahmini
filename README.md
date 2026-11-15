@@ -68,3 +68,8 @@ arttıkça istek sayısı artmaz. Yoğun kullanımda kendi Open-Meteo sunucunu k
 - Radar: [RainViewer](https://www.rainviewer.com) · Uydu: [EUMETSAT](https://view.eumetsat.int) Meteosat
 - Yer adları: [GeoNames](https://www.geonames.org) (CC BY 4.0) · Kıyı çizgileri ve sınırlar: Natural Earth
 - Altlık haritalar: © OpenStreetMap katkıcıları, © CARTO
+
+## Lisans
+
+[GNU Genel Kamu Lisansı, sürüm 2](LICENSE) (GPL-2.0). © 2026 Serdar SOYLU. Bu program özgür yazılımdır; hiçbir
+garanti verilmez. Lisansın seçilme nedeni `web-app/README.md` dosyasının "Lisans" bölümünde anlatılır.
