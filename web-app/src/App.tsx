@@ -94,7 +94,7 @@ export function App() {
   const tema = useTema();
   /** Kısa süre görünen bildirim (ör. "Bağlantı kopyalandı"). */
   const [tost, setTost] = useState("");
-  useEffect(() => { if (!tost) return; const s = setTimeout(() => setTost(""), 2600); return () => clearTimeout(s); }, [tost]);
+  useEffect(() => { if (!tost) return; const s = setTimeout(() => setTost(""), Math.max(2600, tost.length * 75)); return () => clearTimeout(s); }, [tost]);
   /** İlk açılışta simgeli düğmelerin anlamını gösteren kısa not; "Anladım" denince bir daha çıkmaz. */
   const [ipucuAcik, setIpucuAcik] = useState(() => depo?.getItem(IPUCU_ANAHTARI) !== "1");
   const ipucuKapat = () => { setIpucuAcik(false); try { depo?.setItem(IPUCU_ANAHTARI, "1"); } catch { /* depo kapalı: not bu oturumda kapanır */ } };
@@ -188,11 +188,11 @@ export function App() {
   }, []);
 
   const konumum = () => {
-    if (!navigator.geolocation) { setKonumDurumu("Bu tarayıcı konum paylaşımını desteklemiyor."); return; }
+    if (!navigator.geolocation) { setTost("Bu tarayıcı konum paylaşımını desteklemiyor."); return; }
     setKonumDurumu("Konum alınıyor…");
     navigator.geolocation.getCurrentPosition(
       (p) => { setKonumDurumu(""); sec({ tur: "nokta", lat: p.coords.latitude, lon: p.coords.longitude, bolge: "Bulunduğun konum" }); },
-      (h) => setKonumDurumu(h.code === h.PERMISSION_DENIED ? "Konum izni verilmedi. Yeri arama kutusundan seçebilirsin." : "Konum alınamadı. Yeri arama kutusundan seçebilirsin."),
+      (h) => { setKonumDurumu(""); setTost(h.code === h.PERMISSION_DENIED ? "Konum izni verilmedi. Yeri arama kutusundan seçebilirsin." : "Konum alınamadı. Yeri arama kutusundan seçebilirsin."); },
       { timeout: 10_000, maximumAge: 300_000 });
   };
 

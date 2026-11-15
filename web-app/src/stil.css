@@ -47,6 +47,9 @@
 body { margin: 0; background: var(--zemin); color: var(--metin); font: 15px/1.5 "Inter", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 h1, h2, h3 { font-family: var(--baslik); letter-spacing: -.015em; }
 button, input { font: inherit; color: inherit; }
+/* iOS, yazısı 16px'ten küçük bir giriş ya da seçim kutusuna dokunulunca sayfayı büyütür ve öyle bırakır:
+   sayfa yana kayar, alttaki çubuk ekrandan taşar. Dokunmatik ekranda bu kutular 16px olur. */
+@media (pointer: coarse) { input, select, textarea { font-size: 16px !important; } }
 button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--vurgu); outline-offset: 2px; }
 a { color: var(--vurgu); }
 @media (prefers-reduced-motion: reduce) { .mz-katman * { animation: none !important; } }
@@ -69,7 +72,8 @@ a { color: var(--vurgu); }
 /* üst bölüm tek satır: logo | arama ve konum | görünüm, paylaş, tema. Telefonda iki satıra iner (aşağıda). */
 .ust { display: flex; align-items: center; gap: 10px 14px; margin-bottom: 14px; }
 .ust-sag { display: flex; align-items: center; gap: 2px; flex: none; margin-left: auto; }
-.tost { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 60; margin: 0; padding: 9px 16px; border-radius: 999px;
+/* uzun bildirim telefonda iki satıra iner: genişlik içeriğe göre, en çok ekran eksi kenar boşluğu */
+.tost { position: fixed; left: 0; right: 0; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 60; width: fit-content; max-width: calc(100% - 32px); margin: 0 auto; padding: 9px 16px; border-radius: 20px; text-align: center;
         background: var(--metin); color: var(--zemin); font-size: 13.5px; font-weight: 600; box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .5); }
 .ipucu { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: var(--ikinci); }
 .ipucu ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; flex: 1 1 320px; }
@@ -195,7 +199,7 @@ a { color: var(--vurgu); }
   .logo { order: 1; } .ust-sag { order: 2; } .arac { order: 3; flex-basis: 100%; }
   .arac .arama { flex: 1 1 auto; }
   .arac .rozet, .arac .konum-bilgi { display: none; }
-  .alt-cubuklu { --alt-cubuk: calc(60px + env(safe-area-inset-bottom)); padding-bottom: calc(40px + var(--alt-cubuk)); }
+  .alt-cubuklu { --alt-cubuk: calc(60px + env(safe-area-inset-bottom)); --panel-payi: 0px; padding-bottom: calc(40px + var(--alt-cubuk)); }
   .sayfalar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; margin: 0; background: var(--yuzey); border-top: 1px solid var(--cizgi);
               padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -6px 18px -10px rgba(0, 0, 0, .45); }
   .sayfalar .serit-ic { gap: 0; padding: 4px 6px; justify-content: space-between; }
@@ -538,7 +542,7 @@ a { color: var(--vurgu); }
   .uz { display: block; height: auto; }
   .uz-sol { display: none; }
   /* harita, alttaki kapalı analiz panelinin (62px) üstünde biter: zaman çubuğu panelin altında kalmasın */
-  .uz-orta { height: max(400px, calc(100dvh - 285px)); border-radius: var(--r-buyuk); }
+  .uz-orta { height: max(360px, calc(100dvh - 285px - max(0px, env(safe-area-inset-top) - 14px) - env(safe-area-inset-bottom))); border-radius: var(--r-buyuk); }
   /* yakınlaştırma düğmelerine (sağ üst) yer bırakır; sığmayan seçim kutusu daralır, taşmaz */
   .uz-ust-secim { position: absolute; top: 10px; left: 10px; right: 58px; z-index: 3; display: flex; gap: 6px; }
   .uz-ust-secim label { flex: none; display: flex; }                       /* model adı kısalmaz */
@@ -554,7 +558,7 @@ a { color: var(--vurgu); }
   .uz-zaman .cip { display: none; }
   /* analiz: alttan açılan panel */
   .uz-sag { position: fixed; left: 0; right: 0; bottom: var(--alt-cubuk, 0px); z-index: 40; border-radius: var(--r-buyuk) var(--r-buyuk) 0 0; padding: 0; overflow: hidden; display: flex; flex-direction: column;
-            height: calc(62px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); transition: height .22s ease; box-shadow: 0 -8px 28px -8px rgba(0, 0, 0, .5); }
+            height: calc(62px + var(--panel-payi, env(safe-area-inset-bottom))); padding-bottom: var(--panel-payi, env(safe-area-inset-bottom)); transition: height .22s ease; box-shadow: 0 -8px 28px -8px rgba(0, 0, 0, .5); }
   .uz-sag[data-yukseklik="yarim"] { height: 56dvh; }
   .uz-sag[data-yukseklik="tam"] { height: 90dvh; }
   .uz-tutamac { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; padding: 8px 12px 10px; border: 0; background: transparent; cursor: grab;
