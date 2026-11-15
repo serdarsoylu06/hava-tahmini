@@ -11,7 +11,7 @@ import { type Kare, kareSec, RADAR_EN_YAKIN, radarKareleri, UYDU_KATMAN, uyduKar
 import { yerelSaat, zamanYaz } from "../ortak/zaman";
 import { ALTLIK_STILI, protokoluKur } from "../uzman/Harita";
 import { alanMeta, degiskenVar, enYakinZaman, MODELLER, omAdresi } from "../uzman/katmanlar";
-import { useKoyuTema } from "../uzman/Uzman";
+import { useKoyuTema } from "../kabuk/tema";
 import { Not, type SayfaOzellik, SayfaBasligi, useVeri } from "./ortak";
 
 type Katman = "radar" | "uydu" | "ruzgar";

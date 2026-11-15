@@ -1,6 +1,7 @@
 /** Uzman mod: harita merkezli analiz ekranı. Masaüstünde sol kontrol paneli, ortada harita, sağda analiz paneli;
  * telefonda tam genişlikte harita ve sürüklenebilir alt panel. */
 import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useKoyuTema } from "../kabuk/tema";
 import { GUNLER, haftaGunu, yerelSaat } from "../ortak/zaman";
 import type { Istemci } from "../veri/istemci";
 import type { Konum, Tahmin } from "../veri/tipler";
@@ -19,17 +20,6 @@ function useGecikmeli<T>(deger: T, ms: number): T {
   const [g, setG] = useState(deger);
   useEffect(() => { const s = setTimeout(() => setG(deger), ms); return () => clearTimeout(s); }, [deger, ms]);
   return g;
-}
-
-export function useKoyuTema(): boolean {
-  const [koyu, setKoyu] = useState(() => !matchMedia("(prefers-color-scheme: light)").matches);
-  useEffect(() => {
-    const ortam = matchMedia("(prefers-color-scheme: light)");
-    const degisti = () => setKoyu(!ortam.matches);
-    ortam.addEventListener("change", degisti);
-    return () => ortam.removeEventListener("change", degisti);
-  }, []);
-  return koyu;
 }
 
 /** "**kalın** düz" → <strong> (katman açıklamaları Streamlit'teki Markdown metinleridir). */

@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark light" />
     <meta name="description" content="Hava tahminini okumayı kolaylaştıran, sade ve uzman modlu hava durumu uygulaması." />
-    <title>HavaLab</title>
+    <title>HavaLabSS</title>
+    <!-- Elle seçilmiş tema, sayfa çizilmeden önce uygulanır (yanlış temanın bir an görünmesini önler); bkz. src/kabuk/tema.ts -->
+    <script>try { var t = localStorage.getItem("havalab_tema"); if (t === "acik" || t === "koyu") document.documentElement.dataset.tema = t; } catch (e) {}</script>
     <!-- Ana ekrana eklenince: kendi simgesi, tam ekran açılış (adres çubuğu yok), üst çubuk temanın renginde -->
     <link rel="icon" href="/simge.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/simge-180.png" />
@@ -14,7 +16,7 @@
     <meta name="theme-color" content="#E8EEE2" media="(prefers-color-scheme: light)" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="HavaLab" />
+    <meta name="apple-mobile-web-app-title" content="HavaLabSS" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -3,6 +3,7 @@ import { referans } from "../referans";
 import { kerteriz, mesafeKm, YON8, yonAdi } from "./cografya";
 import { durum, simge } from "./hava";
 import { pyBicim } from "./sayi";
+import { koyuMu, SIRADAKI, temaCoz, type TemaSecimi } from "../kabuk/tema";
 import { sonSecimCoz } from "./url";
 import { GUNLER, gunYaz, haftaGunu, saatBasi, yerelSaat, zamanYaz } from "./zaman";
 
@@ -97,5 +98,25 @@ describe("son bakılan yer", () => {
   it("bozuk, eksik ya da geçersiz kayıtta null döner", () => {
     for (const m of [null, undefined, "", "bozuk", "null", "[]", '{"tur":"yer"}', '{"tur":"yer","etiket":"  "}', '{"tur":"nokta","lat":"40","lon":38}',
                      '{"tur":"nokta","lat":95,"lon":38}', '{"tur":"baska","etiket":"x"}']) expect(sonSecimCoz(m), String(m)).toBeNull();
+  });
+});
+
+describe("tema seçimi", () => {
+  it("saklanan değeri çözer; tanınmayan her şey cihaza uyar", () => {
+    expect(temaCoz("acik")).toBe("acik");
+    expect(temaCoz("koyu")).toBe("koyu");
+    for (const m of [null, undefined, "", "oto", "dark", "ACIK"]) expect(temaCoz(m)).toBe("oto");
+  });
+  it("elle seçim cihazın ayarını ezer; oto cihazı izler", () => {
+    expect(koyuMu("koyu", true)).toBe(true);
+    expect(koyuMu("acik", false)).toBe(false);
+    expect(koyuMu("oto", true)).toBe(false);
+    expect(koyuMu("oto", false)).toBe(true);
+  });
+  it("düğme üç seçenek arasında döner", () => {
+    let s: TemaSecimi = "oto";
+    const gorulen: TemaSecimi[] = [s];
+    for (let i = 0; i < 3; i++) { s = SIRADAKI[s]; gorulen.push(s); }
+    expect(gorulen).toEqual(["oto", "acik", "koyu", "oto"]);
   });
 });

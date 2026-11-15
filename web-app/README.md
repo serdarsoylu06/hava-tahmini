@@ -1,4 +1,4 @@
-# HavaLab web (yeni arayüz)
+# HavaLabSS web (yeni arayüz)
 
 Hava Tahmini Laboratuvarı'nın sunucusuz sürümü: React + TypeScript + Vite, hedef Cloudflare Pages.
 Streamlit uygulamasından bağımsızdır; depo kökündeki `hava_lab.py`, `hava/` ve `app_pages/` bu klasörden
@@ -67,6 +67,12 @@ adresi alır.
   Open-Meteo'ya gider, Cloudflare kotasından yemez.
 - Kendi alan adı: proje sayfasında **Custom domains → Set up a domain**.
 
+### Tema
+
+Varsayılan olarak cihazın açık/koyu ayarı izlenir. Üstteki düğme "cihaza uy → açık → koyu" arasında döner; elle
+seçim tarayıcıda saklanır (`havalab_tema`) ve `<html data-tema>` ile uygulanır (`src/kabuk/tema.ts`, renkler
+`src/stil.css`'in başında). `index.html`'deki küçük betik seçimi sayfa çizilmeden önce uygular.
+
 ### Telefonun ana ekranına ekleme
 
 Yayındaki site iPhone'da Safari'den **Paylaş → Ana Ekrana Ekle**, Android'de Chrome'dan **Ana ekrana ekle** ile
@@ -91,7 +97,7 @@ Kısayol `/` adresini açar; uygulama o tarayıcıda son bakılan yeri hatırlay
 - `src/uzman/` — Uzman mod: `Uzman.tsx` (düzen), `Harita.tsx` (MapLibre), `Lejant.tsx`, `AnalizPaneli.tsx` (grafikler),
   `katmanlar.ts` (modeller, ızgara dosyalarının adresleri, koşu bilgisi), `katmanMetinleri.ts` (Streamlit'teki
   katman açıklamalarından üretilir), `analiz.ts` (meteogram, model uyumu, ansambl hesapları).
-- `src/kabuk/kayit.ts` — kayıtlı yerler (tarayıcının yerel deposunda; en çok 15). `src/grafik/` — HavaLab'ın kendi çizelgesi
+- `src/kabuk/kayit.ts` — kayıtlı yerler (tarayıcının yerel deposunda; en çok 15). `src/grafik/` — HavaLabSS'in kendi çizelgesi
   (`Cizelge.tsx`: SVG çizim, imleç, ipucu, klavye, tablo görünümü; `olcek.ts`: eksen, konum ve eğri hesapları).
 - `araclar/referans_uret.py` — referansları üretir; Python kodunu yalnızca çağırır, değiştirmez.
 - `araclar/yerlesim_kopyala.mjs` — `../hava/yerlesimler.json`'u `public/` altına kopyalar (dev ve build öncesi).

@@ -1,6 +1,6 @@
 {
-  "name": "HavaLab",
-  "short_name": "HavaLab",
+  "name": "HavaLabSS",
+  "short_name": "HavaLabSS",
   "description": "Hava tahminini okumayı kolaylaştıran, sade ve uzman modlu hava durumu uygulaması.",
   "lang": "tr",
   "start_url": ".",

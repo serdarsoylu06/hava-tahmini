@@ -4,6 +4,7 @@ import { type FormEvent, type KeyboardEvent, lazy, Suspense, useCallback, useEff
 import { Basit } from "./basit/Basit";
 import * as kayit from "./kabuk/kayit";
 import { Serit } from "./kabuk/Serit";
+import { SIRADAKI, TEMA_ADI, temaSec, useTema } from "./kabuk/tema";
 import { noktaOku, noktaYaz, type Secim, sonSecimCoz, VARSAYILAN_YER, yerOku, yerYaz } from "./ortak/url";
 import { aramaEtiketi, aramaKonumu, konumKaydi, noktaKonumu, oner, type YerlesimDosyasi, type Yerlesimler, yerlesimleriKur } from "./ortak/yerler";
 import { depoOlustur } from "./veri/depo";
@@ -76,6 +77,7 @@ export function App() {
   const [secenekSirasi, setSecenekSirasi] = useState(0);
   const [noktalar, setNoktalar] = useState(() => kayit.oku(depo));
   const [mod, setMod] = useState<Mod>(ilkMod);
+  const tema = useTema();
   const [sayfa, setSayfa] = useState<Sayfa>(adrestenSayfa);
   const [veriDonemi, setVeriDonemi] = useState(donem);
   const [yenile, setYenile] = useState(0);
@@ -189,7 +191,7 @@ export function App() {
   };
 
   useEffect(() => {
-    document.title = hazir ? `${hazir.tahmin.anlik.deger.temperature_2m == null ? "—" : Math.round(hazir.tahmin.anlik.deger.temperature_2m)}° ${hazir.konum.ad} · HavaLab` : "HavaLab";
+    document.title = hazir ? `${hazir.tahmin.anlik.deger.temperature_2m == null ? "—" : Math.round(hazir.tahmin.anlik.deger.temperature_2m)}° ${hazir.konum.ad} · HavaLabSS` : "HavaLabSS";
   }, [hazir]);
 
   const eski = hazir?.tahmin.bilgi.kaynak === "eski";
@@ -199,12 +201,29 @@ export function App() {
       <header className="ust">
         <h1 className="logo">
           <i aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 1 0 6.5 19z" /></svg></i>
-          <span>Hava<b>Lab</b></span>
+          <span>Hava<b>Lab</b><em>SS</em></span>
         </h1>
         <div className="mod" role="group" aria-label="Görünüm">
-          <button type="button" aria-pressed={mod === "basit"} onClick={() => modSec("basit")}>Basit</button>
-          <button type="button" aria-pressed={mod === "uzman"} onClick={() => modSec("uzman")}>Uzman</button>
+          {/* simgeler: Basit = özet kartı, Uzman = harita; adları ipucunda ve ekran okuyucuda okunur */}
+          <button type="button" aria-pressed={mod === "basit"} onClick={() => modSec("basit")} title="Basit görünüm" aria-label="Basit görünüm">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="4" y="3.5" width="16" height="17" rx="3.5" /><path d="M8.5 9h7M8.5 13h7M8.5 17h3.5" />
+            </svg>
+          </button>
+          <button type="button" aria-pressed={mod === "uzman"} onClick={() => modSec("uzman")} title="Uzman görünüm" aria-label="Uzman görünüm">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z" /><path d="M9 4v13.5M15 6.5V20" />
+            </svg>
+          </button>
         </div>
+        <button type="button" className="tema-dugme" onClick={() => temaSec(SIRADAKI[tema.secim])}
+                title={`Tema: ${TEMA_ADI[tema.secim]}. Değiştirmek için dokun.`} aria-label={`Tema: ${TEMA_ADI[tema.secim]}. Değiştir: ${TEMA_ADI[SIRADAKI[tema.secim]]}.`}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {tema.secim === "acik" && <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>}
+            {tema.secim === "koyu" && <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z" />}
+            {tema.secim === "oto" && <><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" /></>}
+          </svg>
+        </button>
       </header>
 
       <div className="arac">
@@ -212,6 +231,8 @@ export function App() {
         <button type="button" className="dugme" onClick={konumum} title="Bulunduğum konum" aria-label="Bulunduğum konumu kullan">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /><circle cx="12" cy="12" r="7" /></svg>
         </button>
+        <KayitliYerler noktalar={noktalar} konumAdi={hazir?.konum.ad ?? null} kayitliAd={kayitli?.ad ?? null} kaydet={kaydet}
+                       git={(n) => sec({ tur: "nokta", lat: n.lat, lon: n.lon })} cikar={(ad) => setNoktalar(kayit.sil(depo, noktalar, ad))} />
         {hazir && (
           <span className="konum-bilgi">
             {Math.abs(hazir.konum.lat).toFixed(2).replace(".", ",")}° {hazir.konum.lat >= 0 ? "K" : "G"}, {Math.abs(hazir.konum.lon).toFixed(2).replace(".", ",")}° {hazir.konum.lon >= 0 ? "D" : "B"}
@@ -234,13 +255,6 @@ export function App() {
         </Serit>
       )}
       {konumDurumu && <p className="cipler" role="status">{konumDurumu}</p>}
-      {noktalar.length > 0 && (
-        <Serit etiket="Kayıtlı yerler" className="kayitli-yerler" secili={kayitli?.ad ?? ""}>
-          {noktalar.map((n) => (
-            <button key={n.ad} type="button" className="cip" aria-pressed={kayitli?.ad === n.ad} onClick={() => sec({ tur: "nokta", lat: n.lat, lon: n.lon })}>{n.ad}</button>
-          ))}
-        </Serit>
-      )}
       {secenekler.length > 1 && (
         <div className="cipler" role="group" aria-label="Arama sonuçları">
           <span>Bu adla birden çok yer var:</span>
@@ -296,6 +310,52 @@ export function App() {
         <br />Özgür yazılım (GPL-2.0), hiçbir garanti verilmez ·{" "}
         <a href="https://github.com/serdarsoylu06/hava-tahmini" target="_blank" rel="noreferrer">kaynak kodu</a>
       </footer>
+    </div>
+  );
+}
+
+/** Kayıtlı yerler: araç çubuğunda tek bir düğme; basınca açılan pencerede baktığın yeri kaydetme/çıkarma ve
+ * kayıtlı yerlerin listesi (her birinin yanında çıkarma düğmesi) durur. Ayrı bir satır kaplamaz. */
+function KayitliYerler({ noktalar, konumAdi, kayitliAd, kaydet, git, cikar }: {
+  noktalar: readonly kayit.KayitliNokta[]; konumAdi: string | null; kayitliAd: string | null;
+  kaydet: () => void; git: (n: kayit.KayitliNokta) => void; cikar: (ad: string) => void;
+}) {
+  const [acik, setAcik] = useState(false);
+  const kutu = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!acik) return;
+    const disari = (e: Event) => { if (!kutu.current?.contains(e.target as Node)) setAcik(false); };
+    const tus = (e: globalThis.KeyboardEvent) => { if (e.key === "Escape") setAcik(false); };
+    document.addEventListener("pointerdown", disari);
+    document.addEventListener("keydown", tus);
+    return () => { document.removeEventListener("pointerdown", disari); document.removeEventListener("keydown", tus); };
+  }, [acik]);
+  return (
+    <div className="ky" ref={kutu}>
+      <button type="button" className="dugme" aria-expanded={acik} aria-controls="kayitli-yerler" onClick={() => setAcik((a) => !a)}
+              title="Kayıtlı yerler" aria-label={`Kayıtlı yerler (${noktalar.length})`}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill={kayitliAd ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4.5L6 21z" /></svg>
+        {noktalar.length > 0 && <span className="ky-sayi" aria-hidden="true">{noktalar.length}</span>}
+      </button>
+      {acik && (
+        <div className="ky-pencere" id="kayitli-yerler" role="dialog" aria-label="Kayıtlı yerler">
+          {konumAdi && (
+            <button type="button" className="ky-kaydet" onClick={kaydet}>
+              {kayitliAd ? <><b>{kayitliAd}</b> kayıtlı · listeden çıkar</> : <>+ <b>{konumAdi}</b> yerini kaydet</>}
+            </button>
+          )}
+          {noktalar.length > 0 ? (
+            <ul>
+              {noktalar.map((n) => (
+                <li key={n.ad}>
+                  <button type="button" className="ky-yer" aria-current={n.ad === kayitliAd ? "true" : undefined} onClick={() => { git(n); setAcik(false); }}>{n.ad}</button>
+                  <button type="button" className="ky-cikar" aria-label={`${n.ad}: kayıtlı yerlerden çıkar`} title="Listeden çıkar" onClick={() => cikar(n.ad)}>×</button>
+                </li>
+              ))}
+            </ul>
+          ) : <p>Henüz kayıtlı yer yok. Sık baktığın yerleri kaydedersen buradan tek dokunuşla açarsın.</p>}
+        </div>
+      )}
     </div>
   );
 }

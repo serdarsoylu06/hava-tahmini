@@ -1,4 +1,4 @@
-/** HavaLab'ın kendi çizelgesi: hazır bir grafik kitaplığı kullanmadan, SVG ile çizer.
+/** HavaLabSS'in kendi çizelgesi: hazır bir grafik kitaplığı kullanmadan, SVG ile çizer.
  *
  * Bir çizelge, aynı zaman eksenini paylaşan alt alta panellerden oluşur; her panelin kendi dikey ekseni vardır
  * (iki ayrı ölçek aynı panele sıkıştırılmaz). Üzerine gelince ya da dokununca bütün panellerde aynı an işaretlenir
