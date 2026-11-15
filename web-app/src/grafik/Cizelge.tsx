@@ -9,6 +9,8 @@
  * değil kartın yazı rengini kullanır. Hesap kısmı `olcek.ts` dosyasındadır. */
 import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { Deger } from "../veri/tipler";
+import { useKoyuTema } from "../kabuk/tema";
+import { ekranRengi } from "./renk";
 import { alanYolu, bantYolu, duzYol, eksen, eksenYazisi, enYakinSira, etiketSec, type Nokta, parcalar, xKonum, yumusakYol } from "./olcek";
 
 type Desen = "duz" | "kesik" | "nokta";
@@ -84,6 +86,9 @@ export interface Panel {
   isaret?: readonly number[];
   /** Dikey eksen ve ızgara çizilmez (ör. şeritler). */
   eksensiz?: boolean;
+  /** Panelin en üstünde, aralıklı çizilen küçük simgeler (ör. hava durumu): `ciz` 24×24 birimlik bir SVG çizimi
+   * döndürür. `ustBosluk` simgelere ve altlarındaki etiketlere yer bırakacak kadar olmalıdır. */
+  simge?: { enAz: number; ciz: (i: number) => ReactNode };
   /** Yatay eşik çizgileri (ör. "1 m: küçük tekne için riskli"); adı olanlar lejanta girer. */
   esik?: readonly { deger: number; renk: string; ad?: string }[];
 }
@@ -110,7 +115,7 @@ export interface CizelgeOzellik {
   tablo?: { basliklar: readonly string[]; satir: (i: number) => readonly string[] };
 }
 
-const HARF = 6.4;                       // 10,5 pt Space Mono'da bir harfin yaklaşık genişliği
+const HARF = 6.7;                       // 11,5 px Inter'de (eşit genişlikli rakamlar) bir karakterin yaklaşık genişliği
 const DESEN: Record<Desen, string | undefined> = { duz: undefined, kesik: "6 4", nokta: "1 4.5" };
 const yuv = (v: number) => Math.round(v * 10) / 10;
 
@@ -146,7 +151,14 @@ function Anahtar({ s }: { s: Seri }) {
   return <svg width="12" height="10" aria-hidden="true"><rect width="12" height="10" rx="2" fill={s.renk} opacity={s.tur === "bant" ? 0.3 : 1} /></svg>;
 }
 
-export function Cizelge({ n, paneller, bant = false, xEtiket, dikey, golge, ipucu, etiket, sec: secildi, tablo }: CizelgeOzellik) {
+export function Cizelge({ n, paneller: hamPaneller, bant = false, xEtiket, dikey, golge, ipucu, etiket, sec: secildi, tablo }: CizelgeOzellik) {
+  // Seri renkleri açık karta göre tanımlıdır; koyu temada (kart da koyu) her biri karşılığıyla çizilir.
+  const koyu = useKoyuTema();
+  const paneller = useMemo<readonly Panel[]>(() => (koyu ? hamPaneller.map((p) => ({
+    ...p,
+    esik: p.esik?.map((e) => ({ ...e, renk: ekranRengi(e.renk, true) })),
+    seriler: p.seriler.map((s): Seri => (s.tur === "serit" ? s : { ...s, renk: ekranRengi(s.renk, true) })),
+  })) : hamPaneller), [hamPaneller, koyu]);
   const alan = useRef<HTMLDivElement>(null), kok = useRef<HTMLDivElement>(null), kutu = useRef<HTMLDivElement>(null);
   const [genislik, setGenislik] = useState(0);
   const [imlec, setImlec] = useState<{ sira: number; y: number | null } | null>(null);
@@ -239,6 +251,14 @@ export function Cizelge({ n, paneller, bant = false, xEtiket, dikey, golge, ipuc
         }
       });
 
+      if (p.simge) {
+        const adim = Math.max(1, Math.ceil(p.simge.enAz / Math.max(adimPx, 0.1)));
+        for (let i = 0; i < n; i += adim) {
+          const icerik = p.simge.ciz(i);
+          const xs = Math.min(Math.max(x(i), sol + 11), Math.max(sol + ic - 11, sol + 11));
+          if (icerik) ogeler.push(<g key={`h${i}`} className="hs" transform={`translate(${yuv(xs - 11)} 0) scale(${22 / 24})`}>{icerik}</g>);
+        }
+      }
       (p.esik ?? []).forEach((es, k) => ogeler.push(<line key={`k${k}`} x1={sol} x2={sol + ic} y1={yuv(y(es.deger))} y2={yuv(y(es.deger))} stroke={es.renk} strokeWidth={1.5} strokeDasharray="5 4" />));
       (p.isaret ?? []).forEach((i) => { if (i >= 0 && i < n) ogeler.push(<line key={`m${i}`} className="cz-isaret" x1={yuv(x(i))} x2={yuv(x(i))} y1={ust} y2={taban} />); });
 

@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { uyarilar } from "../hesap/yorum";
 import { simdiden, simdikiSaat } from "../veri/openMeteo";
 import type { Konum, Tahmin } from "../veri/tipler";
+import { Bugun } from "./Bugun";
 import { gunBasligi, Gunler } from "./Gunler";
 import { Manzara } from "./Manzara";
 import { gostergeler, oneri, ozetCumle, saatler } from "./metin";
@@ -42,7 +43,7 @@ export function Basit({ konum, tahmin, kayitli, kaydet }: { konum: Konum; tahmin
   const g = (ad: string) => gunluk.sutun[ad]?.[0] ?? null;
 
   return (
-    <>
+    <div className="bs">
       {/* Dört gösterge manzara kartının içinde, ormanın üstünde durur. */}
       <Manzara konum={konum} anlik={anlik} enYuksek={g("temperature_2m_max")} enDusuk={g("temperature_2m_min")}
                gunDogumu={gunluk.gunDogumu[0] ?? null} gunBatimi={gunluk.gunBatimi[0] ?? null}
@@ -64,12 +65,15 @@ export function Basit({ konum, tahmin, kayitli, kaydet }: { konum: Konum; tahmin
           : <p className="ak-ac">Bu gün için saatlik veri yok.</p>}
       </section>
 
+      <div className="bl"><h2>Bugün</h2></div>
+      <Bugun simdi={anlik.zaman} saatlik={saatlik} gunluk={gunluk} />
+
       <div className="bl"><h2>Nelere dikkat etmeli?</h2><span className="bl-ac">Önümüzdeki 5 günün tahmini otomatik tarandı</span></div>
       <Uyarilar liste={hesap.uyarilar} />
 
       <div className="bl"><h2>10 günlük tahmin</h2></div>
       <Gunler gunluk={gunluk} secili={seciliGun}
               sec={(i) => { setSeciliGun(i); document.getElementById("saatlik")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
-    </>
+    </div>
   );
 }

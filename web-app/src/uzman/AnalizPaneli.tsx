@@ -28,7 +28,7 @@ function Meteogram({ istemci, konum, tahmin, model, gun }: { istemci: Istemci; k
   const ortak = useMemo(() => hesap.ilkSaatler(simdiden(tahmin.saatlik, simdikiSaat(tahmin.tz)), gun * 24), [tahmin, gun]);
   const d = useVeri(async () => hesap.modelleBirlestir(ortak, await hesap.modelTahmini(istemci, konum, m.api), m.api), [istemci, konum.lat, konum.lon, m.api, ortak]);
   return (
-    <Durum d={d}>
+    <Durum d={d} iskelet="panel">
       {(t) => {
         const o = hesap.meteogramOzeti(t);
         return (
@@ -104,7 +104,7 @@ function Modeller({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun
       <div className="an-cipler" role="group" aria-label="Değişken">
         {Object.keys(hesap.KARSILASTIRMA_DEGISKENLERI).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
       </div>
-      <Durum d={d}>
+      <Durum d={d} iskelet="panel">
         {(t) => {
           const seriler = hesap.modelSerileri(t, tanim.degisken);
           const uyum = hesap.modelUyumu(t.zaman, seriler, tanim.birim, tanim.esik);
@@ -165,7 +165,7 @@ function Ansambl({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun:
       <div className="an-cipler" role="group" aria-label="Değişken">
         {Object.keys(hesap.ANSAMBL_DEGISKENLERI).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
       </div>
-      <Durum d={d}>
+      <Durum d={d} iskelet="panel">
         {(u) => {
           if (!Object.keys(u.sutun).length || !u.zaman.length) return <p className="an-not">Bu model bu konum için ansambl verisi vermiyor.</p>;
           if (tanim.degisken === "precipitation") {

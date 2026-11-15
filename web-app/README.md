@@ -67,6 +67,20 @@ adresi alır.
   Open-Meteo'ya gider, Cloudflare kotasından yemez.
 - Kendi alan adı: proje sayfasında **Custom domains → Set up a domain**.
 
+### Görünüm kuralları
+
+- **Yazı:** iki aile. Metin ve sayılar Inter (eşit genişlikli rakamlarla), başlıklar Space Grotesk.
+- **Köşe yarıçapı:** üç basamak, `--r-buyuk` (kartlar), `--r-orta` (düğme ve kutular), `--r-kucuk` (küçük öğeler).
+- **Grafik kartı** temayla birlikte koyulaşır. Seri renkleri açık karta göre tanımlıdır; koyu temada
+  `src/grafik/renk.ts` içindeki karşılıklarıyla çizilir (Cizelge bunu kendisi yapar).
+- **Marka kırmızısı** (`--marka-kirmizi`, addaki "SS") pembeye çalar; uyarıların kırmızısından (`--tehlike`) ayrışır.
+- **Hava simgeleri** `src/ortak/HavaSimgesi.tsx` içinde çizilir (WMO koduna ve gündüz/geceye göre); günlük kartlarda,
+  24 saat grafiğinde ve kayıtlı yerler listesinde kullanılır.
+- **Telefonda** üst bölüm iki satırdır (logo ve simgeler; arama); Uzman sayfaları ekranın altındaki gezinme
+  çubuğundadır. Geniş ekranda üst bölüm tek satırdır, sayfalar onun altında şerit olarak durur.
+- **Yükleme** sırasında içeriğin gri taslağı (iskelet) gösterilir; sayfa ve görünüm değişince içerik belirerek gelir
+  (hareketi azalt ayarı açıksa canlandırma yapılmaz).
+
 ### Tema
 
 Varsayılan olarak cihazın açık/koyu ayarı izlenir. Üstteki düğme "cihaza uy → açık → koyu" arasında döner; elle

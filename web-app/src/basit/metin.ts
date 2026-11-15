@@ -165,3 +165,26 @@ export function gostergeler(a: Anlik, s: readonly Saat[], basinc3SaatOnce: Deger
       sesli: basinc == null ? "Basınç bilinmiyor" : `Basınç ${yuv(basinc)} hektopaskal` },
   ];
 }
+
+/** UV indeksinin adı (Dünya Sağlık Örgütü basamakları). */
+export function uvDuzeyi(uv: number): string {
+  return uv < 3 ? "Düşük" : uv < 6 ? "Orta" : uv < 8 ? "Yüksek" : uv < 11 ? "Çok yüksek" : "Aşırı";
+}
+
+/** Görüş mesafesinin (metre) adı; sis sınırı 1 km (hesap/yorum.ts'teki uyarı eşiğiyle aynı). */
+export function gorusAdi(metre: number): string {
+  return metre < 1000 ? "Sis" : metre < 4000 ? "Puslu" : metre < 10000 ? "Orta" : metre < 20000 ? "İyi" : "Çok iyi";
+}
+
+/** İki yerel zaman arasındaki süre: "9 sa 54 dk". Bitiş başlangıçtan önceyse null. */
+export function sureYaz(bas: string, son: string): string | null {
+  const dk = dakika(son) - dakika(bas);
+  return dk < 0 ? null : `${Math.floor(dk / 60)} sa ${dk % 60} dk`;
+}
+
+/** Güneşin gökteki yolu üzerindeki yeri: doğuşta 0, batışta 1; gece (ufkun altında) null. */
+export function gunesKonumu(simdi: string, dogus: string | null, batis: string | null): number | null {
+  if (!dogus || !batis) return null;
+  const s = dakika(simdi), d = dakika(dogus), b = dakika(batis);
+  return s < d || s > b || b <= d ? null : (s - d) / (b - d);
+}

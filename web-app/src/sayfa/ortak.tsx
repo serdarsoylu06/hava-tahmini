@@ -22,8 +22,22 @@ export function useVeri<T>(getir: () => Promise<T>, bagimlilik: readonly unknown
   return d;
 }
 
-export function Durum<T>({ d, bekleme = "Veri indiriliyor…", children }: { d: Yukleme<T>; bekleme?: string; children: (veri: T) => ReactNode }) {
-  if (d.tur === "yukleniyor") return <p className="an-not" role="status">{bekleme}</p>;
+/** İskelet yükleme ekranı: içeriğin gri taslağı. İçerik gelince yerleşim zıplamasın diye taslak, gelecek içeriğin
+ * kabaca biçimindedir. Ne beklendiği altta yazıyla da söylenir (uzun süren indirmelerde ve ekran okuyucuda). */
+export function Iskelet({ tur, mesaj = "Veri indiriliyor…" }: { tur: "basit" | "sayfa" | "harita" | "panel"; mesaj?: string }) {
+  return (
+    <div className={`isk isk-${tur}`} role="status">
+      {tur === "basit" && <><i className="isk-blok isk-kart" /><i className="isk-blok isk-satir" /><i className="isk-blok isk-grafik" /></>}
+      {tur === "sayfa" && <><div className="isk-dortlu"><i className="isk-blok" /><i className="isk-blok" /><i className="isk-blok" /><i className="isk-blok" /></div><i className="isk-blok isk-grafik" /></>}
+      {tur === "harita" && <i className="isk-blok isk-harita" />}
+      {tur === "panel" && <><i className="isk-blok isk-satir" /><i className="isk-blok isk-grafik" /></>}
+      <p>{mesaj}</p>
+    </div>
+  );
+}
+
+export function Durum<T>({ d, bekleme = "Veri indiriliyor…", iskelet = "sayfa", children }: { d: Yukleme<T>; bekleme?: string; iskelet?: "sayfa" | "panel"; children: (veri: T) => ReactNode }) {
+  if (d.tur === "yukleniyor") return <Iskelet tur={iskelet} mesaj={bekleme} />;
   if (d.tur === "hata") return <p className="an-not an-hata" role="alert">Veri alınamadı. {d.mesaj}</p>;
   return <>{children(d.veri)}</>;
 }

@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { Cizelge, IpucuBasligi, IpucuSatiri, type Panel } from "../grafik/Cizelge";
 import { araliklar } from "../grafik/olcek";
-import type { Saat } from "./metin";
+import { simgeCizimi } from "../ortak/HavaSimgesi";
+import { gunTuru, type Saat } from "./metin";
 
 const YESIL = "#2E6B3A", MAVI = "#2A6FB0";
 const derece = (v: number | null) => (v == null ? "—" : `${Math.round(v)}°`);
@@ -12,7 +13,8 @@ const yuzde = (v: number | null) => (v == null ? "—" : `%${Math.round(v)}`);
 export function Saatlik({ saatler, ilkSimdi }: { saatler: readonly Saat[]; ilkSimdi: boolean }) {
   const c = useMemo(() => {
     const paneller: Panel[] = [
-      { baslik: "Sıcaklık (°C)", boy: 118, ustBosluk: 24, hedef: 3, bicim: (v) => `${v}°`,
+      { baslik: "Sıcaklık (°C)", boy: 118, ustBosluk: 52, hedef: 3, bicim: (v) => `${v}°`,
+        simge: { enAz: 48, ciz: (i) => simgeCizimi(gunTuru(saatler[i]!.kod), saatler[i]!.gece) },
         seriler: [{ tur: "cizgi", deger: saatler.map((x) => x.sicaklik), renk: YESIL, kalinlik: 3, etiket: { enAz: 48, bicim: (v) => `${Math.round(v)}°` } }] },
       { baslik: "Yağış olasılığı", boy: 52, taban: 0, tavan: 100, cizgiler: [0, 50, 100], bicim: (v) => `%${v}`,
         seriler: [{ tur: "cubuk", deger: saatler.map((x) => x.olasilik), renk: MAVI }] },

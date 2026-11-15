@@ -3,13 +3,15 @@
  * çizilir: sıcaklık, çiy noktası, yükselen parsel, CAPE/CIN gölgeleri, bulut tabanı, 0 °C çizgisi, kuru ve nemli
  * adyabatlar, karışım oranı çizgileri ve rüzgâr bayrakları. */
 import { useId, useMemo } from "react";
+import { ekranRengi } from "../grafik/renk";
+import { useKoyuTema } from "../kabuk/tema";
 import { dengeSeviyesi, karisimCizgisi, kuruAdyabat, nemliAdyabat, parselProfili, type Profil, type ProfilOzeti } from "../hesap/profil";
 
 const P_ALT = 1050, P_UST = 200, T_SOL = -40, T_SAG = 40;
 const SOL = 46, UST = 12, EN = 462, BOY = 520, TABAN = UST + BOY, GENISLIK = 590, YUKSEKLIK = TABAN + 34;
 const ISOBARLAR = [1000, 850, 700, 500, 400, 300, 250, 200];
 const KARISIM = [0.4, 1, 2, 4, 7, 10, 16, 24, 32];
-const KIRMIZI = "#B5352B", YESIL = "#2E6B3A", MAVI = "#2A6FB0", MUREKKEP = "#1C2829";
+const RENK = { kirmizi: "#B5352B", yesil: "#2E6B3A", mavi: "#2A6FB0", murekkep: "#1C2829" } as const;
 
 const y = (p: number) => UST + (BOY * (Math.log(p) - Math.log(P_UST))) / (Math.log(P_ALT) - Math.log(P_UST));
 const x = (T: number, p: number) => SOL + ((T - T_SOL) / (T_SAG - T_SOL)) * EN + (TABAN - y(p));
@@ -35,7 +37,7 @@ function arkaPlan() {
 }
 
 /** Rüzgâr bayrağı: gövde rüzgârın geldiği yönü gösterir; kısa çizgi 5, uzun çizgi 10, üçgen 50 knot. */
-function Bayrak({ cx, cy, u, v }: { cx: number; cy: number; u: number; v: number }) {
+function Bayrak({ cx, cy, u, v, renk: MUREKKEP }: { cx: number; cy: number; u: number; v: number; renk: string }) {
   const hiz = Math.round(Math.hypot(u, v) / 5) * 5;
   if (hiz < 5) return <circle cx={cx} cy={cy} r={3} fill="none" stroke={MUREKKEP} strokeWidth={1.1} />;
   const yon = (Math.atan2(-u, -v) * 180) / Math.PI, BOYU = 26;
@@ -54,6 +56,9 @@ function Bayrak({ cx, cy, u, v }: { cx: number; cy: number; u: number; v: number
 
 export function SkewT({ profil, ozet, baslik }: { profil: Profil; ozet: ProfilOzeti; baslik: string }) {
   const kimlik = useId().replace(/:/g, "");
+  // çizgi renkleri açık karta göre tanımlıdır; koyu temada karşılıklarıyla çizilir
+  const koyu = useKoyuTema();
+  const KIRMIZI = ekranRengi(RENK.kirmizi, koyu), YESIL = ekranRengi(RENK.yesil, koyu), MAVI = ekranRengi(RENK.mavi, koyu), MUREKKEP = ekranRengi(RENK.murekkep, koyu);
   const arka = useMemo(arkaPlan, []);
   const c = useMemo(() => {
     const { p, T, Td } = profil;
@@ -101,7 +106,7 @@ export function SkewT({ profil, ozet, baslik }: { profil: Profil; ozet: ProfilOz
         {[-40, -30, -20, -10, 0, 10, 20, 30, 40].map((T) => <text key={T} className="cz-yazi" x={n1(x(T, P_ALT))} y={TABAN + 14} textAnchor="middle">{T}</text>)}
         <text className="cz-yazi sk-eksen-adi" x={SOL + EN / 2} y={TABAN + 29} textAnchor="middle">Sıcaklık (°C)</text>
         <text className="cz-yazi sk-eksen-adi" transform={`translate(11 ${UST + BOY / 2}) rotate(-90)`} textAnchor="middle">Basınç (hPa)</text>
-        {profil.p.map((p, i) => <Bayrak key={p} cx={SOL + EN + 42} cy={n1(y(p))} u={profil.u[i]!} v={profil.v[i]!} />)}
+        {profil.p.map((p, i) => <Bayrak key={p} cx={SOL + EN + 42} cy={n1(y(p))} u={profil.u[i]!} v={profil.v[i]!} renk={MUREKKEP} />)}
       </svg>
       <figcaption>
         <ul className="cz-lejant">

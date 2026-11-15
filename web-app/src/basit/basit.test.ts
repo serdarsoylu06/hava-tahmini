@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as kayit from "../kabuk/kayit";
 import { noktaOku, noktaYaz, yerOku, yerYaz } from "../ortak/url";
 import type { Anlik, Tablo } from "../veri/tipler";
-import { gostergeler, gunEvresi, gunTuru, havaTuru, oneri, ozetCumle, ruzgarAdi, type Saat, saatler } from "./metin";
+import { gorusAdi, gostergeler, gunesKonumu, gunEvresi, gunTuru, havaTuru, oneri, ozetCumle, ruzgarAdi, type Saat, saatler, sureYaz, uvDuzeyi } from "./metin";
 
 const saat = (i: number, ek: Partial<Saat> = {}): Saat => ({
   zaman: `2026-11-${14 + Math.floor((22 + i) / 24)}T${String((22 + i) % 24).padStart(2, "0")}:00`, sicaklik: 12, hissedilen: 11, ciy: 4,
@@ -134,5 +134,26 @@ describe("?nokta= adres parametresi", () => {
     const y = yerYaz(n, "Giresun");
     expect(noktaOku(y)).toBeNull();
     expect(yerOku(y)).toBe("Giresun");
+  });
+});
+
+describe("Bugün şeridi", () => {
+  it("UV basamakları", () => {
+    expect([0, 2.9, 3, 5.9, 6, 7.9, 8, 10.9, 11].map(uvDuzeyi)).toEqual(["Düşük", "Düşük", "Orta", "Orta", "Yüksek", "Yüksek", "Çok yüksek", "Çok yüksek", "Aşırı"]);
+  });
+  it("görüş adları; sis sınırı 1 km", () => {
+    expect([200, 999, 1000, 3999, 4000, 9999, 10000, 19999, 24140].map(gorusAdi)).toEqual(["Sis", "Sis", "Puslu", "Puslu", "Orta", "Orta", "İyi", "İyi", "Çok iyi"]);
+  });
+  it("gün uzunluğu", () => {
+    expect(sureYaz("2026-11-15T07:13", "2026-11-15T17:07")).toBe("9 sa 54 dk");
+    expect(sureYaz("2026-11-15T17:07", "2026-11-15T07:13")).toBeNull();
+  });
+  it("güneşin yeri: doğuşta 0, batışta 1, gece ve kutup gecesinde yok", () => {
+    expect(gunesKonumu("2026-11-15T07:13", "2026-11-15T07:13", "2026-11-15T17:07")).toBe(0);
+    expect(gunesKonumu("2026-11-15T12:10", "2026-11-15T07:13", "2026-11-15T17:07")).toBeCloseTo(0.5, 9);
+    expect(gunesKonumu("2026-11-15T17:07", "2026-11-15T07:13", "2026-11-15T17:07")).toBe(1);
+    expect(gunesKonumu("2026-11-15T21:00", "2026-11-15T07:13", "2026-11-15T17:07")).toBeNull();
+    expect(gunesKonumu("2026-11-15T03:00", "2026-11-15T07:13", "2026-11-15T17:07")).toBeNull();
+    expect(gunesKonumu("2026-11-15T12:00", null, null)).toBeNull();
   });
 });

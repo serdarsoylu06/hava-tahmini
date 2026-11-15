@@ -3,7 +3,7 @@
 import { saatBasi } from "../ortak/zaman";
 import { anlikDogrula, apiHatasiMi, gunlukDogrula, nesneMi, tabloDogrula } from "./dogrula";
 import { type Istemci, VeriHatasi } from "./istemci";
-import type { AramaSonucu, Konum, ModelKosusu, Tablo, Tahmin, YanitBilgisi } from "./tipler";
+import type { AramaSonucu, Deger, Konum, ModelKosusu, Tablo, Tahmin, YanitBilgisi } from "./tipler";
 
 export const FC = "https://api.open-meteo.com/v1/forecast";
 export const ENS = "https://ensemble-api.open-meteo.com/v1/ensemble";
@@ -107,4 +107,28 @@ export async function modelKosusu(istemci: Istemci, model: string): Promise<Mode
     guncellemeSn: sn("update_interval_seconds"),
     adimSn: sn("temporal_resolution_seconds"),
   };
+}
+
+/** Bir yerin o anki sıcaklığı ve hava kodu (kayıtlı yerler listesinde gösterilir). */
+export interface KisaAnlik { sicaklik: Deger; kod: Deger; gece: boolean }
+
+/** Çok noktalı tahmin yanıtından her noktanın anlık değerleri. Tek nokta istenince API nesne, birden çok nokta
+ * istenince dizi döndürür; ikisi de kabul edilir. Eksik ya da bozuk noktalar null olur. */
+export function cokluAnlikAyikla(veri: unknown, adet: number): (KisaAnlik | null)[] {
+  const liste: unknown[] = Array.isArray(veri) ? veri : [veri];
+  return Array.from({ length: adet }, (_, i) => {
+    const r = liste[i], c = nesneMi(r) && nesneMi(r.current) ? r.current : null;
+    if (!c) return null;
+    const sayi = (x: unknown): Deger => (typeof x === "number" && Number.isFinite(x) ? x : null);
+    return { sicaklik: sayi(c.temperature_2m), kod: sayi(c.weather_code), gece: c.is_day === 0 };
+  });
+}
+
+/** Verilen noktaların o anki sıcaklığı: tek istek (her nokta kotadan bir istek sayılır), saatlik önbellekten geçer. */
+export async function anlikSicakliklar(istemci: Istemci, noktalar: readonly { lat: number; lon: number }[]): Promise<(KisaAnlik | null)[]> {
+  if (!noktalar.length) return [];
+  const { veri } = await istemci.getir(FC, { latitude: noktalar.map((n) => n.lat.toFixed(3)).join(","), longitude: noktalar.map((n) => n.lon.toFixed(3)).join(","),
+                                             current: "temperature_2m,weather_code,is_day", timezone: "auto" });
+  apiHatasiMi(veri);
+  return cokluAnlikAyikla(veri, noktalar.length);
 }

@@ -103,9 +103,32 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
   }, [alanlar, alan, haritaZamani, katman, koyu, model, inceAlan]);
 
   const inceSec = (acik: boolean) => { setInce(acik); sakla(INCE_ANAHTARI, acik ? "1" : "0"); setHaritaHatasi(""); };
-  const modelSec = (m: ModelKodu) => { setModel(m); sakla(MODEL_ANAHTARI, m); setHaritaHatasi(""); };
-  const katmanSec = (k: string) => { setKatmanKodu(k); sakla(KATMAN_ANAHTARI, k); setHaritaHatasi(""); setDokunulan(null); };
+  const modelSec = (m: ModelKodu) => { setModel(m); sakla(MODEL_ANAHTARI, m); setHaritaHatasi(""); setOynuyor(false); };
+  const katmanSec = (k: string) => { setKatmanKodu(k); sakla(KATMAN_ANAHTARI, k); setHaritaHatasi(""); setDokunulan(null); setOynuyor(false); };
   const adimAt = (fark: number) => { const yeni = zamanlar[Math.min(Math.max(sira + fark, 0), zamanlar.length - 1)]; if (yeni) setSeciliZaman(yeni); };
+
+  // Oynatma: her adım, haritası yüklendikten kısa bir süre sonra bir sonrakine geçer. Adımlar ayrı ayrı indirildiği
+  // için hız bağlantıya bağlıdır (adım başına birkaç saniye); kullanıcı zamanı, katmanı ya da modeli elle değiştirince durur.
+  const [oynuyor, setOynuyor] = useState(false);
+  useEffect(() => {
+    if (!oynuyor) return;
+    if (!alan || alanlar.tur === "hata" || haritaHatasi) { setOynuyor(false); return; }
+    if (yukleniyor || haritaZamani !== gecerli) return;                      // bu adımın haritası gelene kadar beklenir
+    if (sira >= zamanlar.length - 1) { setOynuyor(false); return; }
+    const sayac = setTimeout(() => adimAt(1), 900);
+    return () => clearTimeout(sayac);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oynuyor, yukleniyor, haritaZamani, gecerli, sira, zamanlar.length, haritaHatasi]);
+
+  // Tam ekran: harita bütün pencereyi kaplar (tarayıcının tam ekran özelliği iPhone'da öğe için çalışmadığından CSS ile)
+  const [tamEkran, setTamEkran] = useState(false);
+  useEffect(() => {
+    if (!tamEkran) return;
+    const tus = (e: KeyboardEvent) => { if (e.key === "Escape") setTamEkran(false); };
+    document.addEventListener("keydown", tus);
+    document.body.style.overflow = "hidden";                                // arkadaki sayfa kaymasın
+    return () => { document.removeEventListener("keydown", tus); document.body.style.overflow = ""; };
+  }, [tamEkran]);
 
   // alt panel (telefon): tutamaç sürüklenir ya da dokunulur
   const surukleme = useRef<{ y: number; tasindi: boolean } | null>(null);
@@ -170,7 +193,13 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
         </details>
       </aside>
 
-      <div className="uz-orta">
+      <div className={tamEkran ? "uz-orta uz-tam" : "uz-orta"}>
+        <button type="button" className="uz-tam-dugme" onClick={() => setTamEkran((t) => !t)} aria-pressed={tamEkran}
+                title={tamEkran ? "Tam ekrandan çık (Esc)" : "Haritayı tam ekran yap"} aria-label={tamEkran ? "Tam ekrandan çık" : "Haritayı tam ekran yap"}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {tamEkran ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /> : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
+          </svg>
+        </button>
         <div className="uz-ust-secim">
           <label><span className="gizli">Model</span>
             <select value={model} onChange={(e) => modelSec(e.target.value as ModelKodu)}>
@@ -205,7 +234,15 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
         <div className="uz-alt">
           <div className="uz-lejant-dar"><Lejant degisken={katman.degisken} koyu={koyu} birim={katman.birim} /></div>
           <div className="uz-zaman" role="group" aria-label="Tahmin zamanı">
-            <button type="button" className="dugme" onClick={() => adimAt(-1)} disabled={!alan || sira <= 0} aria-label="Önceki zaman adımı">◀</button>
+            <button type="button" className="dugme uz-oynat" onClick={() => {
+                      // başlarken eski hata mesajı silinir (yoksa oynatma hemen dururdu); sondaysa baştan başlar
+                      if (!oynuyor) { setHaritaHatasi(""); if (sira >= zamanlar.length - 1 && zamanlar[0]) setSeciliZaman(zamanlar[0]); }
+                      setOynuyor((o) => !o);
+                    }}
+                    disabled={!alan || zamanlar.length < 2} aria-pressed={oynuyor} aria-label={oynuyor ? "Oynatmayı durdur" : "Zamanı oynat"} title={oynuyor ? "Durdur" : "Oynat: adımlar sırayla yüklenir"}>
+              <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">{oynuyor ? <path d="M2 1h3.5v12H2zM8.5 1H12v12H8.5z" fill="currentColor" /> : <path d="M3 1l10 6-10 6z" fill="currentColor" />}</svg>
+            </button>
+            <button type="button" className="dugme" onClick={() => { setOynuyor(false); adimAt(-1); }} disabled={!alan || sira <= 0} aria-label="Önceki zaman adımı">‹</button>
             <div className="uz-zaman-orta">
               <div className="uz-zaman-yazi">
                 {alan && gecerli
@@ -213,11 +250,11 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
                   : <span>Zaman çizelgesi hazırlanıyor…</span>}
               </div>
               <input type="range" min={0} max={Math.max(zamanlar.length - 1, 0)} value={sira} disabled={!alan}
-                     onChange={(e) => { const t = zamanlar[Number(e.target.value)]; if (t) setSeciliZaman(t); }}
+                     onChange={(e) => { setOynuyor(false); const t = zamanlar[Number(e.target.value)]; if (t) setSeciliZaman(t); }}
                      aria-label="Tahmin zamanı" aria-valuetext={gecerli ? yerelYaz(gecerli, tahmin.tz) : undefined} />
             </div>
-            <button type="button" className="dugme" onClick={() => adimAt(1)} disabled={!alan || sira >= zamanlar.length - 1} aria-label="Sonraki zaman adımı">▶</button>
-            <button type="button" className="cip" onClick={() => setSeciliZaman(null)} disabled={seciliZaman === null}>Şimdi</button>
+            <button type="button" className="dugme" onClick={() => { setOynuyor(false); adimAt(1); }} disabled={!alan || sira >= zamanlar.length - 1} aria-label="Sonraki zaman adımı">›</button>
+            <button type="button" className="cip" onClick={() => { setOynuyor(false); setSeciliZaman(null); }} disabled={seciliZaman === null}>Şimdi</button>
           </div>
         </div>
       </div>

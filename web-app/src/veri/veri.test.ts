@@ -7,6 +7,7 @@ import { adres, anahtar, istemciOlustur, VeriHatasi } from "./istemci";
 import * as om from "./openMeteo";
 import type { Konum } from "./tipler";
 import { yerelSaat } from "../ortak/zaman";
+import { cokluAnlikAyikla } from "./openMeteo";
 
 const ANKARA: Konum = { ad: "Ankara", lat: 39.9199, lon: 32.8543, tz: "Europe/Istanbul", rakim: 850, bolge: "Türkiye" };
 
@@ -292,5 +293,17 @@ describe("Open-Meteo işlevleri", () => {
     expect(k.yayin.getTime()).toBeGreaterThan(k.baslangic.getTime());
     expect(k.veriSonu.getTime()).toBeGreaterThan(k.yayin.getTime());
     expect(k).toMatchObject({ model: "ecmwf_ifs025", guncellemeSn: 21600, adimSn: 10800 });
+  });
+});
+
+describe("çok noktalı anlık sıcaklık", () => {
+  it("dizi yanıtından her noktanın değerlerini alır; eksik nokta null olur", () => {
+    const yanit = [{ current: { temperature_2m: 11.6, weather_code: 61, is_day: 0 } }, { hourly: {} }, { current: { temperature_2m: null, weather_code: 3, is_day: 1 } }];
+    expect(cokluAnlikAyikla(yanit, 3)).toEqual([{ sicaklik: 11.6, kod: 61, gece: true }, null, { sicaklik: null, kod: 3, gece: false }]);
+  });
+  it("tek nokta istenince gelen nesneyi de kabul eder; bozuk yanıtta hepsi null", () => {
+    expect(cokluAnlikAyikla({ current: { temperature_2m: -3, weather_code: 71, is_day: 1 } }, 1)).toEqual([{ sicaklik: -3, kod: 71, gece: false }]);
+    expect(cokluAnlikAyikla(null, 2)).toEqual([null, null]);
+    expect(cokluAnlikAyikla([], 1)).toEqual([null]);
   });
 });

@@ -4,6 +4,8 @@
 import { useMemo, useState } from "react";
 import { Cizelge, IpucuBasligi, IpucuSatiri, type Panel, type Seri } from "../grafik/Cizelge";
 import { eksen, renkAra } from "../grafik/olcek";
+import { ekranRengi } from "../grafik/renk";
+import { useKoyuTema } from "../kabuk/tema";
 import { DEGISKENLER, enBuyukIska, GUN_ONCE, gunlukToplam, hataOzeti, type HataSatiri, onceki, satirSec, temsilHatasi } from "../hesap/dogrulama";
 import { enYakinOlcum, type OlcumIstasyonu } from "../hesap/olcum";
 import { gozlemler, MODELLER, ONCEKI, siralama, type SiraSatiri, tahminler, ufuk } from "../hesap/siralama";
@@ -260,6 +262,7 @@ function ModelSiralamasi({ istemci, istasyon, yer }: { istemci: SayfaOzellik["is
 /** Sıralama tablosu: her modelin ortalama mutlak hatası (nokta) ve %90 güven aralığı (çizgi) aynı ölçekte; renk,
  * birbirinden ayırt edilemeyen grupları gösterir. */
 function SiraTablosu({ tablo }: { tablo: readonly SiraSatiri[] }) {
+  const koyu = useKoyuTema();
   const e = eksen([...tablo.map((s) => s.alt), ...tablo.map((s) => s.ust)], { hedef: 4 });
   const yuzde = (v: number) => `${((v - e.alt) / (e.ust - e.alt)) * 100}%`;
   return (
@@ -273,7 +276,7 @@ function SiraTablosu({ tablo }: { tablo: readonly SiraSatiri[] }) {
         </thead>
         <tbody>
           {tablo.map((s) => {
-            const renk = GRUP_RENK[Math.min(s.grup, GRUP_RENK.length) - 1]!;
+            const renk = ekranRengi(GRUP_RENK[Math.min(s.grup, GRUP_RENK.length) - 1]!, koyu);
             return (
               <tr key={s.kod}>
                 <td><span className="sira-grup" style={{ background: renk }}>{s.grup}</span></td>
