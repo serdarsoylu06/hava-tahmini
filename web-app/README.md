@@ -1,6 +1,6 @@
 # HavaLabSS web (yeni arayüz)
 
-Hava Tahmini Laboratuvarı'nın sunucusuz sürümü: React + TypeScript + Vite, hedef Cloudflare Pages.
+Hava Tahmini Laboratuvarı'nın sunucusuz sürümü: React + TypeScript + Vite, hedef Cloudflare.
 Streamlit uygulamasından bağımsızdır; depo kökündeki `hava_lab.py`, `hava/` ve `app_pages/` bu klasörden
 etkilenmez ve çalışmaya devam eder.
 
@@ -14,7 +14,7 @@ etkilenmez ve çalışmaya devam eder.
 | 4. Basit mod | tamam |
 | 5. Uzman mod (harita, meteogram, modeller, ansambl) | tamam |
 | 6. Kalan sayfalar (canlı, profil, doğrulama, iklim, deniz, öğren) ve deniz harita katmanları | tamam |
-| 7. Cloudflare Pages test dağıtımı, eski–yeni karşılaştırması | — |
+| 7. Cloudflare test dağıtımı, eski–yeni karşılaştırması | — |
 
 Basit mod çalışıyor: manzaralı anlık durum kartı, dört gösterge (yağış, rüzgâr, nem, basınç), 24 saatlik grafik,
 uyarılar ve 10 günlük kartlar; açık ve koyu tema, telefon düzeni. Uzman mod harita merkezlidir: ECMWF, ICON ve GFS'nin kendi ızgara
@@ -34,25 +34,34 @@ npm run build    # tip denetimi + dist/
 
 Node 22 ya da 24 önerilir (vitest 25'i resmen desteklemiyor; çalışıyor ama uyarı verir).
 
-## Yayın (Cloudflare Pages)
+## Yayın (Cloudflare)
 
-Uygulama yalnızca durağan dosyalardan oluşur; sunucu ya da Worker gerekmez. Cloudflare Pages sayfaya rozet, şerit
-ya da reklam eklemez (Streamlit Community Cloud'daki alt rozet ve araç çubuğu burada yoktur).
+Uygulama yalnızca durağan dosyalardan oluşur; sunucu kodu yoktur. Cloudflare sayfaya rozet, şerit ya da reklam
+eklemez (Streamlit Community Cloud'daki alt rozet ve araç çubuğu burada yoktur).
+
+Cloudflare paneli yeni projeleri **Worker** olarak açar; yayın ayarı bu yüzden `wrangler.jsonc` dosyasındadır
+(`dist/` klasörünü durağan dosya olarak dağıtır, `main` yoktur). Dosyadaki `name`, paneldeki Worker adıyla aynı
+olmalıdır (`havalabss`).
 
 Depo GitHub'a gönderildikten sonra, Cloudflare panelinde bir kez:
 
-1. **Workers & Pages → Create → Pages → Connect to Git**; GitHub hesabını bağla ve `hava-tahmini` deposunu seç.
-2. Ayarlar:
+1. **Workers & Pages → Create application**; GitHub hesabını bağla ve `hava-tahmini` deposunu seç.
+2. Worker sayfasında **Settings → Build**:
 
    | Ayar | Değer |
    |---|---|
-   | Production branch | `yeni-arayuz` (ana dala birleştirilince `main`) |
-   | Framework preset | None |
+   | Git branch | `yeni-arayuz` (ana dala birleştirilince `main`) |
    | Build command | `npm run build` |
-   | Build output directory | `dist` |
-   | Root directory (Advanced) | `web-app` |
+   | Deploy command | `npx wrangler deploy` |
+   | Root directory | `web-app` |
 
-3. **Save and Deploy**. İlk derleme 1–2 dakika sürer; adres `https://<proje-adı>.pages.dev` olur.
+3. **Deployments** sekmesinden derlemeyi yeniden başlat. Adres `https://havalabss.<hesap-adı>.workers.dev` olur.
+
+"Root directory" boş kalırsa derleme depo kökünde çalışır: Streamlit'in `requirements.txt` dosyasını kurar, sonra
+`package.json` bulamadığı için `npm error enoent` ile durur.
+
+Aynı klasör eski yöntemle (**Pages → Connect to Git**; Framework preset None, Build output directory `dist`,
+Root directory `web-app`) de yayımlanabilir; o yolda `wrangler.jsonc` kullanılmaz.
 
 Sonrasında dala yapılan her `git push` kendiliğinden yeniden yayımlanır; başka dallar ve PR'lar ayrı bir önizleme
 adresi alır.
@@ -65,7 +74,7 @@ adresi alır.
 - Ücretsiz planın sınırları (ayda 500 derleme, 20.000 dosya, dosya başına 25 MiB) bu uygulamanın çok üstündedir;
   ziyaretçi sayısına ve bant genişliğine sınır yoktur. Veri istekleri ziyaretçinin tarayıcısından doğrudan
   Open-Meteo'ya gider, Cloudflare kotasından yemez.
-- Kendi alan adı: proje sayfasında **Custom domains → Set up a domain**.
+- Kendi alan adı: Worker sayfasında **Domains** sekmesi.
 
 ### Görünüm kuralları
 

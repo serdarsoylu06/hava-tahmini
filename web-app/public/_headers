@@ -1,4 +1,4 @@
-# Cloudflare Pages yanıt başlıkları.
+# Cloudflare yanıt başlıkları (Pages ve Workers durağan dosyaları aynı biçimi okur).
 # Adında içerik özeti olan dosyalar (assets/) hiç değişmez: tarayıcı bir yıl saklar.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
