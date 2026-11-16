@@ -202,12 +202,24 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
         </button>
         <div className="uz-ust-secim">
           <label><span className="gizli">Model</span>
-            <select value={model} onChange={(e) => modelSec(e.target.value as ModelKodu)}>
-              {(Object.keys(MODELLER) as ModelKodu[]).map((k) => <option key={k} value={k}>{MODELLER[k].ad}</option>)}
+            {/* ayrıntılı ızgara ayrı düğme değil, modelin ikinci seçeneği: katman adına yer kalır */}
+            <select value={inceSecenegi && ince ? `${model}+ince` : model}
+                    onChange={(e) => {
+                      const [k, ek] = e.target.value.split("+") as [ModelKodu, string | undefined];
+                      if (k !== model) modelSec(k);
+                      if (ek === "ince") inceSec(true); else if (MODELLER[k].ince && ince) inceSec(false);
+                    }}>
+              {(Object.keys(MODELLER) as ModelKodu[]).map((k) => {
+                const i = MODELLER[k].ince;
+                return (
+                  <Fragment key={k}>
+                    <option value={k}>{MODELLER[k].ad}</option>
+                    {i && !deniz && !katman.degisken.endsWith("hPa") && <option value={`${k}+ince`}>{MODELLER[k].ad.split(" ")[0]} · {i.cozunurluk.replace("≈", "")}</option>}
+                  </Fragment>
+                );
+              })}
             </select>
           </label>
-          {inceSecenegi && m.ince && <button type="button" className="uz-ince-dar" aria-pressed={ince} onClick={() => inceSec(!ince)}
-                                      title="Ayrıntılı ızgara: yalnızca yüzey katmanlarında; her zaman adımı 15–40 saniyede yüklenir">{m.ince.cozunurluk.replace("≈", "")}</button>}
           <label><span className="gizli">Katman</span>
             <select value={katman.kod} onChange={(e) => katmanSec(e.target.value)}>
               <optgroup label="Hava">{KATMANLAR.filter((k) => !k.deniz).map((k) => <option key={k.kod} value={k.kod} disabled={!katmanVar(k)}>{k.ad}</option>)}</optgroup>

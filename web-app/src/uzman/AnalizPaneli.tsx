@@ -9,6 +9,9 @@ import type { Deger, Konum, Tablo, Tahmin } from "../veri/tipler";
 import * as hesap from "./analiz";
 import { MODELLER, type ModelKodu } from "./katmanlar";
 
+/** Analiz panelinin alttan açılan sayfa olduğu genişlik (stil.css ile aynı eşik). */
+const DAR_EKRAN = typeof matchMedia === "function" && matchMedia("(max-width: 1100px)").matches;
+
 const YESIL = "#2E6B3A", MAVI = "#2A6FB0", TURUNCU = "#B2602A", MUREKKEP = "#1C2829";
 
 const saatYaz = (z: string) => `${GUNLER[haftaGunu(z)]} ${z.slice(8, 10)}.${z.slice(5, 7)} ${z.slice(11, 16)}`;
@@ -33,15 +36,19 @@ function Meteogram({ istemci, konum, tahmin, model, gun }: { istemci: Istemci; k
         const o = hesap.meteogramOzeti(t);
         return (
           <>
-            <dl className="an-ozet">
-              <div><dt>En yüksek / en düşük</dt><dd>{o.enYuksek} / {o.enDusuk}</dd></div>
-              <div><dt>Toplam yağış</dt><dd>{o.toplamYagis.replace(".", ",")}</dd></div>
-              <div><dt>Toplam kar</dt><dd>{o.toplamKar.replace(".", ",")}</dd></div>
-              <div><dt>En kuvvetli hamle</dt><dd>{o.enKuvvetliHamle}</dd></div>
-              <div><dt>Basınç değişimi</dt><dd>{o.basincDegisimi}</dd></div>
+            <dl className="an-ozet an-serit">
+              <div><dt><span>En yüksek / en düşük</span><i>Sıcaklık</i></dt><dd>{o.enYuksek}/{o.enDusuk}</dd></div>
+              <div><dt><span>Toplam yağış</span><i>Yağış</i></dt><dd>{o.toplamYagis.replace(".", ",")}</dd></div>
+              <div><dt><span>Toplam kar</span><i>Kar</i></dt><dd>{o.toplamKar.replace(".", ",")}</dd></div>
+              <div><dt><span>En kuvvetli hamle</span><i>Hamle</i></dt><dd>{o.enKuvvetliHamle}</dd></div>
+              <div><dt><span>Basınç değişimi</span><i>Basınç</i></dt><dd>{o.basincDegisimi}</dd></div>
             </dl>
             <section className="ak" aria-label={`${m.ad} meteogramı`}>
-              <p className="ak-ac">{m.ad} modelinin {konum.ad} için tahmini. Modelin vermediği değişkenler (ör. yağış olasılığı) ortak tahminden alınır. Bir saatin üzerine gel ya da dokun: bütün paneller aynı saati gösterir.</p>
+              {/* dar ekranda kapalı gelir: grafik panel açılır açılmaz görünsün */}
+              <details className="ak-nasil" open={!DAR_EKRAN}>
+                <summary>Bu grafikler nasıl okunur?</summary>
+                <p className="ak-ac">{m.ad} modelinin {konum.ad} için tahmini. Modelin vermediği değişkenler (ör. yağış olasılığı) ortak tahminden alınır. Bir saatin üzerine gel ya da dokun: bütün paneller aynı saati gösterir.</p>
+              </details>
               <MeteogramGrafigi t={t} />
             </section>
           </>
