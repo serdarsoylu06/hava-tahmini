@@ -2,7 +2,7 @@
  * Streamlit'teki `app_pages/ogren.py` sayfasının karşılığı. Bu sayfa veri indirmez. */
 import { useMemo } from "react";
 import { Cizelge, IpucuBasligi, IpucuSatiri, type Panel } from "../grafik/Cizelge";
-import { Bolum, SayfaBasligi } from "./ortak";
+import { Bolum, BolumCubugu, SayfaBasligi } from "./ortak";
 
 type Hedef = "basit" | "harita" | "dogrulama";
 
@@ -43,8 +43,9 @@ export function Ogren({ git }: { git: (hedef: Hedef) => void }) {
   return (
     <div className="sy">
       <SayfaBasligi baslik="Bir hava tahmini nasıl okunur?">Telefondaki tek bir simgenin arkasında ne olduğunu anlamak için kısa bir rehber.</SayfaBasligi>
+      <BolumCubugu />
 
-      <Bolum baslik="5 adımda tahmin okumak" />
+      <Bolum baslik="5 adımda tahmin okumak" kisa="5 adım" />
       <ol className="og-adimlar">
         {ADIMLAR.map((a, i) => (
           <li key={a.baslik} className="yz sy-kart">
@@ -56,7 +57,7 @@ export function Ogren({ git }: { git: (hedef: Hedef) => void }) {
         ))}
       </ol>
 
-      <Bolum baslik="Tahmin ne kadar ileriye güvenilir?" />
+      <Bolum baslik="Tahmin ne kadar ileriye güvenilir?" kisa="Güvenilirlik" />
       <div className="sy-iki">
         <section className="ak" aria-label="Tahmin becerisinin gün sayısıyla azalması">
           <ul className="sev-lejant" aria-label="Bölgelerin anlamı">{BOLGELER.map((b) => <li key={b.ad}><i style={{ background: b.renk, opacity: 0.55 }} />{b.ad}</li>)}</ul>

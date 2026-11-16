@@ -6,7 +6,7 @@ import { sapmaRengi } from "../grafik/olcek";
 import { arsiv, ayniGunGecmisi, aylikYagis, dogrusalEgilim, type GunlukIklim, normalAl, normaller, sonGunler, yillik } from "../hesap/iklim";
 import { ilkEnBuyuk, ilkEnKucuk, ortalama, topla } from "../ortak/dizi";
 import { yerelSaat } from "../ortak/zaman";
-import { Bolum, Durum, isaretli, kalin, Not, Olcut, Rehber, type SayfaOzellik, SayfaBasligi, sayi, useVeri } from "./ortak";
+import { Bolum, BolumCubugu, Durum, isaretli, kalin, Not, Olcut, Rehber, type SayfaOzellik, SayfaBasligi, sayi, useVeri } from "./ortak";
 
 const AYLAR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
 const AY_TAM = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
@@ -22,10 +22,11 @@ export function Iklim({ istemci, konum, tahmin }: SayfaOzellik) {
   }, [istemci, konum.lat, konum.lon, tz]);
   return (
     <div className="sy">
-      <SayfaBasligi baslik={`İklim ve geçmiş · ${konum.ad}`}>
+      <SayfaBasligi baslik="İklim ve geçmiş" yer={konum.ad}>
         Bugünkü hava ve tahmin, bu yerin 1991–2020 mevsim normaliyle ve 1991'den bu yana her yılla karşılaştırılır.
         “Sıcak” ya da “yağışlı” ancak normale göre söylenebilir.
       </SayfaBasligi>
+      <BolumCubugu />
       <Durum d={d} bekleme="35 yıllık geçmiş veri indiriliyor… (ilk açılışta birkaç saniye sürer, sonra bu ay boyunca tarayıcıda saklanır)">
         {({ a, son }) => (a && a.gun.length
           ? <Icerik a={a} son={son} bugun={yerelSaat(new Date(), tz).slice(0, 10)} />
@@ -79,7 +80,7 @@ function Icerik({ a, son, bugun }: { a: GunlukIklim; son: GunlukIklim | null; bu
                aciklama="Tamamlanmış ayların yağış toplamının aynı ayların 1991–2020 normaline oranı. %100 altı kurak." />
       </dl>
 
-      <Bolum baslik="Son günler ve önümüzdeki 10 gün, normale göre" />
+      <Bolum baslik="Son günler ve önümüzdeki 10 gün, normale göre" kisa="Normale göre" />
       {h.gunler.length > 1 ? (
         <>
           <section className="ak" aria-label="En yüksek sıcaklığın normal bandıyla karşılaştırması">
@@ -94,13 +95,13 @@ function Icerik({ a, son, bugun }: { a: GunlukIklim; son: GunlukIklim | null; bu
 
       <div className="sy-iki">
         <div>
-          <Bolum baslik={`${tarihAdi} geçmiş yıllarda`} />
+          <Bolum baslik={`${tarihAdi} geçmiş yıllarda`} kisa="Bugün geçmişte" />
           <section className="ak" aria-label="Her yıl bugünün tarihindeki en yüksek sıcaklık">
             <AyniGun g={h.g} buYil={h.bugunMax} tarih={`${h.gunu} ${AYLAR[h.ayi - 1]}`} />
           </section>
         </div>
         <div>
-          <Bolum baslik="Isınma şeritleri" />
+          <Bolum baslik="Isınma şeritleri" kisa="Isınma" />
           <section className="ak" aria-label="Yıllık ortalama sıcaklığın normalden farkı">
             <p className="ak-ac">Her şerit bir yıl: mavi normalden ({sayi(y.normal, 1)} °C) soğuk, kırmızı sıcak. Klimatolog Ed Hawkins'in “warming stripes” görselinin bu konum için hesaplanmış hâli. Kaynak: ERA5 yeniden analizi.</p>
             <Seritler y={y} />
@@ -109,7 +110,7 @@ function Icerik({ a, son, bugun }: { a: GunlukIklim; son: GunlukIklim | null; bu
         </div>
       </div>
 
-      <Bolum baslik={`${h.yili} yağışı, aylara göre`} />
+      <Bolum baslik={`${h.yili} yağışı, aylara göre`} kisa="Yağış" />
       <section className="ak" aria-label="Bu yılın aylık yağışı ve normali">
         <AylikYagis ay={h.ay} />
       </section>

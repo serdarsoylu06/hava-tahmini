@@ -9,7 +9,7 @@ import { ilkEnBuyuk, ortalama } from "../ortak/dizi";
 import { GUNLER, gunYaz, haftaGunu, saatEkle, saatFarki, zamanYaz } from "../ortak/zaman";
 import { simdiden, simdikiSaat, tahmin as tahminGetir } from "../veri/openMeteo";
 import type { Deger, GunlukTablo, Tablo } from "../veri/tipler";
-import { Bolum, Durum, isaretli, kalin, Not, Olcut, Rehber, type SayfaOzellik, SayfaBasligi, sayi, useVeri } from "./ortak";
+import { Bolum, BolumCubugu, Durum, isaretli, kalin, Not, Olcut, Rehber, type SayfaOzellik, SayfaBasligi, sayi, useVeri } from "./ortak";
 
 const MAVI = "#2A6FB0", TURUNCU = "#B2602A", GRI = "#8A968E", DENIZ_YESILI = "#1F8A66";
 const gunSaat = (t: string) => `${GUNLER[haftaGunu(t)]} ${t.slice(11, 16)}`;
@@ -44,12 +44,13 @@ export function Deniz({ istemci, konum, tahmin }: SayfaOzellik) {
 
   return (
     <div className="sy">
-      <SayfaBasligi baslik={`Balıkçılık ve deniz · ${konum.ad}`}>
-        Dalga, rüzgâr ve görüşe göre saat saat denize çıkış durumu; su sıcaklığı, deniz seviyesi ve balık için uygun zamanlar. <strong>Bu sayfa resmî bir seyir uyarısı değildir.</strong>
+      <SayfaBasligi baslik="Balıkçılık ve deniz" yer={konum.ad}
+                    sag={<div className="an-cipler" role="group" aria-label="Dönem">
+                      {[3, 5, 7].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
+                    </div>}>
+        <strong>Bu sayfa resmî bir seyir uyarısı değildir.</strong> Dalga, rüzgâr ve görüşe göre saat saat denize çıkış durumu; su sıcaklığı, deniz seviyesi ve balık için uygun zamanlar.
       </SayfaBasligi>
-      <div className="an-cipler" role="group" aria-label="Dönem">
-        {[3, 5, 7].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
-      </div>
+      <BolumCubugu />
       <Durum d={d} bekleme="Deniz verisi indiriliyor…">
         {(v) => {
           if (!v) return <Not tur="dikkat" baslik="Bu konum denize uzak">Seçili konumun yaklaşık 110 km çevresinde deniz verisi yok. Kıyıda bir şehir ara (ör. Giresun, Sinop, İzmir, Antalya) ya da haritada denizde bir noktaya dokun.</Not>;
@@ -119,7 +120,7 @@ function Icerik({ d, hava, gunluk, denizYonu }: { d: Tablo; hava: Tablo; gunluk:
         <Olcut baslik="Ay" deger={`${h.ay.simge} ${h.ay.ad}`} ek={`%${sayi(h.ay.aydinlanma)} aydınlık`} />
       </dl>
 
-      <Bolum baslik="Denize çıkılır mı?" />
+      <Bolum baslik="Denize çıkılır mı?" kisa="Durum" />
       <section className="ak" aria-label="Saat saat denize çıkış durumu">
         <p className="ak-ac ak-ozetli">{kalin(h.ozet)}</p>
         <ul className="sev-lejant" aria-label="Renklerin anlamı">{SEVIYE_AD.map((ad, i) => <li key={ad}><i style={{ background: SEVIYE_RENK[i] }} />{ad}</li>)}</ul>
@@ -182,7 +183,7 @@ function Icerik({ d, hava, gunluk, denizYonu }: { d: Tablo; hava: Tablo; gunluk:
         <p><strong>Kara rüzgârı:</strong> Rüzgâr karadan denize doğru 20 km/s'ten kuvvetli esiyorsa durum en az “Dikkat” olur.</p>
       </details>
 
-      <Bolum baslik="Balık için uygun zamanlar" />
+      <Bolum baslik="Balık için uygun zamanlar" kisa="Balık" />
       <section className="ak" aria-label="Balıkçı göstergesi">
         <p className="ak-ac">Gösterge 0–100 arasıdır. Yeşil çubuklar denize çıkılabilecek saatler, gri çubuklar denizin uygun olmadığı saatlerdir; mavi dikey çizgiler gün doğumu ve batımı.</p>
         <BalikGrafigi h={h} />

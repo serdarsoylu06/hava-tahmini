@@ -1,5 +1,5 @@
 /** Sayfaların paylaştığı küçük parçalar: veri yükleme durumu, başlık, ölçüt kartı, okuma rehberi. */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { Istemci } from "../veri/istemci";
 import type { Konum, Tahmin } from "../veri/tipler";
 
@@ -55,12 +55,57 @@ export const sayi = (x: number | null | undefined, n = 0) => {
 /** İşaretli sayı (+1,2 / −0,4). */
 export const isaretli = (x: number | null | undefined, n = 1) => (x == null || !Number.isFinite(x) ? "—" : `${x >= 0 ? "+" : "−"}${Math.abs(x).toFixed(n).replace(".", ",")}`);
 
-export function SayfaBasligi({ baslik, children }: { baslik: string; children?: ReactNode }) {
-  return <header className="sy-bas"><h2>{baslik}</h2>{children && <p>{children}</p>}</header>;
+/** Sayfa başlığı. `yer` başlığın yanında (telefonda altında, küçük) yazılır; `sag` dönem seçimi gibi denetimler
+ * içindir. Tanıtım telefonda tek satıra kısalır ve "devamı" ile açılır: içerik ekranın üstünde başlasın. */
+export function SayfaBasligi({ baslik, yer, sag, children }: { baslik: string; yer?: ReactNode; sag?: ReactNode; children?: ReactNode }) {
+  const [acik, setAcik] = useState(false);
+  return (
+    <header className="sy-bas">
+      <div className="sy-bas-ust">
+        <h2>{baslik}{yer && <span className="sy-yer"><i aria-hidden="true"> · </i>{yer}</span>}</h2>
+        {sag}
+      </div>
+      {children && (
+        <div className={acik ? "sy-tanitim" : "sy-tanitim kisa"}>
+          <p>{children}</p>
+          <button type="button" aria-expanded={acik} onClick={() => setAcik((a) => !a)}>{acik ? "kısalt" : "devamı"}</button>
+        </div>
+      )}
+    </header>
+  );
 }
 
-export function Bolum({ baslik, aciklama }: { baslik: string; aciklama?: string }) {
-  return <div className="bl"><h2>{baslik}</h2>{aciklama && <span className="bl-ac">{aciklama}</span>}</div>;
+/** Bölüm başlığı. `kisa`, telefondaki bölüm çubuğunda görünen addır. */
+export function Bolum({ baslik, aciklama, kisa }: { baslik: string; aciklama?: string; kisa?: string }) {
+  return <div className="bl" data-bolum={kisa ?? baslik}><h2>{baslik}</h2>{aciklama && <span className="bl-ac">{aciklama}</span>}</div>;
+}
+
+/** Uzun sayfalar için bölüm çubuğu (yalnızca telefonda görünür): sayfadaki `Bolum` başlıklarını listeler, dokununca
+ * o bölüme kayar, kaydırırken bulunulan bölümü işaretler. Bölümler veri gelince oluştuğu için sayfa izlenir. */
+export function BolumCubugu() {
+  const kok = useRef<HTMLElement>(null);
+  const [bolumler, setBolumler] = useState<readonly string[]>([]);
+  const [etkin, setEtkin] = useState(0);
+  const basliklar = () => [...(kok.current?.closest(".sy")?.querySelectorAll<HTMLElement>("[data-bolum]") ?? [])];
+  useEffect(() => {
+    const sy = kok.current?.closest(".sy");
+    if (!sy) return;
+    const tara = () => setBolumler((eski) => { const yeni = basliklar().map((b) => b.dataset.bolum!); return yeni.join("|") === eski.join("|") ? eski : yeni; });
+    const kaydir = () => { let i = 0; basliklar().forEach((b, k) => { if (b.getBoundingClientRect().top < 130) i = k; }); setEtkin(i); };
+    tara(); kaydir();
+    const gozcu = new MutationObserver(tara);
+    gozcu.observe(sy, { childList: true, subtree: true });
+    addEventListener("scroll", kaydir, { passive: true });
+    return () => { gozcu.disconnect(); removeEventListener("scroll", kaydir); };
+  }, []);
+  // işaretli bölüm çubukta görünür kalsın (çubuk yana kayar)
+  useEffect(() => { const d = kok.current?.children[etkin] as HTMLElement | undefined; if (d && kok.current) kok.current.scrollTo({ left: d.offsetLeft - 16 }); }, [etkin]);
+  const git = (i: number) => basliklar()[i]?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  return (
+    <nav ref={kok} className="sy-bolumler" aria-label="Sayfa bölümleri" hidden={bolumler.length < 2}>
+      {bolumler.map((b, i) => <button key={b} type="button" aria-current={i === etkin ? "true" : undefined} onClick={() => git(i)}>{b}</button>)}
+    </nav>
+  );
 }
 
 /** Tek sayılık özet kartı: başlık, büyük değer, altında kısa ek ve isteğe bağlı açıklama. */

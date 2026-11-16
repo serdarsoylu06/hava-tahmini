@@ -40,12 +40,12 @@ export function Profil({ istemci, konum, tahmin }: SayfaOzellik) {
   }, [istemci, konum.lat, konum.lon, tz, gun]);
   return (
     <div className="sy">
-      <SayfaBasligi baslik={`Atmosfer profili · ${konum.ad}`}>
+      <SayfaBasligi baslik="Atmosfer profili" yer={konum.ad}
+                    sag={<div className="an-cipler" role="group" aria-label="Dönem">
+                      {[2, 5, 7].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
+                    </div>}>
         Bulunduğun noktanın üzerindeki atmosferin yerden ~12 km'ye kadar dikey kesiti. Gök gürültülü sağanak, kar–yağmur sınırı ve bulut tabanı bu grafikten okunur.
       </SayfaBasligi>
-      <div className="an-cipler" role="group" aria-label="Dönem">
-        {[2, 5, 7].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
-      </div>
       <Durum d={d}>
         {(v) => (v.tablo.zaman.length
           ? <Icerik key={`${konum.lat},${konum.lon},${v.gun}`} t={v.tablo} yer={konum.ad} />
