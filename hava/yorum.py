@@ -78,7 +78,7 @@ def uyarilar(df: pd.DataFrame, rakim: float | None = None, guven: pd.Series | No
         seviye = "tehlike" if gunluk.max() >= 50 else "dikkat"
         u.append(Uyari(seviye, ":material/water_drop:", "Kuvvetli yağış",
                        f"En yağışlı gün {gun(gunluk.idxmax())}: {gunluk.max():.0f} mm. "
-                       f"Saatlik en fazla {p.max():.1f} mm ({zaman(p.idxmax())}).",
+                       "Saatlik en fazla " + f"{p.max():.1f}".replace(".", ",") + f" mm ({zaman(p.idxmax())}).",
                        "1 mm yağış, metrekareye 1 litre su demektir. Saatte 7–8 mm'yi aşan yağış "
                        "'kuvvetli' sayılır; kısa sürede düşen 20 mm ve üstü yağış kentlerde su "
                        "baskını, eğimli arazide sel riski doğurur.",
@@ -124,9 +124,14 @@ def uyarilar(df: pd.DataFrame, rakim: float | None = None, guven: pd.Series | No
     # --- sis
     sis = ((T - Td <= 1) & (df.wind_speed_10m < 8) & (df.visibility < 1000)) | df.weather_code.isin([45, 48])
     if sis.sum() >= 2:
+        # sis hava kodundan (45/48) da gelebilir; o zaman modelin görüş değeri 1 km'nin üstünde kalabilir
+        gorus_km = f"{df.visibility.min() / 1000:.1f}".replace(".", ",")
+        sis_ozet = (f"Görüş 1 km'nin altına düşebilir: {aralik(sis)}. En düşük görüş {gorus_km} km."
+                    if df.visibility.min() < 1000 else
+                    f"Model sis bekliyor: {aralik(sis)}. Görüş tahmini en düşük {gorus_km} km; "
+                    "sisin içinde daha da azalabilir.")
         u.append(Uyari("dikkat", ":material/foggy:", "Sis",
-                       f"Görüş 1 km'nin altına düşebilir: {aralik(sis)}. "
-                       f"En düşük görüş {df.visibility.min() / 1000:.1f} km.",
+                       sis_ozet,
                        "Hava soğuyup sıcaklığı çiy noktasına indiğinde nem yoğuşur. Sis en çok açık, "
                        "rüzgârsız ve nemli gecelerin sabahında oluşur; güneş yükselip yer ısındıkça "
                        "dağılır.",

@@ -105,7 +105,7 @@ export function uyarilar(t: Tablo, rakim: number | null = null, guven: GunlukSer
   if (pmax >= 7.6 || gunlukMax >= 20) {
     u.push({ seviye: gunlukMax >= 50 ? "tehlike" : "dikkat", ikon: ":material/water_drop:", baslik: "Kuvvetli yağış",
       ozet: `En yağışlı gün ${gunYaz(gunluk.gun[ilkEnBuyuk(gunluk.deger)]!)}: ${pyBicim(gunlukMax)} mm. ` +
-            `Saatlik en fazla ${pyBicim(pmax, 1)} mm (${zamanYaz(z[ilkEnBuyuk(p)]!)}).`,
+            `Saatlik en fazla ${pyBicim(pmax, 1).replace(".", ",")} mm (${zamanYaz(z[ilkEnBuyuk(p)]!)}).`,
       neden: "1 mm yağış, metrekareye 1 litre su demektir. Saatte 7–8 mm'yi aşan yağış " +
              "'kuvvetli' sayılır; kısa sürede düşen 20 mm ve üstü yağış kentlerde su " +
              "baskını, eğimli arazide sel riski doğurur.",
@@ -156,9 +156,13 @@ export function uyarilar(t: Tablo, rakim: number | null = null, guven: GunlukSer
   const sis = veya(ve(maske(fark(T, Td), (x) => x <= 1), maske(s("wind_speed_10m"), (x) => x < 8), maske(gorus, (x) => x < 1000)),
                    maske(kod, (x) => x === 45 || x === 48));
   if (sis.filter(Boolean).length >= 2) {
+    // sis hava kodundan (45/48) da gelebilir; o zaman modelin görüş değeri 1 km'nin üstünde kalabilir
+    const gorusKm = pyBicim(enKucuk(gorus) / 1000, 1).replace(".", ",");
     u.push({ seviye: "dikkat", ikon: ":material/foggy:", baslik: "Sis",
-      ozet: `Görüş 1 km'nin altına düşebilir: ${aralik(z, sis)}. ` +
-            `En düşük görüş ${pyBicim(enKucuk(gorus) / 1000, 1)} km.`,
+      ozet: enKucuk(gorus) < 1000
+        ? `Görüş 1 km'nin altına düşebilir: ${aralik(z, sis)}. En düşük görüş ${gorusKm} km.`
+        : `Model sis bekliyor: ${aralik(z, sis)}. Görüş tahmini en düşük ${gorusKm} km; ` +
+          "sisin içinde daha da azalabilir.",
       neden: "Hava soğuyup sıcaklığı çiy noktasına indiğinde nem yoğuşur. Sis en çok açık, " +
              "rüzgârsız ve nemli gecelerin sabahında oluşur; güneş yükselip yer ısındıkça " +
              "dağılır.",
