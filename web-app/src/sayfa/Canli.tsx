@@ -85,7 +85,12 @@ export function Canli({ istemci, konum, tahmin, noktaSec }: SayfaOzellik & { nok
       </SayfaBasligi>
       <div className="sy-secimler">
         <div className="an-cipler" role="group" aria-label="Katmanlar">
-          {(Object.keys(KATMAN_AD) as Katman[]).map((k) => <button key={k} type="button" className="cip" aria-pressed={acik[k]} onClick={() => setAcik((a) => ({ ...a, [k]: !a[k] }))}>{KATMAN_AD[k]}</button>)}
+          {/* katmanlar birbirinden bağımsız açılır (radar uydunun üstüne binebilir): tek seçimli çiplerden ayrışsın diye onay işaretli */}
+          {(Object.keys(KATMAN_AD) as Katman[]).map((k) => (
+            <button key={k} type="button" className="cip onay" aria-pressed={acik[k]} onClick={() => setAcik((a) => ({ ...a, [k]: !a[k] }))}>
+              {acik[k] && <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.4l2.7 2.7L10 3.3" /></svg>}{KATMAN_AD[k]}
+            </button>
+          ))}
         </div>
         {acik.uydu && (
           <label className="an-secim cn-secim"><span className="gizli">Uydu görüntüsü</span>
@@ -98,7 +103,7 @@ export function Canli({ istemci, konum, tahmin, noktaSec }: SayfaOzellik & { nok
       <div className="cn-harita">
         <CanliHarita koyu={koyu} konum={konum} kaynak={kaynak} zaman={zaman} nokta={noktaSec} />
         {acik.radar && radarKare.length > 0 && <div className="cn-lejant" aria-label="Radar renkleri"><span>Hafif</span><i /><span>Şiddetli yağış</span></div>}
-        {acik.ruzgar && ruzgar.tur === "hazir" && ruzgar.veri && <div className="cn-not">Rüzgâr: ECMWF, {yerel(Date.parse(ruzgar.veri.zaman) / 1000)} tahmini</div>}
+        {acik.ruzgar && ruzgar.tur === "hazir" && ruzgar.veri && <div className="cn-not" title={`Rüzgâr okları: ECMWF modelinin ${yerel(Date.parse(ruzgar.veri.zaman) / 1000)} tahmini`}>Oklar · ECMWF {yerel(Date.parse(ruzgar.veri.zaman) / 1000).slice(-5)}</div>}
         {cizelge.length > 0 && zaman != null && (
           <div className="cn-cubuk">
             <button type="button" className="cn-oynat" onClick={() => setOynuyor((o) => !o)} aria-label={oynuyor ? "Duraklat" : "Oynat"} aria-pressed={oynuyor}>

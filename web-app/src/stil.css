@@ -115,6 +115,19 @@ a { color: var(--vurgu); }
 .cipler { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13.5px; color: var(--ikinci); }
 .cip { border: 1px solid var(--cizgi); background: var(--yuzey); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; cursor: pointer; min-height: 38px; color: var(--metin); }
 .cip[aria-pressed="true"] { background: var(--vurgu); border-color: var(--vurgu); color: var(--vurgu-metin); }
+/* Seçim denetimlerinin üç türü, görünümleri de ayrı:
+   - .cip            tek seçimli (değişken): seçili olan dolu yeşil;
+   - .cip.onay       aç/kapa, birden çoğu açık olabilir (harita katmanı): açıkken tonlu ve onay işaretli;
+   - .anahtar        iki-üç seçenekten biri (dönem, kaynak): bölmeli tek kutu. Aynı yerde dolu yeşil başka bir seçimi
+                     gösteriyorsa .notr ile seçili bölme nötr kalır. .tam satırı doldurur. */
+.cip.onay { display: inline-flex; align-items: center; gap: 6px; }
+.cip.onay[aria-pressed="true"] { background: color-mix(in srgb, var(--vurgu) 16%, transparent); border-color: var(--vurgu); color: var(--metin); }
+.cip.onay svg { flex: none; width: 12px; height: 12px; fill: none; stroke: var(--vurgu); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.anahtar { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--r-orta); background: var(--panel-ic, var(--yuzey2)); box-shadow: inset 0 0 0 1px var(--panel-ic-cizgi, transparent); }
+.anahtar button { border: 0; background: transparent; border-radius: var(--r-kucuk); padding: 5px 11px; min-height: 32px; font-size: 13px; font-weight: 600; color: var(--ikinci); cursor: pointer; white-space: nowrap; }
+.anahtar button[aria-pressed="true"] { background: var(--vurgu); color: var(--vurgu-metin); }
+.anahtar.notr button[aria-pressed="true"] { background: color-mix(in srgb, var(--metin) 14%, transparent); color: var(--metin); }
+.anahtar.tam { display: flex; } .anahtar.tam button { flex: 1 1 0; min-height: 36px; }
 .bildirim { padding: 14px 18px; margin-bottom: 12px; }
 .bildirim.hata { border-color: var(--tehlike); }
 .bildirim.hata strong { color: var(--tehlike); }
@@ -257,6 +270,16 @@ a { color: var(--vurgu); }
 @media (max-width: 1100px) and (min-width: 861px) { .olcutler-6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .sy-iki { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 0 16px; align-items: start; }
 .sy-not { margin: 12px 0; }
+/* Doğrulama: kaynak anahtarı ve altında tek satırlık istasyon özeti (dokununca tam açıklama açılır) */
+.dg-kaynak { margin: 10px 0 6px; }
+.dg-istasyon { margin: 0 0 12px; font-size: 12.5px; color: var(--ikinci); }
+.dg-istasyon summary { display: flex; align-items: center; gap: 6px; min-height: 28px; cursor: pointer; list-style: none; }
+.dg-istasyon summary::-webkit-details-marker { display: none; }
+.dg-istasyon summary span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dg-istasyon summary b { color: var(--metin); }
+.dg-istasyon summary::after { content: "i"; flex: none; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; border: 1.3px solid var(--soluk); font-size: 10.5px; font-weight: 700; color: var(--soluk); }
+.dg-istasyon[open] summary::after { border-color: var(--vurgu); color: var(--vurgu); }
+.dg-istasyon p { margin: 2px 0 0; font-size: 13px; line-height: 1.45; }
 .sy .ak + .ak { margin-top: 12px; }
 .olcutler-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .olcutler-6 .olcut dd { font-size: 21px; }
@@ -661,9 +684,21 @@ a { color: var(--vurgu); }
 .an-cipler { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 .an-bas .an-cipler { margin: 0; }
 .an .cip { padding: 5px 11px; min-height: 34px; font-size: 13px; }
-.an-sekmeler { display: flex; gap: 2px; padding: 3px; border-radius: var(--r-orta); background: var(--yuzey2); margin: 12px 0; }
-.an-sekmeler button { flex: 1 1 0; border: 0; background: transparent; border-radius: var(--r-kucuk); padding: 7px 6px; font-size: 13.5px; font-weight: 600; color: var(--ikinci); cursor: pointer; min-height: 38px; }
-.an-sekmeler button[aria-selected="true"] { background: var(--vurgu); color: var(--vurgu-metin); }
+/* sekmeler alt çizgili (sayfalardaki bölüm çubuğu gibi): dolu yeşil yalnızca altındaki değişken çipinde kalır */
+.an-sekmeler { display: flex; margin: 8px 0 12px; border-bottom: 1px solid var(--cizgi); }
+.an-sekmeler button { flex: 1 1 0; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: transparent; padding: 8px 6px; font-size: 14px; font-weight: 500; color: var(--ikinci); cursor: pointer; min-height: 40px; }
+.an-sekmeler button[aria-selected="true"] { color: var(--vurgu); font-weight: 700; border-bottom-color: var(--vurgu); }
+.an-degisken { margin: 10px 0; }
+/* ansambl: değişken çipleri solda (sığmazsa yana kayar), model seçimi sağda kısa kutu */
+.an-satir { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+.an-satir .an-cipler { flex: 1 1 auto; min-width: 0; margin: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.an-satir .an-cipler::-webkit-scrollbar { display: none; }
+.an-satir .cip { flex: none; }
+.an-model { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 11px 0 12px; border: 1px solid var(--cizgi); border-radius: 999px;
+            background: var(--panel-ic, var(--yuzey2)); font-size: 12.5px; font-weight: 600; color: var(--metin); white-space: nowrap; }
+.an-model::after { content: ""; width: 6px; height: 6px; margin-top: -3px; border-right: 2px solid var(--ikinci); border-bottom: 2px solid var(--ikinci); transform: rotate(45deg); }
+.an-model select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.an-model:focus-within { outline: 2px solid var(--vurgu); outline-offset: 2px; }
 .an .ak { padding: 12px 12px 6px; border-radius: var(--r-buyuk); margin-top: 10px; }
 .an-ozet { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0 0; }
 .an-ozet div { background: var(--yuzey2); border-radius: var(--r-orta); padding: 8px 10px; min-width: 0; }
@@ -680,8 +715,8 @@ a { color: var(--vurgu); }
   /* özet: beş değer tek satırda */
   .an-serit { grid-template-columns: 1.3fr 1.1fr .8fr 1.1fr 1fr; gap: 0; margin-top: 0; padding: 7px 2px; background: var(--panel-ic, var(--yuzey2)); border-radius: var(--r-orta); }
   /* açık temada panel zemini açık yeşil-gri olur (--panel-zemin); şerit, sekmeler ve özet kutuları beyaz kalıp ince çizgiyle ayrılır */
-  .uz-sag .an-serit, .uz-sag .an-sekmeler, .uz-sag .an-ozet:not(.an-serit) div { box-shadow: inset 0 0 0 1px var(--panel-ic-cizgi, transparent); }
-  .uz-sag .an-sekmeler, .uz-sag .an-ozet:not(.an-serit) div { background: var(--panel-ic, var(--yuzey2)); }
+  .uz-sag .an-serit, .uz-sag .an-ozet:not(.an-serit) div { box-shadow: inset 0 0 0 1px var(--panel-ic-cizgi, transparent); }
+  .uz-sag .an-ozet:not(.an-serit) div { background: var(--panel-ic, var(--yuzey2)); }
   .an-serit div { background: none; border-radius: 0; padding: 0 2px; text-align: center; display: flex; flex-direction: column-reverse; }
   .an-serit dt span { display: none; }
   .an-serit dt i { display: inline; font-style: normal; font-size: 10.5px; }

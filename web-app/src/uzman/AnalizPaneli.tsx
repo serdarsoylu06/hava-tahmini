@@ -1,6 +1,7 @@
 /** Uzman modun analiz paneli: seçili konum için meteogram, modellerin karşılaştırması ve ansambl. */
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 import { Cizelge, IpucuBasligi, IpucuSatiri, type Panel, type Seri } from "../grafik/Cizelge";
+import { Serit } from "../kabuk/Serit";
 import { GUNLER, haftaGunu } from "../ortak/zaman";
 import { Durum, kalin, useVeri } from "../sayfa/ortak";
 import type { Istemci } from "../veri/istemci";
@@ -11,6 +12,12 @@ import { MODELLER, type ModelKodu } from "./katmanlar";
 
 /** Analiz panelinin alttan açılan sayfa olduğu genişlik (stil.css ile aynı eşik). */
 const DAR_EKRAN = typeof matchMedia === "function" && matchMedia("(max-width: 1100px)").matches;
+
+/** Grafiğin açıklaması. Dar ekranda kapalı gelir (grafik panel açılır açılmaz görünsün), geniş ekranda açık. */
+function NasilOkunur({ children }: { children: ReactNode }) {
+  return <details className="ak-nasil" open={!DAR_EKRAN}><summary>Bu grafik nasıl okunur?</summary><p className="ak-ac">{children}</p></details>;
+}
+
 
 const YESIL = "#2E6B3A", MAVI = "#2A6FB0", TURUNCU = "#B2602A", MUREKKEP = "#1C2829";
 
@@ -108,9 +115,9 @@ function Modeller({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun
   const d = useVeri(() => hesap.modelKarsilastirmasi(istemci, konum, tanim.degisken, gun), [istemci, konum.lat, konum.lon, tanim.degisken, gun]);
   return (
     <>
-      <div className="an-cipler" role="group" aria-label="Değişken">
+      <Serit etiket="Değişken" className="an-degisken" secili={ad}>
         {Object.keys(hesap.KARSILASTIRMA_DEGISKENLERI).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
-      </div>
+      </Serit>
       <Durum d={d} iskelet="panel">
         {(t) => {
           const seriler = hesap.modelSerileri(t, tanim.degisken);
@@ -119,7 +126,7 @@ function Modeller({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun
           return (
             <>
               <section className="ak" aria-label="Modellerin karşılaştırması">
-                <p className="ak-ac">Dünyanın önde gelen tahmin merkezlerinin modelleri aynı yer için yan yana. Çizgisi erken biten model o saatten sonrasını tahmin etmiyordur.</p>
+                <NasilOkunur>Dünyanın önde gelen tahmin merkezlerinin modelleri aynı yer için yan yana. Çizgisi erken biten model o saatten sonrasını tahmin etmiyordur.</NasilOkunur>
                 <ModelGrafigi t={t} seriler={seriler} birim={tanim.birim} baslik={ad} />
               </section>
               <div className={`uy ${uyum.durum === "uyumlu" ? "iyi" : uyum.durum === "bozuluyor" ? "dikkat" : "bilgi"} an-uyum`}>
@@ -166,11 +173,16 @@ function Ansambl({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun:
                     [istemci, konum.lat, konum.lon, modelAd, tanim.degisken, gun]);
   return (
     <>
-      <label className="an-secim"><span>Ansambl modeli</span>
-        <select value={modelAd} onChange={(e) => setModelAd(e.target.value)}>{Object.keys(hesap.ANSAMBL_MODELLERI).map((k) => <option key={k}>{k}</option>)}</select>
-      </label>
-      <div className="an-cipler" role="group" aria-label="Değişken">
-        {Object.keys(hesap.ANSAMBL_DEGISKENLERI).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
+      <div className="an-satir">
+        <div className="an-cipler" role="group" aria-label="Değişken">
+          {Object.keys(hesap.ANSAMBL_DEGISKENLERI).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
+        </div>
+        {/* görünen kısa ad süs; seçimi üstüne yayılmış görünmez <select> yapar (yerel menü, klavye ve ekran okuyucu aynen çalışır) */}
+        <label className="an-model">
+          <span className="gizli">Ansambl modeli</span>
+          <span aria-hidden="true">{hesap.kisaModelAdi(modelAd)}</span>
+          <select value={modelAd} onChange={(e) => setModelAd(e.target.value)}>{Object.keys(hesap.ANSAMBL_MODELLERI).map((k) => <option key={k}>{k}</option>)}</select>
+        </label>
       </div>
       <Durum d={d} iskelet="panel">
         {(u) => {
@@ -183,7 +195,7 @@ function Ansambl({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun:
                   {[1, 5, 10, 20].map((e) => <button key={e} type="button" className="cip" aria-pressed={e === esik} onClick={() => setEsik(e)}>{e} mm</button>)}
                 </div>
                 <section className="ak" aria-label="Günlük yağış olasılığı">
-                  <p className="ak-ac">Günlük {esik} mm'den fazla yağış olasılığı: üyelerin yüzde kaçı o gün bu kadar yağış veriyor.</p>
+                  <NasilOkunur>Günlük {esik} mm'den fazla yağış olasılığı: üyelerin yüzde kaçı o gün bu kadar yağış veriyor.</NasilOkunur>
                   <OlasilikGrafigi y={y} />
                 </section>
                 {y.metin && <div className="uy bilgi an-uyum"><p>{kalin(y.metin.replace(/(\d)\.(\d+)(?= mm)/g, "$1,$2"))}</p></div>}
@@ -194,7 +206,7 @@ function Ansambl({ istemci, konum, gun }: { istemci: Istemci; konum: Konum; gun:
           return (
             <>
               <section className="ak" aria-label="Ansambl tahmini">
-                <p className="ak-ac">İnce çizgiler {o.uyeSayisi} üyenin her biri, yani olası bir gelecek. Mavi bant üyelerin %80'inin kaldığı aralık, kalın çizgi ortanca. Bant genişledikçe tahmine güven azalır.</p>
+                <NasilOkunur>İnce çizgiler {o.uyeSayisi} üyenin her biri, yani olası bir gelecek. Mavi bant üyelerin %80'inin kaldığı aralık, kalın çizgi ortanca. Bant genişledikçe tahmine güven azalır.</NasilOkunur>
                 <AnsamblGrafigi u={u} o={o} birim={tanim.birim} baslik={ad} />
               </section>
               <dl className="an-ozet">
@@ -267,8 +279,8 @@ export function Analiz({ istemci, konum, tahmin, model }: { istemci: Istemci; ko
     <div className="an">
       <div className="an-bas">
         <h2 className="an-yer">{konum.ad}</h2>
-        <div className="an-cipler" role="group" aria-label="Dönem">
-          {[2, 5, 10].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
+        <div className="anahtar notr" role="group" aria-label="Dönem">
+          {[2, 5, 10].map((g) => <button key={g} type="button" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
         </div>
       </div>
       <div className="an-sekmeler" role="tablist" aria-label="Analiz">

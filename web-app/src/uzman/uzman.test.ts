@@ -210,3 +210,12 @@ describe("deniz katmanları", () => {
     expect(sst.gecerlilik[enYakinZaman(sst, new Date("2026-11-14T13:10:00Z"))]).toBe("2026-11-14T12:00Z");
   });
 });
+
+describe("ansambl model seçimi", () => {
+  it("kısa ad üye sayısını korur, uzun adı kısaltır", () => {
+    expect(Object.keys(analiz.ANSAMBL_MODELLERI).map(analiz.kisaModelAdi)).toEqual(["ECMWF · 51", "AIFS · 51", "GFS · 31", "ICON · 40"]);
+  });
+  it("üye sayısı olmayan adı olduğu gibi bırakır", () => {
+    expect(analiz.kisaModelAdi("Deneme modeli")).toBe("Deneme modeli");
+  });
+});

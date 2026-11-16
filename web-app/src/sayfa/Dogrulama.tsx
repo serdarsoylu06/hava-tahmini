@@ -62,21 +62,21 @@ export function Dogrulama({ istemci, konum, tahmin }: SayfaOzellik) {
       <SayfaBasligi baslik="Tahmin ne kadar tuttu?">
         Son bir haftada gerçekleşen değerleri, aynı saatler için 1–7 gün önce yapılmış tahminlerle karşılaştırır. Tahminin ne kadar ileriye güvenilebileceğini en iyi bu öğretir.
       </SayfaBasligi>
-      {/* iki seçim grubu tek satırda, yana kaydırılır: telefonda iki satır yer kaplamasın */}
-      <Serit etiket="Değişken ve karşılaştırma kaynağı" className="sy-serit">
-        <div className="serit-grup" role="group" aria-label="Değişken">
-          {Object.keys(DEGISKENLER).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
-        </div>
-        <span className="serit-ayrac" aria-hidden="true" />
-        <div className="serit-grup" role="group" aria-label="Neyle karşılaştırılsın?">
-          <button type="button" className="cip" aria-pressed={kaynak === "istasyon"} onClick={() => setKaynak("istasyon")}>İstasyon ölçümü</button>
-          <button type="button" className="cip" aria-pressed={kaynak === "analiz"} onClick={() => setKaynak("analiz")}>Model analizi</button>
-        </div>
+      <Serit etiket="Değişken" className="sy-serit" secili={ad}>
+        {Object.keys(DEGISKENLER).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
       </Serit>
+      {/* kaynak seçimi ayrı satırda: değişken çipleriyle aynı şeritteyken telefonda ekranın dışında kalıyordu */}
+      <div className="anahtar notr tam dg-kaynak" role="group" aria-label="Neyle karşılaştırılsın?">
+        <button type="button" aria-pressed={kaynak === "istasyon"} onClick={() => setKaynak("istasyon")}>İstasyon ölçümü</button>
+        <button type="button" aria-pressed={kaynak === "analiz"} onClick={() => setKaynak("analiz")}>Model analizi</button>
+      </div>
       {kaynak === "istasyon" && yagis && <Not>Havalimanı raporları (METAR) yağış miktarı içermez; yağış için model analiziyle karşılaştırılıyor.</Not>}
       {kaynak === "istasyon" && !yagis && istasyonHazir && !kullanilan && <Not tur="dikkat">120 km içinde ölçümüne ulaşılabilen bir havalimanı istasyonu yok; model analiziyle karşılaştırılıyor.</Not>}
       {kullanilan && (
-        <Not tur="iyi">{kalin(`**${kullanilan.istasyon.ad}** (${kullanilan.istasyon.icao}) istasyonunun ölçümleri kullanılıyor: konumuna ${sayi(kullanilan.istasyon.km)} km, rakımı ${kullanilan.istasyon.rakim ?? "?"} m. Tahminler de bu istasyonun koordinatı için alındı.`)}</Not>
+        <details className="dg-istasyon">
+          <summary><span><b>{kullanilan.istasyon.icao}</b> {kullanilan.istasyon.ad} · {sayi(kullanilan.istasyon.km)} km uzakta · rakım {kullanilan.istasyon.rakim ?? "?"} m</span></summary>
+          <p>{kalin(`**${kullanilan.istasyon.ad}** (${kullanilan.istasyon.icao}) istasyonunun ölçümleri kullanılıyor: konumuna ${sayi(kullanilan.istasyon.km)} km, rakımı ${kullanilan.istasyon.rakim ?? "?"} m. Tahminler de bu istasyonun koordinatı için alındı.`)}</p>
+        </details>
       )}
 
       <Durum d={d}>

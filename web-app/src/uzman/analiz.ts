@@ -33,6 +33,12 @@ export const ANSAMBL_MODELLERI: Readonly<Record<string, string>> = {
   "ECMWF (51 üye)": "ecmwf_ifs025", "ECMWF AIFS yapay zekâ (51 üye)": "ecmwf_aifs025",
   "GFS (31 üye)": "gfs_seamless", "ICON (40 üye)": "icon_seamless",
 };
+/** "ECMWF AIFS yapay zekâ (51 üye)" → "AIFS · 51": model seçim kutusunun kapalıyken gösterdiği kısa ad. */
+export function kisaModelAdi(ad: string): string {
+  const uye = /\((\d+) üye\)/.exec(ad)?.[1];
+  const govde = ad.replace(/\s*\(.*\)$/, "").replace(/^ECMWF AIFS.*/, "AIFS");
+  return uye ? `${govde} · ${uye}` : govde;
+}
 export const ANSAMBL_DEGISKENLERI: Readonly<Record<string, { degisken: string; birim: string }>> = {
   "Sıcaklık": { degisken: "temperature_2m", birim: "°C" }, "Yağış": { degisken: "precipitation", birim: "mm" },
   "Rüzgâr": { degisken: "wind_speed_10m", birim: "km/s" },
