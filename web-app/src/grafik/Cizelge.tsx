@@ -44,6 +44,8 @@ export interface CubukSerisi {
   renkler?: readonly (string | null)[];
   /** Yan yana çubuklar: bu serinin sırası ve toplam seri sayısı (ör. [0, 2] ve [1, 2]). */
   grup?: readonly [number, number];
+  /** Soluk çubuk (ör. henüz bitmemiş ay); 0–1. */
+  opaklik?: number;
 }
 /** Her sıranın şeridini panel boyunca tek renkle boyar (ısınma şeritleri). */
 export interface SeritSerisi {
@@ -89,7 +91,7 @@ export interface Panel {
   /** Panelin en üstünde, aralıklı çizilen küçük simgeler (ör. hava durumu): `ciz` 24×24 birimlik bir SVG çizimi
    * döndürür. `ustBosluk` simgelere ve altlarındaki etiketlere yer bırakacak kadar olmalıdır. */
   simge?: { enAz: number; ciz: (i: number) => ReactNode };
-  /** Yatay eşik çizgileri (ör. "1 m: küçük tekne için riskli"); adı olanlar lejanta girer. */
+  /** Yatay eşik çizgileri (ör. "1 m riskli"); adı çizginin sol ucunun üstüne yazılır. */
   esik?: readonly { deger: number; renk: string; ad?: string }[];
 }
 
@@ -148,7 +150,7 @@ function Anahtar({ s }: { s: Seri }) {
   if (s.tur === "nokta")
     return <svg width="12" height="12" aria-hidden="true">{s.sekil === "elmas" ? <path d={elmas(6, 6, 5)} fill={s.renk} /> : <circle cx="6" cy="6" r="4" fill={s.renk} />}</svg>;
   if (s.tur === "serit") return null;
-  return <svg width="12" height="10" aria-hidden="true"><rect width="12" height="10" rx="2" fill={s.renk} opacity={s.tur === "bant" ? 0.3 : 1} /></svg>;
+  return <svg width="12" height="10" aria-hidden="true"><rect width="12" height="10" rx="2" fill={s.renk} opacity={s.tur === "bant" ? 0.3 : s.opaklik ?? 1} /></svg>;
 }
 
 export function Cizelge({ n, paneller: hamPaneller, bant = false, xEtiket, dikey, golge, ipucu, etiket, sec: secildi, tablo }: CizelgeOzellik) {
@@ -225,7 +227,7 @@ export function Cizelge({ n, paneller: hamPaneller, bant = false, xEtiket, dikey
           const en = gn > 1 ? Math.min(24, Math.max((serit - 4 - 2 * (gn - 1)) / gn, 1)) : Math.min(24, serit > 5 ? serit - 2 : serit * 0.8);
           const xc = (i: number) => x(i) + (gs - (gn - 1) / 2) * (en + 2);
           if (s.renkler) s.deger.forEach((v, i) => { const d = tekCubuk(v, xc(i), y, taban, en); if (d) ogeler.push(<path key={`s${si}-${i}`} d={d} fill={s.renkler![i] ?? s.renk} />); });
-          else ogeler.push(<path key={`s${si}`} d={s.deger.map((v, i) => tekCubuk(v, xc(i), y, taban, en)).join("")} fill={s.renk} />);
+          else ogeler.push(<path key={`s${si}`} d={s.deger.map((v, i) => tekCubuk(v, xc(i), y, taban, en)).join("")} fill={s.renk} opacity={s.opaklik} />);
           if (s.etiket) {
             const yazi = s.deger.map((v, i) => (v == null ? null : s.etiket!(v, i)));
             const sigan = new Set(etiketSec(yazi.flatMap((t, i) => (t == null ? [] : [{ sira: i, x: xc(i), genislik: t.length * 7.3, oncelik: false }])), 2));
@@ -259,16 +261,22 @@ export function Cizelge({ n, paneller: hamPaneller, bant = false, xEtiket, dikey
           if (icerik) ogeler.push(<g key={`h${i}`} className="hs" transform={`translate(${yuv(xs - 11)} 0) scale(${22 / 24})`}>{icerik}</g>);
         }
       }
-      (p.esik ?? []).forEach((es, k) => ogeler.push(<line key={`k${k}`} x1={sol} x2={sol + ic} y1={yuv(y(es.deger))} y2={yuv(y(es.deger))} stroke={es.renk} strokeWidth={1.5} strokeDasharray="5 4" />));
+      (p.esik ?? []).forEach((es, k) => {
+        ogeler.push(<line key={`k${k}`} x1={sol} x2={sol + ic} y1={yuv(y(es.deger))} y2={yuv(y(es.deger))} stroke={es.renk} strokeWidth={1.5} strokeDasharray="5 4" />);
+        // adı lejant yerine çizginin üstünde: lejant kısalır, hangi çizginin ne olduğu çizgiye bakınca okunur
+        if (es.ad) ogeler.push(<text key={`ke${k}`} className="cz-esik" x={sol + 4} y={yuv(y(es.deger) - 4)} fill={es.renk}>{es.ad}</text>);
+      });
       (p.isaret ?? []).forEach((i) => { if (i >= 0 && i < n) ogeler.push(<line key={`m${i}`} className="cz-isaret" x1={yuv(x(i))} x2={yuv(x(i))} y1={ust} y2={taban} />); });
 
       if (son) {
         const adaylar = [];
-        for (let i = 0; i < n; i++) { const t = xEtiket(i); if (t != null) adaylar.push({ sira: i, x: x(i), genislik: t.length * HARF, oncelik: dikey?.(i) ?? false, yazi: t }); }
+        // yazı çizim alanının sol kenarından (eksen yazılarının sağından) başlar, sağ kenarı aşmaz; üst üste binme
+        // denetimi de bu kaydırılmış konumla yapılır
+        const yerlestir = (xi: number, en: number) => Math.min(Math.max(xi, sol - 2 + en / 2), Math.max(genislik - en / 2, sol - 2 + en / 2));
+        for (let i = 0; i < n; i++) { const t = xEtiket(i); if (t != null) { const en = t.length * HARF; adaylar.push({ sira: i, x: yerlestir(x(i), en), genislik: en, oncelik: dikey?.(i) ?? false, yazi: t }); } }
         const secilen = new Set(etiketSec(adaylar));
         for (const a of adaylar) if (secilen.has(a.sira)) {
-          const xi = Math.min(Math.max(a.x, a.genislik / 2), Math.max(genislik - a.genislik / 2, a.genislik / 2));
-          ogeler.push(<text key={`x${a.sira}`} className="cz-yazi" x={yuv(xi)} y={taban + 15} textAnchor="middle">{a.yazi}</text>);
+          ogeler.push(<text key={`x${a.sira}`} className="cz-yazi" x={yuv(a.x)} y={taban + 15} textAnchor="middle">{a.yazi}</text>);
         }
       }
       return { ogeler, ust, taban, y, yukseklik: taban + (son ? 22 : 4) };
@@ -325,13 +333,12 @@ export function Cizelge({ n, paneller: hamPaneller, bant = false, xEtiket, dikey
           const xi = sira == null ? 0 : duzen.x(sira);
           return (
             <div key={pi} className="cz-panel">
-              {(p.baslik || adli.length > 1 || p.esik?.some((e) => e.ad)) && (
+              {(p.baslik || adli.length > 1) && (
                 <div className="cz-bas">
                   {p.baslik && <b>{p.baslik}</b>}
-                  {(adli.length > 1 || p.esik?.some((e) => e.ad)) && (
+                  {adli.length > 1 && (
                     <ul className="cz-lejant">
                       {adli.map((s) => <li key={s.ad}><Anahtar s={s} />{s.ad}</li>)}
-                      {(p.esik ?? []).filter((e) => e.ad).map((e) => <li key={e.ad}><svg width="18" height="8" aria-hidden="true"><line x1="1" y1="4" x2="17" y2="4" stroke={e.renk} strokeWidth="1.5" strokeDasharray="5 4" /></svg>{e.ad}</li>)}
                     </ul>
                   )}
                 </div>

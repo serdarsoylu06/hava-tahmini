@@ -9,6 +9,13 @@ import { yerelSaat } from "../ortak/zaman";
 import { Bolum, BolumCubugu, Durum, isaretli, kalin, Not, Olcut, Rehber, type SayfaOzellik, SayfaBasligi, sayi, useVeri } from "./ortak";
 
 const AYLAR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+/** Sayıdan sonra gelen "-e kadar" ekinin ünlüsü: 16'sına, 3'üne, 1'ine. Okunuşun son hecesine göre. */
+function ekGore(gun: number): string {
+  const son = gun % 10, onlar = gun % 100;
+  if (gun === 0) return "ına";
+  if (son === 0) return ({ 10: "una", 20: "sine", 30: "una" } as Record<number, string>)[onlar] ?? "ına";
+  return ({ 1: "ine", 2: "sine", 3: "üne", 4: "üne", 5: "ine", 6: "sına", 7: "sine", 8: "ine", 9: "una" } as Record<number, string>)[son]!;
+}
 const AY_TAM = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 const KIRMIZI = "#B5352B", MAVI = "#2A6FB0", GRI = "#6F7F76", TURUNCU = "#B2602A", MUREKKEP = "#1C2829";
 const SOGUK = "#1F5FA8", SICAK = "#B5352B";
@@ -112,7 +119,7 @@ function Icerik({ a, son, bugun }: { a: GunlukIklim; son: GunlukIklim | null; bu
 
       <Bolum baslik={`${h.yili} yağışı, aylara göre`} kisa="Yağış" />
       <section className="ak" aria-label="Bu yılın aylık yağışı ve normali">
-        <AylikYagis ay={h.ay} />
+        <AylikYagis ay={h.ay} bugun={bugun} />
       </section>
 
       <Rehber baslik="Bu sayfa nasıl okunur?" adimlar={[
@@ -178,7 +185,9 @@ function AyniGun({ g, buYil, tarih }: { g: { yil: number; max: number | null; mi
   }, [g, buYil, tarih]);
   return (
     <>
-      <p className="ak-ac">{c.egim != null && kalin(`Kesikli çizgi eğilimdir: bu tarihte en yüksek sıcaklık on yılda **${isaretli(c.egim)} °C** değişmiş. `)}
+      <p className="ak-ac">{c.egim != null && kalin(Math.abs(c.egim) < 0.05
+          ? "Kesikli çizgi eğilimdir: bu tarihte en yüksek sıcaklıkta on yılda **belirgin bir değişim yok**. "
+          : `Kesikli çizgi eğilimdir: bu tarihte en yüksek sıcaklık on yılda **${isaretli(c.egim)} °C** değişmiş. `)}
         Çubuğun rengi o yılın ortalamadan farkını gösterir (mavi serin, kırmızı sıcak){buYil != null && "; turuncu elmas bu yılın değeri"}. Tek bir günün eğilimi gürültülüdür; asıl ısınma sinyali yıllık ortalamada görülür.</p>
       <Cizelge n={c.n} bant paneller={c.paneller} xEtiket={c.xEtiket} ipucu={c.ipucu} tablo={c.tablo} etiket="Aynı takvim gününün yıllara göre en yüksek sıcaklığı" />
     </>
@@ -199,18 +208,23 @@ function Seritler({ y }: { y: { yil: number[]; ort: number[]; sapma: number[] } 
   return <Cizelge n={y.yil.length} bant paneller={c.paneller} xEtiket={c.xEtiket} ipucu={c.ipucu} tablo={c.tablo} etiket="Isınma şeritleri" />;
 }
 
-function AylikYagis({ ay }: { ay: { ay: number[]; normal: (number | null)[]; bu_yil: (number | null)[] } }) {
+function AylikYagis({ ay, bugun }: { ay: { ay: number[]; normal: (number | null)[]; bu_yil: (number | null)[] }; bugun: string }) {
   const c = useMemo(() => {
+    // süren ay yalnızca bugüne kadarki günleri içerir: tam ayla karıştırılmasın diye ayrı, soluk çubuk
+    const buAy = Number(bugun.slice(5, 7)), suren = (i: number) => ay.ay[i] === buAy;
+    const tamAylar = ay.bu_yil.map((v, i) => (suren(i) ? null : v)), surenAy = ay.bu_yil.map((v, i) => (suren(i) ? v : null));
+    const surenAd = `${AY_TAM[buAy - 1]} (${Number(bugun.slice(8, 10))}'${ekGore(Number(bugun.slice(8, 10)))} kadar)`;
     const paneller: Panel[] = [{ baslik: "Aylık yağış (mm)", boy: 210, taban: 0, seriler: [
       { tur: "cubuk", ad: "Normal (1991–2020)", deger: ay.normal, renk: GRI, grup: [0, 2] },
-      { tur: "cubuk", ad: "Bu yıl", deger: ay.bu_yil, renk: MAVI, grup: [1, 2] },
+      { tur: "cubuk", ad: "Bu yıl", deger: tamAylar, renk: MAVI, grup: [1, 2] },
+      ...(surenAy.some((v) => v != null) ? [{ tur: "cubuk" as const, ad: surenAd, deger: surenAy, renk: MAVI, grup: [1, 2] as const, opaklik: 0.45 }] : []),
     ] }];
     return {
       paneller,
       xEtiket: (i: number) => AYLAR[ay.ay[i]! - 1] ?? null,
-      ipucu: (i: number) => <><IpucuBasligi>{AY_TAM[ay.ay[i]! - 1]}</IpucuBasligi><IpucuSatiri renk={MAVI} ad="Bu yıl" deger={`${sayi(ay.bu_yil[i])} mm`} /><IpucuSatiri renk={GRI} ad="Normal" deger={`${sayi(ay.normal[i])} mm`} /></>,
+      ipucu: (i: number) => <><IpucuBasligi>{suren(i) ? surenAd : AY_TAM[ay.ay[i]! - 1]}</IpucuBasligi><IpucuSatiri renk={MAVI} ad="Bu yıl" deger={`${sayi(ay.bu_yil[i])} mm`} /><IpucuSatiri renk={GRI} ad="Normal" deger={`${sayi(ay.normal[i])} mm`} /></>,
       tablo: { basliklar: ["Ay", "Bu yıl mm", "Normal mm"], satir: (i: number) => [AY_TAM[ay.ay[i]! - 1]!, sayi(ay.bu_yil[i]), sayi(ay.normal[i])] },
     };
-  }, [ay]);
+  }, [ay, bugun]);
   return <Cizelge n={ay.ay.length} bant paneller={c.paneller} xEtiket={c.xEtiket} ipucu={c.ipucu} tablo={c.tablo} etiket="Bu yılın aylık yağışı ve normali" />;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { alanYolu, araliklar, bantYolu, duzYol, egimler, eksen, eksenYazisi, enYakinSira, etiketSec, guzelAdim, type Nokta, parcalar, xKonum, yumusakYol } from "./olcek";
+import { alanYolu, araliklar, bantYolu, duzYol, egimler, eksen, eksenAraligi, eksenYazisi, enYakinSira, etiketSec, guzelAdim, type Nokta, parcalar, xKonum, yumusakYol } from "./olcek";
 
 describe("guzelAdim", () => {
   it("1, 2 ya da 5'in onluk katını verir", () => {
@@ -141,5 +141,16 @@ describe("araliklar", () => {
   it("ardışık işaretleri aralığa çevirir", () => {
     expect(araliklar([true, true, false, true, false, false, true, true, true])).toEqual([[0, 1], [3, 3], [6, 8]]);
     expect(araliklar([false, false])).toEqual([]);
+  });
+});
+
+describe("eksenAraligi", () => {
+  it("dar veriyi en az istenen aralığa, ortasına yerleştirerek açar", () => {
+    expect(eksenAraligi([17.0, 17.1, 17.3, null, 17.0], 2)).toEqual({ taban: 16, tavan: 19 });
+  });
+  it("veri zaten genişse ya da aralık verilmemişse eksene karışmaz", () => {
+    expect(eksenAraligi([10, 14], 2)).toEqual({});
+    expect(eksenAraligi([17, 17.2])).toEqual({});
+    expect(eksenAraligi([null, null], 2)).toEqual({});
   });
 });

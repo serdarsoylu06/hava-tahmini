@@ -159,3 +159,13 @@ export function sapmaRengi(v: number, sinir: number, soguk: string, orta: string
   const t = sinir > 0 ? Math.min(Math.abs(v) / sinir, 1) : 0;
   return renkAra(orta, v < 0 ? soguk : sicak, t);
 }
+
+/** Verinin ortasına yerleşen, en az `enAz` genişliğinde taban–tavan; `enAz` yoksa ya da veri zaten genişse eksen kendiliğinden seçilir. */
+export function eksenAraligi(deger: readonly (number | null)[], enAz?: number): { taban?: number; tavan?: number } {
+  const v = deger.filter((x): x is number => x != null && Number.isFinite(x));
+  if (!enAz || !v.length) return {};
+  const alt = Math.min(...v), ust = Math.max(...v);
+  if (ust - alt >= enAz) return {};
+  const orta = (alt + ust) / 2;
+  return { taban: Math.floor(orta - enAz / 2), tavan: Math.ceil(orta + enAz / 2) };
+}

@@ -129,8 +129,13 @@ function Karsilastirma({ t, ad, degisken, birim, tolerans, istasyon, yer }: { t:
         <div>
           <Bolum baslik="Gerçekleşen ve önceden yapılan tahminler" />
           <Serit etiket="Gösterilecek tahminler" className="sy-serit">
-            {GUN_ONCE.map((g) => <button key={g} type="button" className="cip" aria-pressed={secili.includes(g)}
-                                         onClick={() => setSecili((s) => (s.includes(g) ? s.filter((x) => x !== g) : [...s, g].sort((a, b) => a - b)))}>{g} gün önce</button>)}
+            {/* birden çok gün birlikte çizilir: tek seçimli çiplerden ayrışsın diye aç/kapa, onay işaretli */}
+            {GUN_ONCE.map((g) => (
+              <button key={g} type="button" className="cip onay" aria-pressed={secili.includes(g)}
+                      onClick={() => setSecili((s) => (s.includes(g) ? s.filter((x) => x !== g) : [...s, g].sort((a, b) => a - b)))}>
+                {secili.includes(g) && <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.4l2.7 2.7L10 3.3" /></svg>}{g} gün önce
+              </button>
+            ))}
           </Serit>
           <section className="ak" aria-label="Gerçekleşen ve tahmin edilen değerler">
             <TahminGrafigi t={t} degisken={degisken} baslik={`${ad} (${birim})`} birim={birim} secili={secili} istasyon={istasyon} gunluk={gunluk} />
@@ -221,16 +226,13 @@ function ModelSiralamasi({ istemci, istasyon, yer }: { istemci: SayfaOzellik["is
 
   return (
     <>
-      <Serit etiket="Tahmin ufku ve dönem" className="sy-serit">
-        <div className="serit-grup" role="group" aria-label="Tahmin ufku">
-          {UFUKLAR.map(([etiket, g]) => <button key={g} type="button" className="cip" aria-pressed={g === ufukGun} onClick={() => setUfukGun(g)}>{etiket}</button>)}
-        </div>
-        <span className="serit-ayrac" aria-hidden="true" />
-        <div className="serit-grup" role="group" aria-label="Dönem">
-          {[30, 90].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === donem} onClick={() => setDonem(g)}>Son {g} gün</button>)}
-        </div>
-      </Serit>
-      <p className="an-not">Tahmin, geçerlilik zamanından 1, 2 ya da 3 gün önce yayımlanmış koşudan alınır. Ufuklar ayrı ayrı sıralanır; bir modelin kısa vadede iyi olması uzun vadede de iyi olduğu anlamına gelmez.</p>
+      {/* ufuk ve dönem ayrı satırlarda: tek şeritteyken telefonda "Son 90 gün" ekranın dışında kalıyordu */}
+      <div className="an-cipler" role="group" aria-label="Tahmin ufku">
+        {UFUKLAR.map(([etiket, g]) => <button key={g} type="button" className="cip" aria-pressed={g === ufukGun} onClick={() => setUfukGun(g)}>{etiket}</button>)}
+      </div>
+      <div className="anahtar notr tam dg-kaynak" role="group" aria-label="Dönem">
+        {[30, 90].map((g) => <button key={g} type="button" aria-pressed={g === donem} onClick={() => setDonem(g)}>Son {g} gün</button>)}
+      </div>
       <Durum d={arsiv} bekleme="90 günlük ölçüm ve tahmin arşivi indiriliyor…">
         {() => {
           if (!sonuc?.tablo) return <Not tur="dikkat">İstasyonun ölçüm arşivi ya da geçmiş tahminler şu an alınamadı; sıralama gösterilemiyor.</Not>;
@@ -239,7 +241,11 @@ function ModelSiralamasi({ istemci, istasyon, yer }: { istemci: SayfaOzellik["is
           const ortak = ceyrek(tablo.map((s) => s.Bias), 0.5);
           return (
             <>
-              <p className="an-not">{kalin(`Sıcaklık · **${istasyon.ad}** (${istasyon.icao}) istasyonu, konumuna ${sayi(istasyon.km)} km · ${bilgi.gun} gün, bütün modeller için aynı ${bilgi.N} saat. Bu sıralama istasyonun bulunduğu nokta içindir; ${yer} için aynısı geçerli olmayabilir: kıyı, vadi ve rakım farkı modelleri farklı etkiler.`)}</p>
+              <details className="ak-nasil dg-nasil">
+                <summary>Bu sıralama nasıl okunur?</summary>
+                <p className="an-not">Tahmin, geçerlilik zamanından 1, 2 ya da 3 gün önce yayımlanmış koşudan alınır. Ufuklar ayrı ayrı sıralanır; bir modelin kısa vadede iyi olması uzun vadede de iyi olduğu anlamına gelmez.</p>
+                <p className="an-not">{kalin(`Sıcaklık · **${istasyon.ad}** (${istasyon.icao}) istasyonu, konumuna ${sayi(istasyon.km)} km · ${bilgi.gun} gün, bütün modeller için aynı ${bilgi.N} saat. Bu sıralama istasyonun bulunduğu nokta içindir; ${yer} için aynısı geçerli olmayabilir: kıyı, vadi ve rakım farkı modelleri farklı etkiler.`)}</p>
+              </details>
               {bilgi.gun < 20 && <Not tur="dikkat">Yalnızca {bilgi.gun} günlük ölçüm var; bu kadar kısa bir dönemde sıralama güvenilir değildir.</Not>}
               <section className="ak" aria-label="Modellerin ortalama mutlak hatası ve güven aralığı">
                 <SiraTablosu tablo={tablo} />

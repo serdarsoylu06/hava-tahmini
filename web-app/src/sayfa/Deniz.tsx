@@ -3,6 +3,7 @@
  * `hesap/deniz.ts` içinde. Resmî bir seyir uyarısı değildir. */
 import { useMemo, useState } from "react";
 import { Cizelge, IpucuBasligi, IpucuSatiri, type Panel } from "../grafik/Cizelge";
+import { araliklar, eksenAraligi } from "../grafik/olcek";
 import { ay as ayEvresi, balikGostergesi, denizVerisi, enYakinDeniz, guvenlik, pencereler, SEVIYE_AD, SEVIYE_RENK } from "../hesap/deniz";
 import { kerteriz, YON8, yonAdi } from "../ortak/cografya";
 import { ilkEnBuyuk, ortalama } from "../ortak/dizi";
@@ -45,8 +46,8 @@ export function Deniz({ istemci, konum, tahmin }: SayfaOzellik) {
   return (
     <div className="sy">
       <SayfaBasligi baslik="Balıkçılık ve deniz" yer={konum.ad}
-                    sag={<div className="an-cipler" role="group" aria-label="Dönem">
-                      {[3, 5, 7].map((g) => <button key={g} type="button" className="cip" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
+                    sag={<div className="anahtar notr" role="group" aria-label="Dönem">
+                      {[3, 5, 7].map((g) => <button key={g} type="button" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
                     </div>}>
         <strong>Bu sayfa resmî bir seyir uyarısı değildir.</strong> Dalga, rüzgâr ve görüşe göre saat saat denize çıkış durumu; su sıcaklığı, deniz seviyesi ve balık için uygun zamanlar.
       </SayfaBasligi>
@@ -144,29 +145,19 @@ function Icerik({ d, hava, gunluk, denizYonu }: { d: Tablo; hava: Tablo; gunluk:
         </div>
       </div>
 
-      <div className="sy-uc">
-        <section className="yz sy-kart" aria-label="Rüzgâr, şimdi">
-          <h3>Rüzgâr, şimdi</h3>
-          <Pusula yon={h.yon[0] ?? null} hiz={h.ruzgar[0] ?? null} hamle={h.hamle[0] ?? null} />
-        </section>
-        <section className="yz sy-kart" aria-label="Su ve ışık">
-          <h3>Su ve ışık</h3>
-          <dl className="sy-bilgi">
-            <div><dt>Su sıcaklığı</dt><dd>{sayi(su0, 1)} °C</dd></div>
-            <div><dt>Dalga periyodu</dt><dd>{sayi(h.periyot[0])} sn</dd></div>
-            <div><dt>Gün doğumu</dt><dd>{h.dogum?.slice(11, 16) ?? "—"}</dd></div>
-            <div><dt>Gün batımı</dt><dd>{h.batim?.slice(11, 16) ?? "—"}</dd></div>
-            <div><dt>Ay</dt><dd>{h.ay.ad}, %{sayi(h.ay.aydinlanma)}</dd></div>
-            <div><dt>Görüş</dt><dd>{h.gorus[0] == null ? "—" : `${sayi(h.gorus[0] / 1000)} km`}</dd></div>
-          </dl>
-        </section>
-        <section className="yz sy-kart" aria-label="Dönüş saati ve dalga türleri">
-          <h3>Dönüş saatini planla</h3>
-          <p>Dalga bir anda değil, yavaş yavaş büyür. Uygun aralığın bitiminden en az bir saat önce kıyıya dönmeye başla{h.uygun[0] ? <>: ilk aralık için bu, en geç <strong>{gunSaat(saatEkle(h.uygun[0][1], -1))}</strong> demek.</> : "."}</p>
-          <h3>Rüzgâr dalgası ve soluğan</h3>
-          <p>Rüzgâr dalgası o anki rüzgârla oluşur; kısa aralıklı ve diktir. Soluğan uzaktaki bir fırtınadan gelir; rüzgâr dinse de saatlerce sürer. Aşağıdaki dalga grafiğinde ikisi ayrı çizilir.</p>
-        </section>
-      </div>
+      {/* rüzgâr, su sıcaklığı, dalga periyodu ve ay sayfanın başındaki karolarda: burada yalnızca orada olmayanlar */}
+      <details className="yz rehber dn-ayrinti">
+        <summary>Ayrıntılar: dönüş saati, dalga türleri, gün doğumu, görüş</summary>
+        <dl className="sy-bilgi">
+          <div><dt>Gün doğumu</dt><dd>{h.dogum?.slice(11, 16) ?? "—"}</dd></div>
+          <div><dt>Gün batımı</dt><dd>{h.batim?.slice(11, 16) ?? "—"}</dd></div>
+          <div><dt>Görüş</dt><dd>{h.gorus[0] == null ? "—" : `${sayi(h.gorus[0] / 1000)} km`}</dd></div>
+        </dl>
+        <h3>Dönüş saatini planla</h3>
+        <p>Dalga bir anda değil, yavaş yavaş büyür. Uygun aralığın bitiminden en az bir saat önce kıyıya dönmeye başla{h.uygun[0] ? <>: ilk aralık için bu, en geç <strong>{gunSaat(saatEkle(h.uygun[0][1], -1))}</strong> demek.</> : "."}</p>
+        <h3>Rüzgâr dalgası ve soluğan</h3>
+        <p>Rüzgâr dalgası o anki rüzgârla oluşur; kısa aralıklı ve diktir. Soluğan uzaktaki bir fırtınadan gelir; rüzgâr dinse de saatlerce sürer. Aşağıdaki dalga grafiğinde ikisi ayrı çizilir.</p>
+      </details>
 
       <details className="yz rehber">
         <summary>Eşikler nasıl belirlendi? Beaufort ve Douglas ölçekleri</summary>
@@ -185,7 +176,7 @@ function Icerik({ d, hava, gunluk, denizYonu }: { d: Tablo; hava: Tablo; gunluk:
 
       <Bolum baslik="Balık için uygun zamanlar" kisa="Balık" />
       <section className="ak" aria-label="Balıkçı göstergesi">
-        <p className="ak-ac">Gösterge 0–100 arasıdır. Yeşil çubuklar denize çıkılabilecek saatler, gri çubuklar denizin uygun olmadığı saatlerdir; mavi dikey çizgiler gün doğumu ve batımı.</p>
+        <p className="ak-ac">Gösterge 0–100 arasıdır. Yeşil çubuklar denize çıkılabilecek saatler, gri çubuklar denizin uygun olmadığı saatlerdir; gölgeli saatler gece; gölgenin kenarları gün doğumu ve batımıdır.</p>
         <BalikGrafigi h={h} />
       </section>
       {h.iyi.length ? (
@@ -224,7 +215,7 @@ function Icerik({ d, hava, gunluk, denizYonu }: { d: Tablo; hava: Tablo; gunluk:
         <div>
           <Bolum baslik="Su sıcaklığı" />
           <section className="ak" aria-label="Deniz suyu sıcaklığı">
-            <TekSeri zaman={z} deger={h.su} ad="Su sıcaklığı" birim="°C" renk={TURUNCU} hane={1} />
+            <TekSeri zaman={z} deger={h.su} ad="Su sıcaklığı" birim="°C" renk={TURUNCU} hane={1} enAzAralik={2} />
             <p className="ak-ac">Model, denizin en üst katmanının sıcaklığını verir. Balıklar türlerine göre belirli sıcaklık aralıklarını izler; sonbaharda sular soğudukça göç eden türler (ör. Karadeniz'de hamsi, palamut) kıyı boyunca yer değiştirir. Birkaç günde 1–2 °C'lik ani değişimler avı etkileyebilir.</p>
           </section>
         </div>
@@ -274,9 +265,8 @@ function GuvenlikSeridi({ h }: { h: Hesap }) {
 function BalikGrafigi({ h }: { h: Hesap }) {
   const c = useMemo(() => {
     const { z, g, guvenli } = h;
-    // gün doğumu ve batımı: o saatin şeridine dikey işaret
-    const isaret = h.olaylar.map((t) => z.findIndex((x) => x.slice(0, 13) === t.slice(0, 13))).filter((i) => i >= 0);
-    const paneller: Panel[] = [{ baslik: "Gösterge (0–100)", boy: 190, taban: 0, tavan: 100, cizgiler: [0, 25, 50, 75, 100], isaret, seriler: [
+    // gece saatleri gölgeli (24 saat grafiğindeki gibi): gün doğumu ve batımı gölgenin kenarıdır
+    const paneller: Panel[] = [{ baslik: "Gösterge (0–100)", boy: 190, taban: 0, tavan: 100, cizgiler: [0, 25, 50, 75, 100], seriler: [
       { tur: "cubuk", ad: "Denize çıkılabilir", deger: g.toplam.map((t, i) => (guvenli[i] ? t : null)), renk: DENIZ_YESILI },
       { tur: "cubuk", ad: "Deniz uygun değil", deger: g.toplam.map((t, i) => (guvenli[i] ? null : t)), renk: GRI },
     ] }];
@@ -298,17 +288,22 @@ function BalikGrafigi({ h }: { h: Hesap }) {
                satir: (i: number) => [zamanYaz(z[i]!), sayi(g.toplam[i]), sayi(g.alacakaranlik[i]), sayi(g.ay_konumu[i]), sayi(g.ay_evresi[i]), sayi(g.basinc[i]), sayi(g.ruzgar[i]), guvenli[i] ? "çıkılabilir" : "uygun değil"] },
     };
   }, [h]);
-  return <Cizelge n={h.z.length} bant paneller={c.paneller} xEtiket={zamanYazisi(h.z)} dikey={gunBasi(h.z)} ipucu={c.ipucu} tablo={c.tablo} etiket="Balıkçı göstergesi" />;
+  const gece = useMemo(() => araliklar(h.gunduz.map((v) => v === 0)), [h.gunduz]);
+  return <Cizelge n={h.z.length} bant paneller={c.paneller} golge={gece} xEtiket={zamanYazisi(h.z)} dikey={gunBasi(h.z)} ipucu={c.ipucu} tablo={c.tablo} etiket="Balıkçı göstergesi" />;
 }
+
+const DALGA_ESIKLERI = [{ deger: 0.5, renk: "#B8860B", ad: "0,5 m dikkat" }, { deger: 1, renk: "#C8621A", ad: "1 m küçük tekne için riskli" }, { deger: 2, renk: "#B5352B", ad: "2 m tehlikeli" }] as const;
 
 function DalgaGrafigi({ d }: { d: Tablo }) {
   const c = useMemo(() => {
     const z = d.zaman, s = (ad: string) => d.sutun[ad] ?? z.map(() => null);
     const toplam = s("wave_height"), ruzgar = s("wind_wave_height"), solugan = s("swell_wave_height"), periyot = s("wave_period"), yon = s("wave_direction");
-    const paneller: Panel[] = [{ baslik: "Dalga yüksekliği (m)", boy: 240, taban: 0,
-      esik: [{ deger: 0.5, renk: "#B8860B", ad: "0,5 m: dikkat" }, { deger: 1, renk: "#C8621A", ad: "1 m: küçük tekne için riskli" }, { deger: 2, renk: "#B5352B", ad: "2 m: tehlikeli" }],
+    // eksen verinin üstündeki ilk eşikte biter: sakin günde 2 m çizgisi grafiği boşa uzatmasın
+    const enYuksek = Math.max(0, ...toplam.filter((v): v is number => v != null));
+    const esikler = DALGA_ESIKLERI.filter((_e, i) => i === 0 || DALGA_ESIKLERI[i - 1]!.deger < enYuksek);
+    const paneller: Panel[] = [{ baslik: "Dalga yüksekliği (m)", boy: 220, taban: 0, ustBosluk: 16, esik: esikler,
       seriler: [
-        { tur: "cizgi", ad: "Toplam (belirgin)", deger: toplam, renk: MAVI, kalinlik: 3 },
+        { tur: "cizgi", ad: "Toplam", deger: toplam, renk: MAVI, kalinlik: 3 },
         { tur: "cizgi", ad: "Rüzgâr dalgası", deger: ruzgar, renk: MAVI, kalinlik: 1.6, desen: "kesik" },
         { tur: "cizgi", ad: "Soluğan", deger: solugan, renk: MAVI, kalinlik: 1.8, desen: "nokta" },
       ] }];
@@ -332,29 +327,14 @@ function DalgaGrafigi({ d }: { d: Tablo }) {
   return <Cizelge n={d.zaman.length} paneller={c.paneller} xEtiket={zamanYazisi(d.zaman)} dikey={gunBasi(d.zaman)} ipucu={c.ipucu} tablo={c.tablo} etiket="Dalga yüksekliği ve bileşenleri" />;
 }
 
-function TekSeri({ zaman, deger, ad, birim, renk, hane }: { zaman: readonly string[]; deger: readonly Deger[]; ad: string; birim: string; renk: string; hane: number }) {
+/** `enAzAralik`: eksen en az bu kadar aralık gösterir (ör. su sıcaklığında 2 °C); küçük basamaklar büyük değişim gibi çizilmez. */
+function TekSeri({ zaman, deger, ad, birim, renk, hane, enAzAralik }: { zaman: readonly string[]; deger: readonly Deger[]; ad: string; birim: string; renk: string; hane: number; enAzAralik?: number }) {
   const c = useMemo(() => ({
-    paneller: [{ baslik: `${ad} (${birim})`, boy: 170, seriler: [{ tur: "cizgi" as const, deger, renk, kalinlik: 2.4 }] }],
+    paneller: [{ baslik: `${ad} (${birim})`, boy: 170, ...eksenAraligi(deger, enAzAralik), seriler: [{ tur: "cizgi" as const, deger, renk, kalinlik: 2.4 }] }],
     ipucu: (i: number) => <><IpucuBasligi>{zamanYaz(zaman[i]!)}</IpucuBasligi><IpucuSatiri renk={renk} ad={ad} deger={`${sayi(deger[i], hane)} ${birim}`} /></>,
     tablo: { basliklar: ["Zaman", `${ad} ${birim}`], satir: (i: number) => [zamanYaz(zaman[i]!), sayi(deger[i], hane)] },
-  }), [zaman, deger, ad, birim, renk, hane]);
+  }), [zaman, deger, ad, birim, renk, hane, enAzAralik]);
   return <Cizelge n={zaman.length} paneller={c.paneller} xEtiket={zamanYazisi(zaman)} dikey={gunBasi(zaman)} ipucu={c.ipucu} tablo={c.tablo} etiket={ad} />;
 }
 
-/** Rüzgâr pusulası: ok rüzgârın estiği yönü (gittiği tarafı) gösterir. */
-function Pusula({ yon, hiz, hamle }: { yon: number | null; hiz: number | null; hamle: number | null }) {
-  return (
-    <div className="pusula">
-      <svg viewBox="0 0 120 120" role="img" aria-label={yon == null ? "Rüzgâr yönü bilinmiyor" : `Rüzgâr ${yonAdi(yon)} yönünden esiyor`}>
-        <circle cx="60" cy="60" r="46" fill="none" stroke="currentColor" strokeOpacity=".25" strokeWidth="1.5" />
-        {[["K", 60, 11], ["D", 111, 64], ["G", 60, 117], ["B", 9, 64]].map(([h, x, y]) => <text key={h} x={x} y={y} textAnchor="middle" fontSize="11" fill="currentColor" opacity=".7">{h}</text>)}
-        {yon != null && <g transform={`rotate(${yon + 180} 60 60)`}><path d="M60 24 L69 52 L60 46 L51 52 Z" fill="var(--vurgu)" /><path d="M60 46 V92" stroke="var(--vurgu)" strokeWidth="3" strokeLinecap="round" /></g>}
-      </svg>
-      <div>
-        <p className="pusula-deger">{sayi(hiz)} <small>km/s</small></p>
-        <p>{yon == null ? "—" : `${yonAdi(yon)} yönünden`}</p>
-        <p>hamle {sayi(hamle)} km/s</p>
-      </div>
-    </div>
-  );
-}
+

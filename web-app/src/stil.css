@@ -272,6 +272,7 @@ a { color: var(--vurgu); }
 .sy-not { margin: 12px 0; }
 /* Doğrulama: kaynak anahtarı ve altında tek satırlık istasyon özeti (dokununca tam açıklama açılır) */
 .dg-kaynak { margin: 10px 0 6px; }
+.dg-nasil { margin: 4px 0 10px; } .dg-nasil .an-not { margin: 6px 0; }
 .dg-istasyon { margin: 0 0 12px; font-size: 12.5px; color: var(--ikinci); }
 .dg-istasyon summary { display: flex; align-items: center; gap: 6px; min-height: 28px; cursor: pointer; list-style: none; }
 .dg-istasyon summary::-webkit-details-marker { display: none; }
@@ -443,6 +444,7 @@ a { color: var(--vurgu); }
 .cz-taban { stroke: var(--cz-taban); }
 .cz-yazi { fill: var(--kart-ikinci); font: 11.5px var(--mono); }
 .cz-deger { fill: var(--kart-metin); font: 700 12px var(--mono); stroke: var(--kart); stroke-width: 3.5px; stroke-linejoin: round; paint-order: stroke; }
+.cz-esik { font: 600 10.5px "Inter", sans-serif; stroke: var(--kart); stroke-width: 3px; stroke-linejoin: round; paint-order: stroke; }
 .cz-golge { fill: var(--cz-golge); }
 .cz-imlec { stroke: var(--kart-metin); stroke-width: 1; }
 .cz-isaret { stroke: var(--mavi); stroke-width: 1.5; }
