@@ -52,7 +52,7 @@ export function Ogren({ git }: { git: (hedef: Hedef) => void }) {
             <span className="og-no" aria-hidden="true">{i + 1}</span>
             <h3>{a.baslik}</h3>
             <p>{a.metin}</p>
-            <button type="button" className="baglanti" onClick={() => git(a.hedef)}>{a.nerede.replaceAll(" → ", " · ")} →</button>
+            <button type="button" className="baglanti" onClick={() => git(a.hedef)}>{a.nerede.split(" → ").pop()} →</button>
           </li>
         ))}
       </ol>
