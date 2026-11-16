@@ -46,7 +46,7 @@ export function Deniz({ istemci, konum, tahmin }: SayfaOzellik) {
   return (
     <div className="sy">
       <SayfaBasligi baslik="Balıkçılık ve deniz" yer={konum.ad}
-                    sag={<div className="anahtar notr" role="group" aria-label="Dönem">
+                    sag={<div className="anahtar" role="group" aria-label="Dönem">
                       {[3, 5, 7].map((g) => <button key={g} type="button" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
                     </div>}>
         <strong>Bu sayfa resmî bir seyir uyarısı değildir.</strong> Dalga, rüzgâr ve görüşe göre saat saat denize çıkış durumu; su sıcaklığı, deniz seviyesi ve balık için uygun zamanlar.

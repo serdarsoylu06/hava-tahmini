@@ -41,7 +41,7 @@ export function Profil({ istemci, konum, tahmin }: SayfaOzellik) {
   return (
     <div className="sy">
       <SayfaBasligi baslik="Atmosfer profili" yer={konum.ad}
-                    sag={<div className="anahtar notr" role="group" aria-label="Dönem">
+                    sag={<div className="anahtar" role="group" aria-label="Dönem">
                       {[2, 5, 7].map((g) => <button key={g} type="button" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
                     </div>}>
         Bulunduğun noktanın üzerindeki atmosferin yerden ~12 km'ye kadar dikey kesiti. Gök gürültülü sağanak, kar–yağmur sınırı ve bulut tabanı bu grafikten okunur.

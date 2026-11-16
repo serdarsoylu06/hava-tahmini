@@ -279,7 +279,7 @@ export function Analiz({ istemci, konum, tahmin, model }: { istemci: Istemci; ko
     <div className="an">
       <div className="an-bas">
         <h2 className="an-yer">{konum.ad}</h2>
-        <div className="anahtar notr" role="group" aria-label="Dönem">
+        <div className="anahtar" role="group" aria-label="Dönem">
           {[2, 5, 10].map((g) => <button key={g} type="button" aria-pressed={g === gun} onClick={() => setGun(g)}>{g} gün</button>)}
         </div>
       </div>

@@ -52,7 +52,7 @@ export function Ogren({ git }: { git: (hedef: Hedef) => void }) {
             <span className="og-no" aria-hidden="true">{i + 1}</span>
             <h3>{a.baslik}</h3>
             <p>{a.metin}</p>
-            <button type="button" className="cip" onClick={() => git(a.hedef)}>{a.nerede} →</button>
+            <button type="button" className="baglanti" onClick={() => git(a.hedef)}>{a.nerede.replaceAll(" → ", " · ")} →</button>
           </li>
         ))}
       </ol>
@@ -72,7 +72,7 @@ export function Ogren({ git }: { git: (hedef: Hedef) => void }) {
             <li><strong>10+ gün:</strong> Tek tek günler için tahmin, mevsim normallerinden pek iyi değildir.</li>
           </ul>
           <p>Atmosfer <strong>kaotik</strong> bir sistemdir: başlangıçtaki küçük ölçüm hataları her gün katlanarak büyür. Bu yüzden modeller ne kadar iyileşirse iyileşsin hava tahmininin pratik sınırı yaklaşık iki haftadır.</p>
-          <button type="button" className="cip" onClick={() => git("dogrulama")}>Bu hafta ne kadar tuttu? →</button>
+          <button type="button" className="baglanti" onClick={() => git("dogrulama")}>Bu hafta ne kadar tuttu? →</button>
         </section>
       </div>
 

@@ -157,9 +157,9 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
     <div className="uz">
       <aside className="yz uz-sol" aria-label="Harita ayarları">
         <h2>Model</h2>
-        <div className="uz-secim" role="group" aria-label="Tahmin modeli">
+        <div className="anahtar tam uz-secim" role="group" aria-label="Tahmin modeli">
           {(Object.keys(MODELLER) as ModelKodu[]).map((k) => (
-            <button key={k} type="button" className="cip" aria-pressed={model === k} onClick={() => modelSec(k)}>{MODELLER[k].ad}</button>
+            <button key={k} type="button" aria-pressed={model === k} onClick={() => modelSec(k)}>{MODELLER[k].ad}</button>
           ))}
         </div>
         <p className="uz-not">{kaynakBilgisi ? <>Bu katmanın kaynağı: <b>{kaynakBilgisi.ad}</b> · ızgara {kaynakBilgisi.cozunurluk}</>

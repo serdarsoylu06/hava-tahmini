@@ -66,7 +66,7 @@ export function Dogrulama({ istemci, konum, tahmin }: SayfaOzellik) {
         {Object.keys(DEGISKENLER).map((k) => <button key={k} type="button" className="cip" aria-pressed={k === ad} onClick={() => setAd(k)}>{k}</button>)}
       </Serit>
       {/* kaynak seçimi ayrı satırda: değişken çipleriyle aynı şeritteyken telefonda ekranın dışında kalıyordu */}
-      <div className="anahtar notr tam dg-kaynak" role="group" aria-label="Neyle karşılaştırılsın?">
+      <div className="anahtar tam dg-kaynak" role="group" aria-label="Neyle karşılaştırılsın?">
         <button type="button" aria-pressed={kaynak === "istasyon"} onClick={() => setKaynak("istasyon")}>İstasyon ölçümü</button>
         <button type="button" aria-pressed={kaynak === "analiz"} onClick={() => setKaynak("analiz")}>Model analizi</button>
       </div>
@@ -230,7 +230,7 @@ function ModelSiralamasi({ istemci, istasyon, yer }: { istemci: SayfaOzellik["is
       <div className="an-cipler" role="group" aria-label="Tahmin ufku">
         {UFUKLAR.map(([etiket, g]) => <button key={g} type="button" className="cip" aria-pressed={g === ufukGun} onClick={() => setUfukGun(g)}>{etiket}</button>)}
       </div>
-      <div className="anahtar notr tam dg-kaynak" role="group" aria-label="Dönem">
+      <div className="anahtar tam dg-kaynak" role="group" aria-label="Dönem">
         {[30, 90].map((g) => <button key={g} type="button" aria-pressed={g === donem} onClick={() => setDonem(g)}>Son {g} gün</button>)}
       </div>
       <Durum d={arsiv} bekleme="90 günlük ölçüm ve tahmin arşivi indiriliyor…">
