@@ -10,7 +10,7 @@ import { type AlanMeta, alanMeta, alanSec, ayniZaman, DENIZ_ALANLARI, DENIZ_KAYN
 import { TUM_KATMANLAR as KATMANLAR } from "./katmanMetinleri";
 import { gosterim, Lejant, olcekBirimi } from "./Lejant";
 
-const MODEL_ANAHTARI = "havalab_model", KATMAN_ANAHTARI = "havalab_katman", INCE_ANAHTARI = "havalab_ince";
+const MODEL_ANAHTARI = "havalab_model", KATMAN_ANAHTARI = "havalab_katman", INCE_ANAHTARI = "havalab_ince", ORTME_ANAHTARI = "havalab_ortme";
 const ILK_DENIZ = KATMANLAR.find((k) => k.deniz)?.kod;
 const oku = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
 const sakla = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* depo kapalı: seçim bu oturumda kalır */ } };
@@ -51,6 +51,8 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
   const [katmanKodu, setKatmanKodu] = useState(() => { const k = oku(KATMAN_ANAHTARI); return KATMANLAR.some((x) => x.kod === k) ? k! : KATMANLAR[0]!.kod; });
   /** İnce ızgara (varsa) açık mı? Kapalı başlar: ince ızgara belirgin biçimde yavaş yüklenir. */
   const [ince, setInce] = useState(() => oku(INCE_ANAHTARI) === "1");
+  const [ortme, setOrtme] = useState(() => { const v = Number(oku(ORTME_ANAHTARI)); return v >= 0.2 && v <= 1 ? v : 0.78; });
+  const [ortmeAcik, setOrtmeAcik] = useState(false);
   const [alanlar, setAlanlar] = useState<AlanDurumu>({ tur: "yukleniyor" });
   /** Seçili geçerlilik zamanı (UTC). null: "şu an"a en yakın adım. Model değişince aynı an korunur. */
   const [seciliZaman, setSeciliZaman] = useState<string | null>(null);
@@ -200,6 +202,22 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
             {tamEkran ? <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" /> : <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
           </svg>
         </button>
+        <div className={ortmeAcik ? "uz-ortme acik" : "uz-ortme"}>
+          <button type="button" className="uz-ortme-dugme" onClick={() => setOrtmeAcik((a) => !a)} aria-expanded={ortmeAcik}
+                  title="Renk katmanının yoğunluğu" aria-label="Renk katmanının yoğunluğu">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 2.7 5.6 9.1a9 9 0 1 0 12.8 0z" /><path d="M12 2.7v18.6" /><path d="M12 12h6.5M12 16h5M12 8h3.5" />
+            </svg>
+          </button>
+          {ortmeAcik && (
+            <label className="uz-ortme-panel">
+              <span>Renk yoğunluğu <b>%{Math.round(ortme * 100)}</b></span>
+              <input type="range" min={0.2} max={1} step={0.05} value={ortme}
+                     onChange={(e) => { const v = Number(e.target.value); setOrtme(v); sakla(ORTME_ANAHTARI, String(v)); }} />
+              <small>Azaltınca kıyılar, sınırlar ve yer adları daha iyi görünür.</small>
+            </label>
+          )}
+        </div>
         <div className="uz-ust-secim">
           <label><span className="gizli">Model</span>
             {/* ayrıntılı ızgara ayrı düğme değil, modelin ikinci seçeneği: katman adına yer kalır */}
@@ -228,7 +246,7 @@ export function Uzman({ istemci, konum, tahmin, noktaSec, analiz }: UzmanOzellik
           </label>
         </div>
 
-        <Harita koyu={koyu} konum={konum} kaynak={kaynak} yukleniyor={setYukleniyor} hata={setHaritaHatasi}
+        <Harita koyu={koyu} ortme={ortme} konum={konum} kaynak={kaynak} yukleniyor={setYukleniyor} hata={setHaritaHatasi}
                 nokta={(lat, lon, deger) => { setDokunulan({ lat, lon, deger }); noktaSec(lat, lon); }} />
 
         <div className="uz-bilgi" role="status">

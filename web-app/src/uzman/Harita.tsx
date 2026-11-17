@@ -31,6 +31,8 @@ export interface HaritaKaynaklari {
 
 export interface HaritaOzellik {
   koyu: boolean;
+  /** Renkli alanın örtücülüğü (0–1): düşükse alttaki harita, kıyılar ve yer adları daha iyi görünür. */
+  ortme: number;
   /** Seçili konum: harita ilk açılışta buraya ortalanır, işaret burada durur. */
   konum: { lat: number; lon: number };
   kaynak: HaritaKaynaklari;
@@ -40,15 +42,44 @@ export interface HaritaOzellik {
   hata: (mesaj: string) => void;
 }
 
-const KATMAN = { alan: "hava-alan", cizgi: "hava-cizgi", etiket: "hava-cizgi-etiket", ok: "hava-ok" } as const;
+const KATMAN = { alan: "hava-alan", cizgi: "hava-cizgi", etiket: "hava-cizgi-etiket", ok: "hava-ok", kiyi: "hava-kiyi" } as const;
 
-export function Harita({ koyu, konum, kaynak, nokta, yukleniyor, hata }: HaritaOzellik) {
+/** Altlığın sınır ve yer adları koyu zemin için çok soluktur; renkli alanın üstünde okunmaz. Kıyı çizgisi de
+ * yalnızca su dolgusunun kenarı olduğu için renkli alanın altında kalır. Bu yüzden: kıyılar alanın üstüne ince bir
+ * çizgi olarak yeniden çizilir, ülke sınırları açılır, ülke/şehir/deniz adlarına belirgin bir hale verilir. */
+function altligiBelirginlestir(h: maplibregl.Map, karanlik: boolean, yaziOncesi: string | undefined): void {
+  const katmanlar = h.getStyle().layers;
+  const su = katmanlar.find((l): l is maplibregl.FillLayerSpecification => l.type === "fill" && l["source-layer"] === "water");
+  const cizgi = karanlik ? "#E8EFE6" : "#1C2829";
+  // ilk sınır çizgisinden (yoksa ilk yazıdan) önce: renkli alanın üstünde, adların altında. Hava katmanları sonradan
+  // eklenince araya girebildiği için her seferinde yeniden yerine taşınır.
+  const once = katmanlar.find((l) => l.id.startsWith("boundary_country"))?.id ?? yaziOncesi;
+  if (h.getLayer(KATMAN.kiyi)) h.moveLayer(KATMAN.kiyi, once);
+  else if (su) {
+    h.addLayer({ id: KATMAN.kiyi, type: "line", source: su.source, "source-layer": "water",
+                 paint: { "line-color": cizgi, "line-opacity": 0.55, "line-width": ["interpolate", ["linear"], ["zoom"], 2, 0.5, 6, 1] } }, once);
+  }
+  for (const l of katmanlar) {
+    if (l.type === "line" && l.id.startsWith("boundary_country_inner")) {
+      h.setPaintProperty(l.id, "line-color", karanlik ? "#C9D3CC" : "#3B4A4B");
+      h.setPaintProperty(l.id, "line-opacity", 0.75);
+    } else if (l.type === "line" && l.id === "boundary_country_outline") {
+      h.setPaintProperty(l.id, "line-opacity", 0.25);
+    } else if (l.type === "symbol" && /^(place_(country|state|city|capital|town)|watername_(ocean|sea))/.test(l.id)) {
+      if (karanlik) h.setPaintProperty(l.id, "text-color", l.id.startsWith("watername") ? "#B9CFE0" : "#E8EFE6");
+      h.setPaintProperty(l.id, "text-halo-color", karanlik ? "rgba(16, 24, 25, 0.9)" : "rgba(255, 255, 255, 0.92)");
+      h.setPaintProperty(l.id, "text-halo-width", 1.6);
+    }
+  }
+}
+
+export function Harita({ koyu, ortme, konum, kaynak, nokta, yukleniyor, hata }: HaritaOzellik) {
   const kutu = useRef<HTMLDivElement>(null);
   const harita = useRef<maplibregl.Map | null>(null);
   const isaret = useRef<maplibregl.Marker | null>(null);
   // olay dinleyicileri hep en güncel değerleri görsün diye
-  const guncel = useRef({ kaynak, koyu, nokta, yukleniyor, hata });
-  guncel.current = { kaynak, koyu, nokta, yukleniyor, hata };
+  const guncel = useRef({ kaynak, koyu, ortme, nokta, yukleniyor, hata });
+  guncel.current = { kaynak, koyu, ortme, nokta, yukleniyor, hata };
 
   const stilHazir = useRef(false);
   /** Hava katmanlarını şu anki kaynaklara göre kurar ya da günceller. Stil her yüklendiğinde yeniden çağrılır. */
@@ -56,7 +87,7 @@ export function Harita({ koyu, konum, kaynak, nokta, yukleniyor, hata }: HaritaO
     const h = harita.current;
     // `isStyleLoaded()` karolar yüklenirken de "hayır" der; katman eklemek için stilin kendisinin gelmiş olması yeter
     if (!h || !stilHazir.current) return;
-    const { kaynak: k, koyu: karanlik } = guncel.current;
+    const { kaynak: k, koyu: karanlik, ortme: o } = guncel.current;
     const stil = h.getStyle().layers;
     // Hava katmanları altlığın dolgu katmanlarının (kara, su) ÜSTÜNE, çizgi ve yazılarının (kıyı, sınır, yer adı)
     // ALTINA girer: deniz üstündeki değerler de görünür, sınırlar ve adlar okunur kalır.
@@ -81,7 +112,7 @@ export function Harita({ koyu, konum, kaynak, nokta, yukleniyor, hata }: HaritaO
     };
 
     kur("hava-alan-kaynak", "raster", k.alan, () =>
-      h.addLayer({ id: KATMAN.alan, type: "raster", source: "hava-alan-kaynak", paint: { "raster-opacity": 0.78, "raster-fade-duration": 150 } }, oncesi), [KATMAN.alan]);
+      h.addLayer({ id: KATMAN.alan, type: "raster", source: "hava-alan-kaynak", paint: { "raster-opacity": o, "raster-fade-duration": 150 } }, oncesi), [KATMAN.alan]);
     kur("hava-cizgi-kaynak", "vector", k.cizgi, () => {
       h.addLayer({ id: KATMAN.cizgi, type: "line", source: "hava-cizgi-kaynak", "source-layer": "contours",
                    paint: { "line-color": murekkep, "line-width": 1.1, "line-opacity": 0.8 } }, oncesi);
@@ -96,6 +127,7 @@ export function Harita({ koyu, konum, kaynak, nokta, yukleniyor, hata }: HaritaO
                    paint: { "line-color": murekkep, "line-width": 1.3, "line-opacity": 0.85 } }, oncesi), [KATMAN.ok]);
     if (h.getLayer(KATMAN.cizgi)) h.setPaintProperty(KATMAN.cizgi, "line-color", murekkep);
     if (h.getLayer(KATMAN.ok)) h.setPaintProperty(KATMAN.ok, "line-color", murekkep);
+    altligiBelirginlestir(h, karanlik, yaziKatmani?.id);
   });
 
   // harita bir kez kurulur
@@ -144,6 +176,7 @@ export function Harita({ koyu, konum, kaynak, nokta, yukleniyor, hata }: HaritaO
   }, [koyu]);
 
   useEffect(() => { katmanlar.current(); }, [kaynak.alan, kaynak.cizgi, kaynak.ok]);
+  useEffect(() => { const h = harita.current; if (h?.getLayer(KATMAN.alan)) h.setPaintProperty(KATMAN.alan, "raster-opacity", ortme); }, [ortme]);
 
   // seçili konumun işareti; konum görünen alanın dışındaysa harita oraya kayar
   useEffect(() => {

@@ -623,6 +623,15 @@ a { color: var(--vurgu); }
 .uz-zaman .uz-oynat { background: var(--vurgu); border-color: var(--vurgu); color: var(--vurgu-metin); border-radius: 50%; }
 .uz-tam-dugme { position: absolute; top: 92px; right: 10px; z-index: 3; width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--cizgi); border-radius: var(--r-orta); cursor: pointer;
                 background: var(--yuzey); color: var(--metin); box-shadow: var(--golge); }
+/* renk katmanının yoğunluğu: tam ekran düğmesinin altında; açılınca solunda küçük bir kaydırıcı */
+.uz-ortme { position: absolute; top: 136px; right: 10px; z-index: 3; display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 8px; }
+.uz-ortme-dugme { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--cizgi); border-radius: var(--r-orta); cursor: pointer;
+                  background: var(--yuzey); color: var(--metin); box-shadow: var(--golge); }
+.uz-ortme.acik .uz-ortme-dugme { border-color: var(--vurgu); color: var(--vurgu); }
+.uz-ortme-panel { width: 220px; background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: var(--r-orta); box-shadow: var(--golge); padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+.uz-ortme-panel b { font-family: var(--mono); color: var(--vurgu); }
+.uz-ortme-panel input { width: 100%; accent-color: var(--vurgu); margin: 2px 0; }
+.uz-ortme-panel small { color: var(--ikinci); font-size: 11.5px; line-height: 1.35; }
 /* harita kitaplığının düğmeleri (yakınlaştır/uzaklaştır) uygulamanın düğmeleri gibi: yüzey rengi, 36 px, 12 px köşe.
    Seçiciler iki sınıflı: kitaplığın stili bu dosyadan sonra yüklenir. */
 .maplibregl-map .maplibregl-ctrl-group { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: var(--r-orta); box-shadow: var(--golge); overflow: hidden; }
@@ -689,6 +698,7 @@ a { color: var(--vurgu); }
   .uz-ust-secim label:last-child { flex: 1 1 0; }
   .uz-ust-secim select { font-size: 13px; padding: 0 4px 0 6px; }
   .uz-tam-dugme { top: 58px; }
+  .uz-ortme { top: 102px; }
   .uz-bilgi { right: 50px; }
 }
 @media (prefers-reduced-motion: reduce) { .uz-sag { transition: none; } }
